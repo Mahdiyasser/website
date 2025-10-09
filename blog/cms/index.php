@@ -1,5 +1,5 @@
 <?php
-// Fucked Up CMS - Absolute /blog/ Path Edition
+// Post Maker - Absolute /blog/ Path Edition
 // by Mahdi & ChatGPT
 
 ini_set('display_errors', 1);

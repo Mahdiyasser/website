@@ -6,12 +6,5 @@
         "file": "assets\/posts\/post1.html",
         "desc": "1st Post in the blog"
     },
-    {
-        "title": "Testing remote posting",
-        "date": "2025-10-09 16:03",
-        "thumbnail": "\/blog\/assets\/images\/testing-remote-posting\/thumbnail.jpg",
-        "file": "\/blog\/assets\/posts\/testing-remote-posting.html",
-        "desc": "This a test",
-        "location": "Hosh issa,Behira,Egypt"
-    }
+    
 ]

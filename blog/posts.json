@@ -13,13 +13,5 @@
         "file": "\/blog\/assets\/posts\/cms.html",
         "desc": "what is a CMS",
         "location": "Hosh issa,Behira,Egypt"
-    },
-    {
-        "title": "Test from mobile online",
-        "date": "2025-10-10 02:19",
-        "thumbnail": "\/blog\/assets\/images\/test-from-mobile-online\/thumbnail.jpg",
-        "file": "\/blog\/assets\/posts\/test-from-mobile-online.html",
-        "desc": "This post is made automatically online with my phone",
-        "location": "Hosh issa,Behira,Egypt"
     }
 ]

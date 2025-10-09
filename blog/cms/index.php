@@ -289,7 +289,7 @@ if(count($errors)>0){
 <button type="submit">Create Post</button>
 </form>
 <hr>
-<small>Paths now use absolute /blog/ URLs. No more relative chaos 🧠</small>
+<small>Enjoy Making Great Things</small>
 </div>
 </body>
 </html>

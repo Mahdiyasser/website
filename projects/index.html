@@ -1,73 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Projects | Coming Soon</title>
-  <link rel="icon" href="/favicon.png" />
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
-
-    body {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #0a0a0a;
-      color: #f5f5f5;
-      text-align: center;
-      padding: 20px;
-    }
-
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(90deg, #00bcd4, #4caf50);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    p {
-      font-size: 1.1rem;
-      color: #bbb;
-      margin-bottom: 2rem;
-      max-width: 500px;
-    }
-
-    .loader {
-      width: 50px;
-      height: 50px;
-      border: 5px solid rgba(255, 255, 255, 0.1);
-      border-top-color: #00bcd4;
-      border-radius: 50%;
-      animation: spin 1.5s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    footer {
-      position: absolute;
-      bottom: 15px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Projects</title>
+    <meta name="description" content="This is my projects" />
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-  <h1>🚧 Projects Coming Soon</h1>
-  <p>Something cool is under construction.<br>Check back soon to see what’s cookin’ 👀</p>
-  <div class="loader"></div>
-  <footer>© 2025 Mahdi Yasser | Built with passion & caffeine</footer>
-</body>
-</html>
 
+<body>
+    <div class="wrap">
+        <header>
+            <div class="brand">
+                <div class="logo"><img src="../img/prjcts.png" alt="projects.png" width="50" height="50"></div>
+                <div>
+                    <h1>Projects</h1>
+                    <p class="lead">This is my projects</p>
+                </div>
+            </div>
+
+            <div class="controls">
+                <input id="search" class="search" placeholder="Search projects or posts..." />
+                <button id="showAll" class="btn ghost">Show All</button>
+                <button id="openCms" class="btn">Open CMS</button>
+            </div>
+        </header>
+
+        <!-- Projects list -->
+        <section id="projectsArea" aria-label="projects list">
+            <div id="projectsGrid" class="grid"></div>
+            <div id="projectsEmpty" class="empty" style="display:none">No projects found.</div>
+        </section>
+
+        <!-- Posts area (hidden until a project opened) -->
+        <section id="postsArea" class="posts-area" aria-label="posts list">
+            <div class="posts-header">
+                <div>
+                    <button id="backBtn" class="back">← Back</button>
+                    <h2 id="postsTitle" style="display:inline;margin-left:12px">Project</h2>
+                </div>
+                <div class="posts-controls">
+                    <select id="sort" class="search">
+                        <option value="new">Newest</option>
+                        <option value="old">Oldest</option>
+                        <option value="alpha">A → Z</option>
+                    </select>
+                    <button id="backToTop" class="btn ghost">Top</button>
+                </div>
+            </div>
+
+            <div id="postsGrid" class="grid"></div>
+            <div id="postsEmpty" class="empty" style="display:none">No posts for this project yet.</div>
+        </section>
+    </div>
+
+    <!-- Fallback JSON blocks (used only if direct fetch fails, e.g., file://) -->
+    <script id="projects-fallback" type="application/json">
+  [
+    {"title":"Space","bio":"Exploring the universe.","thumbnail":"assets/Space/images/Space.jpg","date":"2025-10-10"},
+    {"title":"Tech","bio":"Innovations and machines.","thumbnail":"assets/Tech/images/Tech.jpg","date":"2025-10-09"}
+  ]
+  </script>
+
+    <script id="posts-fallback" type="application/json">
+  [
+    {"title":"Launch Day","bio":"Our first rocket launch.","thumbnail":"assets/Space/images/Launch-Day-thumbnail.jpg","project":"Space","date":"2025-10-11"},
+    {"title":"AI Takeover","bio":"The rise of intelligent machines.","thumbnail":"assets/Tech/images/AI-Takeover-thumbnail.jpg","project":"Tech","date":"2025-10-10"}
+  ]
+  </script>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

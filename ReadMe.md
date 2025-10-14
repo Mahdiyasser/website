@@ -211,9 +211,11 @@ Don’t want it? Just delete `/dashboard` after cloning.
 🖥️ CMS can be accessed locally or through **any real web hosting service** — it runs on **any web server**, not just Apache or Nginx.
 
 - Blog CMS
-- ![Blog CMS Screenshot](https://mahdiyasser.site/img/cms1.png)
+- ![Blog CMS Screenshot 1](https://mahdiyasser.site/img/cms1.png)
+- ![Blog CMS Screenshot 2](https://mahdiyasser.site/img/cms2.png)
 - Projects CMS
-- ![Projects CMS Screenshot](https://mahdiyasser.site/img/cms2.png) 
+- ![Projects CMS Screenshot 1](https://mahdiyasser.site/img/cms3.png) 
+- ![Projects CMS Screenshot 2](https://mahdiyasser.site/img/cms4.png) 
 
 ---
 

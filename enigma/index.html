@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMIGMA</title>
+    <style>
+        /* CSS is here for a single-file solution */
+        body {
+            font-family: 'Consolas', monospace;
+            background-color: #1a1a1a;
+            color: #00ff41; /* Neon green text */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            border: 2px solid #00ff41;
+            box-shadow: 0 0 15px #00ff41;
+            padding: 30px;
+            background-color: #000000;
+        }
+
+        h1 {
+            text-align: center;
+            text-shadow: 0 0 5px #00ff41;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #0d0d0d;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            resize: none;
+            outline: none;
+            box-shadow: inset 0 0 5px #00ff41;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        button {
+            flex-grow: 1;
+            padding: 12px 20px;
+            background-color: #00ff41;
+            color: #000000;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #00e639;
+            box-shadow: 0 0 10px #00ff41;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EMIGMA Encryptor 🔒</h1>
+
+        <label for="plain-text" style="color: #00ff41;">Input/Plain Text:</label>
+        <textarea id="plain-text" placeholder="Type your secret message here..."></textarea>
+
+        <div class="controls">
+            <button onclick="encryptText()">Encrypt</button>
+            <button onclick="decryptText()">Decrypt</button>
+        </div>
+        
+        <label for="cipher-text" style="color: #00ff41; margin-top: 20px; display: block;">Output/Cipher Text:</label>
+        <textarea id="cipher-text" placeholder="Encrypted output will appear here..." readonly></textarea>
+        
+        <p style="text-align: center; font-size: 0.8em; margin-top: 20px;">Paste the Cipher Text back into the Input box and click Decrypt.</p>
+    </div>
+
+    <script>
+// --- Custom Cipher Map ---
+// This map defines the Substitution Cipher.
+// Every key is replaced by its value during ENCRYPTION.
+// The key is the shift amount for the Caesar Cipher.
+const SHIFT_KEY = 13; // A base shift value (ROT13 is classic)
+
+const CUSTOM_SUBSTITUTION_MAP = {
+    'a': '@', 'e': '3', 'i': '1', 'o': '0', 'u': '!',
+    'A': '#', 'E': '$', 'I': '%', 'O': '^', 'U': '&',
+    ' ': '_', '.': '*', ',': '?', '\n': '|', // Handle common punctuation and newlines
+    's': '5', 't': '7', 'l': '£', 'z': '2'
+};
+
+// Create a reverse map for fast decryption lookup
+const REVERSE_SUBSTITUTION_MAP = {};
+for (const [key, value] of Object.entries(CUSTOM_SUBSTITUTION_MAP)) {
+    REVERSE_SUBSTITUTION_MAP[value] = key;
+}
+
+// --- CORE CIPHER FUNCTIONS ---
+
+// 1. Caesar Shift (Rotates characters)
+function applyCaesarShift(text, shift) {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        let char = text.charCodeAt(i);
+
+        // Handle uppercase letters (A=65, Z=90)
+        if (char >= 65 && char <= 90) {
+            result += String.fromCharCode(((char - 65 + shift) % 26) + 65);
+        } 
+        // Handle lowercase letters (a=97, z=122)
+        else if (char >= 97 && char <= 122) {
+            result += String.fromCharCode(((char - 97 + shift) % 26) + 97);
+        } 
+        // Keep other characters as is (will be handled by substitution)
+        else {
+            result += text.charAt(i);
+        }
+    }
+    return result;
+}
+
+// 2. Substitution (Swaps specific characters/symbols)
+function applySubstitution(text, isEncrypting) {
+    const map = isEncrypting ? CUSTOM_SUBSTITUTION_MAP : REVERSE_SUBSTITUTION_MAP;
+    let result = '';
+    for (let char of text) {
+        // Use the map if the character is a key/value, otherwise keep it the same
+        result += map[char] || char;
+    }
+    return result;
+}
+
+
+// --- ENCRYPTION PROCESS ---
+
+function encryptText() {
+    const plainTextarea = document.getElementById('plain-text');
+    const cipherTextarea = document.getElementById('cipher-text');
+    let text = plainTextarea.value;
+    
+    // Check for empty input
+    if (text.trim() === '') {
+        cipherTextarea.value = 'ERROR: Input field is empty.';
+        return;
+    }
+
+    // Step 1: Apply Substitution
+    text = applySubstitution(text, true);
+
+    // Step 2: Apply Caesar Shift
+    text = applyCaesarShift(text, SHIFT_KEY);
+
+    // Step 3: Base64 Encoding (Makes it look long, complex, and contains many symbols/numbers)
+    // btoa() is a native browser function for Base64 encoding
+    let encryptedText = btoa(text);
+
+    // Final Output (Clear the input and display the cipher)
+    plainTextarea.value = ''; // Clear the input area for the next task
+    cipherTextarea.value = encryptedText;
+}
+
+
+// --- DECRYPTION PROCESS ---
+
+function decryptText() {
+    const plainTextarea = document.getElementById('plain-text');
+    const cipherTextarea = document.getElementById('cipher-text');
+    let encryptedText = plainTextarea.value; // The user pastes the code into the input box
+
+    // Check if the input is in Base64 format (a simple check)
+    if (!encryptedText || !encryptedText.match(/^[A-Za-z0-9+/=]+$/)) {
+        cipherTextarea.value = 'ERROR: Invalid or non-cipher text detected.';
+        return;
+    }
+
+    try {
+        // Step 3 (Reverse): Base64 Decoding
+        // atob() is a native browser function for Base64 decoding
+        let text = atob(encryptedText);
+
+        // Step 2 (Reverse): Reverse Caesar Shift
+        // Decryption is done by shifting in the opposite direction (26 - SHIFT_KEY)
+        text = applyCaesarShift(text, 26 - SHIFT_KEY);
+
+        // Step 1 (Reverse): Reverse Substitution
+        text = applySubstitution(text, false);
+
+        // Final Output
+        cipherTextarea.value = text;
+        plainTextarea.value = ''; // Clear the input area
+        
+    } catch (e) {
+        cipherTextarea.value = 'ERROR: Could not decode cipher. It may be corrupted.';
+    }
+}
+    </script>
+</body>
+</html>

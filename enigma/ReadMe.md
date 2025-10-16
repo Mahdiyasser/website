@@ -1,0 +1,24 @@
+thus a text encryptor and decryptor add-on to use it just copy the folder and put it on your site or just open the html file
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

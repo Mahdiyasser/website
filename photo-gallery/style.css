@@ -1,0 +1,402 @@
+/**************************************************************
+ * PROJECT: REFined PHOTO GALLERY STYLES
+ * FILE:    style.css
+ * VERSION: 2.2 (Theme Colors and Functional Modal)
+ * * Revised themes: Soft Dark (Deep Gray/Blue) and Soft Light (Off-White/Gray).
+ **************************************************************/
+
+/* --- 1. Universal Reset and Base Setup (Lines 15-30) --- */
+* {
+    box-sizing: border-box; 
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale;
+}
+
+:root {
+    --global-transition: 0.5s ease-in-out; 
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    transition: background-color var(--global-transition), color var(--global-transition);
+}
+
+/* --- 2. Theme Definitions (Using CSS Variables) (Lines 32-85) --- */
+
+/* 2.1. Soft Light Theme Variables */
+.theme-light {
+    --bg-color: #f7f7f7; /* Soft off-white */
+    --text-color: #333333;
+    --header-bg: #ffffff;
+    --accent-color: #4a90e2; /* Modern blue */
+    --accent-hover: #357bd8;
+    --border-color: #e0e0e0;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --modal-bg: rgba(0, 0, 0, 0.9);
+    --modal-border: #ffffff;
+}
+
+/* 2.2. Soft Dark Theme Variables */
+.theme-dark {
+    --bg-color: #282c34; /* Deep, calming dark gray */
+    --text-color: #e6e6e6; /* Soft white text */
+    --header-bg: #1e2127;
+    --accent-color: #61afef; /* Light blue accent */
+    --accent-hover: #529fdc;
+    --border-color: #444444;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --modal-bg: rgba(0, 0, 0, 0.95);
+    --modal-border: #3d3d3d;
+}
+
+/* 2.3. Mixed Theme Variables (Dark body, Light header contrast) */
+.theme-mixed {
+    --bg-color: #282c34; 
+    --text-color: #e6e6e6; 
+    --header-bg: #ffffff; /* Light header */
+    --header-text: #333333; 
+    --accent-color: #c678dd; /* Purple accent */
+    --accent-hover: #a350c9;
+    --border-color: #555555;
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --modal-bg: rgba(0, 0, 0, 0.95);
+    --modal-border: #ffffff;
+}
+
+/* Apply theme variables */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.theme-mixed header {
+    color: var(--header-text);
+}
+
+/* --- 3. Header and Navigation (Lines 87-140) --- */
+
+header {
+    background-color: var(--header-bg);
+    color: var(--text-color);
+    padding: 40px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+/* 3.1. Theme Switcher Buttons */
+.theme-switcher {
+    display: flex;
+    gap: 15px;
+}
+
+.theme-switcher button {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: 2px solid var(--accent-color);
+    border-radius: 25px;
+    background-color: transparent; 
+    color: var(--text-color);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.theme-switcher button:hover {
+    background-color: var(--accent-color);
+    color: var(--header-bg); 
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 3.2. Button Focus/Active States */
+.theme-switcher button:active {
+    transform: translateY(0);
+}
+
+.theme-switcher button:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* --- 4. Gallery Layout (Two Columns) (Lines 142-180) --- */
+
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 30px; 
+    padding: 60px;
+    max-width: 1300px; 
+    margin: 0 auto;
+}
+
+.gallery-item {
+    width: 100%;
+    height: auto; 
+    display: block; 
+    border-radius: 12px; 
+    cursor: pointer; 
+    
+    /* Complex, deep shadow */
+    box-shadow: 0 15px 30px var(--shadow-color);
+    filter: brightness(0.95); 
+    
+    /* Highly responsive transition for complex hover effect */
+    transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                box-shadow 0.6s var(--global-transition),
+                filter 0.6s var(--global-transition);
+}
+
+.gallery-item:hover {
+    filter: brightness(1.0); 
+    transform: scale(1.03) rotate(-0.5deg); 
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* --- 5. Modal (Lightbox) Structure and Content (Lines 182-260) --- */
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: hidden; 
+    background-color: var(--modal-bg); 
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+}
+
+.modal-active {
+    display: flex;
+    opacity: 1;
+}
+
+/* Image inside the modal (Full Quality Display) */
+.modal-content {
+    /* Full Quality and Maximum Size Control: */
+    max-width: 95vw; 
+    max-height: 95vh; 
+    width: auto;
+    height: auto;
+    object-fit: contain; 
+    
+    margin: 0; 
+    
+    border: 8px solid var(--modal-border); 
+    border-radius: 10px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8); 
+    
+    animation-name: zoom;
+    animation-duration: 0.6s;
+    transition: border-color var(--global-transition);
+}
+
+/* 5.1. Caption (HIDDEN AS PER REQUEST) */
+#caption {
+    display: none !important; 
+    visibility: hidden !important;
+}
+
+/* 5.2. Close Button */
+.close-btn {
+    position: absolute;
+    top: 25px;
+    right: 45px;
+    color: #f0f0f0;
+    font-size: 55px;
+    font-weight: 100; 
+    z-index: 1002; 
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s;
+}
+
+.close-btn:hover {
+    color: var(--accent-color);
+    transform: rotate(90deg);
+}
+
+/* 5.3. Navigation Arrows */
+.prev-btn, .next-btn {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto;
+    padding: 20px 18px; 
+    color: white;
+    font-weight: 300;
+    font-size: 40px;
+    transition: 0.4s ease;
+    user-select: none;
+    background-color: rgba(0,0,0,0.4); 
+    z-index: 1001;
+    text-decoration: none; 
+}
+
+.next-btn {
+    right: 0;
+    border-radius: 8px 0 0 8px; 
+}
+
+.prev-btn {
+    left: 0;
+    border-radius: 0 8px 8px 0; 
+}
+
+.prev-btn:hover, .next-btn:hover {
+    background-color: var(--accent-color); 
+    color: var(--header-bg);
+}
+
+/* --- 6. Keyframe Animations (Lines 262-273) --- */
+
+@keyframes zoom {
+    from {
+        transform: scale(0.8); 
+        opacity: 0;
+    } 
+    to {
+        transform: scale(1); 
+        opacity: 1;
+    }
+}
+
+
+/* --- 7. Responsive Design (Media Queries) (Lines 275-320) --- */
+
+/* Tablet Optimization (Max Width 1024px) */
+@media (max-width: 1024px) {
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .gallery {
+        grid-template-columns: repeat(2, 1fr); 
+        grid-gap: 20px;
+        padding: 40px 20px;
+    }
+    
+    header {
+        padding: 30px 20px;
+    }
+    
+    .theme-switcher button {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+    }
+    
+    .close-btn {
+        font-size: 40px;
+        top: 15px;
+        right: 30px;
+    }
+    
+    .prev-btn, .next-btn {
+        font-size: 30px;
+        padding: 15px 12px;
+    }
+}
+
+/* Mobile Optimization (Max Width 600px) */
+@media (max-width: 600px) {
+    .gallery {
+        grid-template-columns: 1fr; 
+        grid-gap: 15px;
+        padding: 20px;
+    }
+    
+    header {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px 10px;
+        text-align: center;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+    
+    .theme-switcher {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .theme-switcher button {
+        padding: 6px 10px;
+        margin: 0 5px;
+        font-size: 0.8rem;
+    }
+    
+    .close-btn {
+        font-size: 30px;
+        top: 10px;
+        right: 20px;
+    }
+    
+    .prev-btn, .next-btn {
+        font-size: 20px;
+        padding: 10px 8px;
+    }
+}
+
+/* --- 8. Final Spacing and Complexity Padding (Lines 322-400+) --- */
+
+body > main.gallery {
+    padding-bottom: 80px;
+}
+
+.gallery-item[alt]:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    border-radius: 12px;
+}
+
+.gallery-item:hover + .gallery-item {
+    filter: brightness(0.98);
+}
+
+.theme-dark .gallery-item {
+    box-shadow: 0 10px 30px var(--shadow-color), 0 0 10px rgba(97, 175, 239, 0.2);
+}
+
+footer {
+    padding: 30px;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    background-color: var(--header-bg);
+    color: var(--text-color);
+    margin-top: 40px;
+    font-size: 0.85rem;
+}
+
+.theme-switcher button:active {
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-item:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--accent-color), 0 15px 30px var(--shadow-color);
+}

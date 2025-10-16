@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMIGMA Keyed Cipher</title>
+    <style>
+        /* CSS is here for a single-file solution */
+        body {
+            font-family: 'Consolas', monospace;
+            background-color: #1a1a1a;
+            color: #00ff41; /* Neon green text */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            border: 2px solid #00ff41;
+            box-shadow: 0 0 15px #00ff41;
+            padding: 30px;
+            background-color: #000000;
+        
+
+        h1 {
+            text-align: center;
+            text-shadow: 0 0 5px #00ff41;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        /* Styling for the Key Input section */
+        .key-input {
+            margin-top: 20px; /* Separator for the key at the bottom */
+        }
+        .key-input input[type="text"] {
+            width: 100%;
+            background-color: #0d0d0d;
+            border: 1px solid #00ff41;
+            color: #ffcc00; /* Yellow text for key visibility */
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            outline: none;
+            box-shadow: inset 0 0 5px #00ff41;
+        }
+        .key-input label {
+            display: block;
+            color: #00ff41;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #0d0d0d;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            resize: none;
+            outline: none;
+            box-shadow: inset 0 0 5px #00ff41;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        button {
+            flex-grow: 1;
+            padding: 12px 20px;
+            background-color: #00ff41;
+            color: #000000;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: #00e639;
+            box-shadow: 0 0 10px #00ff41;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>EMIGMA Keyed Cipher 🔑</h1>
+
+        <label for="plain-text">Input/Plain Text (or Cipher to Decrypt):</label>
+        <textarea id="plain-text" placeholder="Type your secret message here, or paste an old cipher to decrypt..."></textarea>
+
+        <div class="controls">
+            <button onclick="encryptText()">Encrypt (Secure)</button>
+            <button onclick="decryptText()">Decrypt (Secure)</button>
+        </div>
+        
+        <label for="cipher-text" style="margin-top: 20px; display: block;">Output/Cipher Text (or Decrypted Result):</label>
+        <textarea id="cipher-text" placeholder="Encrypted output will appear here. To chain, copy this and paste it into the Input box." readonly></textarea>
+        
+        <div class="key-input">
+            <label for="cipher-key">Cipher Key (Optional):</label>
+            <input type="text" id="cipher-key" placeholder="Enter a secret key. Leave blank for default security." maxlength="25">
+        </div>
+
+        <p style="text-align: center; font-size: 0.8em; margin-top: 20px;">The key must be the same for both encryption and decryption layers.</p>
+    </div>
+
+    <script>
+// --- Configuration & Maps (Updated for Keyed Cipher) ---
+const DEFAULT_SHIFT = 7; // Used if no key is provided
+const NOISE_INTERVAL = 4;
+const NOISE_CHARS = '!@#$%^&*()_+-=[]{};:|<>,./?';
+const VALIDATION_TOKEN_LENGTH = 3;
+const FALSE_START_PREFIX = 'VmVsbzM='; 
+
+const CUSTOM_SUBSTITUTION_MAP = {
+    'a': '4', 'e': '3', 'i': '1', 'o': '0', 'u': '!',
+    'A': '8', 'E': '$', 'I': '%', 'O': '^', 'U': '&',
+    ' ': '_', '.': '~', ',': '?', '\n': '|', 
+    's': '5', 't': '7', 'l': '£', 'z': '2', 'y': '¥'
+};
+
+const REVERSE_SUBSTITUTION_MAP = {};
+for (const [key, value] of Object.entries(CUSTOM_SUBSTITUTION_MAP)) {
+    REVERSE_SUBSTITUTION_MAP[value] = key;
+}
+
+/**
+ * Calculates the dynamic Caesar shift based on the provided key.
+ * @param {string} key The user-provided secret key.
+ * @returns {number} The calculated shift value (0-25).
+ */
+function getShiftKey(key) {
+    if (!key || key.trim() === '') {
+        return DEFAULT_SHIFT;
+    }
+    // Calculate shift based on the sum of character codes of the key
+    let sum = 0;
+    for (let i = 0; i < key.length; i++) {
+        sum += key.charCodeAt(i);
+    }
+    return sum % 26;
+}
+
+
+// --- CORE UTILITY FUNCTIONS (Unchanged) ---
+
+function generateChecksum(text, length) {
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+        hash = (hash + text.charCodeAt(i) * 31) % 999; 
+    }
+    return String(hash).padStart(length, '0');
+}
+
+function applyCaesarShift(text, shift) {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        let charCode = text.charCodeAt(i);
+        let char = text.charAt(i);
+
+        if (charCode >= 65 && charCode <= 90) { // Uppercase
+            result += String.fromCharCode(((charCode - 65 + shift) % 26) + 65);
+        } else if (charCode >= 97 && charCode <= 122) { // Lowercase
+            result += String.fromCharCode(((charCode - 97 + shift) % 26) + 97);
+        } else {
+            result += char; 
+        }
+    }
+    return result;
+}
+
+function applySubstitution(text, isEncrypting) {
+    const map = isEncrypting ? CUSTOM_SUBSTITUTION_MAP : REVERSE_SUBSTITUTION_MAP;
+    let result = '';
+    for (let char of text) {
+        result += map[char] || char;
+    }
+    return result;
+}
+
+// Logic assumes noise is injected AFTER every NOISE_INTERVAL chars
+function injectNoise(text) {
+    let result = '';
+    for (let i = 0; i < text.length; i++) {
+        result += text[i];
+        if ((i + 1) % NOISE_INTERVAL === 0) {
+            let noise = NOISE_CHARS.charAt(Math.floor(Math.random() * NOISE_CHARS.length));
+            result += noise;
+        }
+    }
+    return result;
+}
+
+// Logic assumes noise stripping removes every (NOISE_INTERVAL + 1)th char
+function stripNoise(text) {
+    let result = '';
+    const step = NOISE_INTERVAL + 1;
+    for (let i = 0; i < text.length; i++) {
+        if ((i + 1) % step !== 0) {
+            result += text[i];
+        }
+    }
+    return result;
+}
+
+function reverseString(text) {
+    return text.split('').reverse().join('');
+}
+
+
+// --- ENCRYPTION PROCESS (Chaining supported by reading from plain-text) ---
+
+function encryptText() {
+    const plainTextarea = document.getElementById('plain-text');
+    const cipherTextarea = document.getElementById('cipher-text');
+    const keyInput = document.getElementById('cipher-key');
+    
+    let text = plainTextarea.value;
+    const userKey = keyInput.value.trim();
+    const dynamicShift = getShiftKey(userKey);
+
+    if (text.trim() === '') {
+        cipherTextarea.value = 'ERROR: Input field is empty. Cannot encrypt.';
+        return;
+    }
+
+    // --- ENCRYPTION CHAIN ---
+    // 1. Custom Substitution
+    text = applySubstitution(text, true);
+
+    // 2. Reverse String
+    text = reverseString(text); 
+
+    // 3. Keyed Caesar Shift
+    text = applyCaesarShift(text, dynamicShift);
+
+    // 4. Noise Injection
+    let preBase64Text = injectNoise(text);
+    
+    // --- FINAL ENCODING & OBFUSCATION ---
+    
+    // Calculate Checksum *before* Base64
+    const checksum = generateChecksum(preBase64Text, VALIDATION_TOKEN_LENGTH);
+    
+    // 5. Base64 Encoding
+    let cipher = btoa(preBase64Text);
+
+    // 6. Final OBFUSCATION: Add False Start Prefix & Checksum
+    let finalCipher = FALSE_START_PREFIX + cipher + checksum;
+
+    // Display
+    plainTextarea.value = ''; // Clear input for next operation
+    cipherTextarea.value = finalCipher;
+}
+
+
+// --- DECRYPTION PROCESS (Chaining supported by reading from plain-text) ---
+
+function decryptText() {
+    const plainTextarea = document.getElementById('plain-text');
+    const cipherTextarea = document.getElementById('cipher-text');
+    const keyInput = document.getElementById('cipher-key');
+    
+    let cipherText = plainTextarea.value; 
+    const userKey = keyInput.value.trim();
+    const dynamicShift = getShiftKey(userKey);
+
+    // Basic check for the full cipher structure length
+    if (!cipherText || cipherText.length < FALSE_START_PREFIX.length + VALIDATION_TOKEN_LENGTH + 4) { // +4 for some base64
+        cipherTextarea.value = 'ERROR: Cipher is too short or invalid. Is the key correct?';
+        return;
+    }
+    
+    // --- DE-OBFUSCATION ---
+    // 1. Check for and remove False Start Prefix
+    if (!cipherText.startsWith(FALSE_START_PREFIX)) {
+        cipherTextarea.value = 'DECODE FAILED: Does not appear to be a valid EMIGMA cipher (Prefix missing).';
+        return;
+    }
+
+    let strippedCipher = cipherText.substring(FALSE_START_PREFIX.length);
+    
+    // 2. Extract Checksum
+    const receivedChecksum = strippedCipher.slice(-VALIDATION_TOKEN_LENGTH);
+    let base64Payload = strippedCipher.slice(0, -VALIDATION_TOKEN_LENGTH);
+
+    try {
+        // 3. Reverse Base64 Decoding
+        let preBase64Text = atob(base64Payload);
+
+        // --- VALIDATION (Key dependence begins here) ---
+        const calculatedChecksum = generateChecksum(preBase64Text, VALIDATION_TOKEN_LENGTH);
+        if (receivedChecksum !== calculatedChecksum) {
+             cipherTextarea.value = 'DECODE FAILED: Checksum Mismatch. The cipher is corrupted OR the key is incorrect.';
+             return;
+        }
+
+        // --- DECRYPTION CHAIN (Reverse Order is critical!) ---
+        
+        // 4. Noise Stripping
+        let text = stripNoise(preBase64Text);
+
+        // 5. Reverse Keyed Caesar Shift
+        text = applyCaesarShift(text, 26 - dynamicShift);
+
+        // 6. Reverse String
+        text = reverseString(text);
+
+        // 7. Reverse Substitution
+        text = applySubstitution(text, false);
+
+        // Display
+        cipherTextarea.value = text;
+        plainTextarea.value = ''; // Clear input for next operation
+        
+    } catch (e) {
+        cipherTextarea.value = 'FATAL ERROR: Could not decode cipher. Likely non-Base64 or severe corruption.';
+    }
+}
+    </script>
+</body>
+</html>

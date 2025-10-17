@@ -103,8 +103,7 @@ textarea:focus {
     border-top: 2px solid var(--primary-brand-color);
     padding-top: 15px;
     margin-top: 20px;
-    /* RTL: Align totals to the left */
-    text-align: left;
+    text-align: right;
     font-size: 1.1em;
 }
 

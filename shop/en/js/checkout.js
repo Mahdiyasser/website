@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isCartEmpty) {
             emptyCartMessage.style.display = 'block';
             placeOrderButton.disabled = true;
-            placeOrderButton.textContent = 'السلة فاضية'; // EGYPTIAN ARABIC TRANSLATION
+            placeOrderButton.textContent = 'Cart is Empty';
             return;
         }
         
@@ -54,7 +54,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const total = (item.price * item.quantity).toFixed(2);
             const li = document.createElement('li');
             li.className = 'checkout-item';
-            // EGYPTIAN ARABIC TRANSLATION: item.quantity + 'x ' + item.name becomes 'x' + item.quantity + ' ' + item.name
             li.innerHTML = `
                 <span class="item-name-qty">${item.quantity}x ${item.name}</span>
                 <span class="item-total">$${total}</span>
@@ -76,12 +75,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isCartEmpty && isFormValid) {
             placeOrderButton.disabled = false;
-            // EGYPTIAN ARABIC TRANSLATION: Button text
-            placeOrderButton.textContent = `إطلب عبر الواتساب ($${calculateTotal().grandTotal.toFixed(2)})`;
+            placeOrderButton.textContent = `Place Order via WhatsApp ($${calculateTotal().grandTotal.toFixed(2)})`;
         } else {
             placeOrderButton.disabled = true;
-            // EGYPTIAN ARABIC TRANSLATION: Button text
-            placeOrderButton.textContent = 'إملأ البيانات عشان تطلب'; 
+            placeOrderButton.textContent = 'Fill Details to Place Order';
         }
     }
     
@@ -96,25 +93,25 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerAddress = addressInput.value.trim();
         const { grandTotal } = calculateTotal();
         
-        // 1. Build the list of products for the message (EGYPTIAN ARABIC TRANSLATION)
+        // 1. Build the list of products for the message
         let productList = '';
         for (const id in cart) {
             const item = cart[id];
             // Uses a box emoji for list items
-            productList += `\n📦 ${item.quantity} قطعة من ${item.name} (بسعر $${item.price.toFixed(2)} للقطعة)`;
+            productList += `\n📦 ${item.quantity}x ${item.name} ($${item.price.toFixed(2)} ea.)`;
         }
 
-        // 2. Construct the full message body with emojis (EGYPTIAN ARABIC TRANSLATION)
+        // 2. Construct the full message body with emojis
         const orderMessage = encodeURIComponent(
-            `*تفاصيل الطلب*\n` +
-            `\n--- 👤 العميل ---\n` +
-            `الإسم: ${customerName}\n` +
-            `📞 التليفون: ${customerPhone}\n` +
-            `🏠 العنوان: ${customerAddress}\n` +
-            `\n--- 🛍️ المنتجات المطلوبة ---\n` +
+            `*ORDER DETAILS*\n` +
+            `\n--- 👤 Customer ---\n` +
+            `Name: ${customerName}\n` +
+            `📞 Phone: ${customerPhone}\n` +
+            `🏠 Address: ${customerAddress}\n` +
+            `\n--- 🛒 Order Items ---\n` +
             `${productList}\n` +
-            `\n*💰 الإجمالي الكلي: $${grandTotal.toFixed(2)}*\n` +
-            `\n_برجاء تأكيد توافر المخزون و إنهاء الطلب._`
+            `\n*💵 GRAND TOTAL: $${grandTotal.toFixed(2)}*\n` +
+            `\n_Please confirm stock and finalize the order._`
         );
         
         // 3. Construct the final API URL

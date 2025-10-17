@@ -126,18 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (itemCount > 0) {
             checkoutButton.classList.remove('disabled');
-            // EGYPTIAN ARABIC TRANSLATION
-            checkoutButton.textContent = `إتمام الطلب والدفع ($${grandTotal.toFixed(2)})`;
+            checkoutButton.textContent = `Finalize Order & Checkout ($${grandTotal.toFixed(2)})`;
         } else {
             checkoutButton.classList.add('disabled');
-            // EGYPTIAN ARABIC TRANSLATION
-            checkoutButton.textContent = 'إتمام الطلب والدفع';
+            checkoutButton.textContent = 'Finalize Order & Checkout';
         }
 
         cartList.innerHTML = '';
         if (itemCount === 0) {
-            // EGYPTIAN ARABIC TRANSLATION
-            cartList.innerHTML = '<li style="color: var(--text-secondary); padding: 10px 0;">مفيش أي منتجات في السلة.</li>';
+            cartList.innerHTML = '<li style="color: var(--text-secondary); padding: 10px 0;">Your cart is empty.</li>';
         } else {
             for (const id in cart) {
                 const item = cart[id];
@@ -145,11 +142,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const li = document.createElement('li');
                 li.className = 'cart-item';
                 li.innerHTML = `
-                    <span class="item-details">${item.quantity}x ${item.name} (سعر القطعة $${item.price.toFixed(2)})</span>
+                    <span class="item-details">${item.quantity}x ${item.name} ($${item.price.toFixed(2)} ea.)</span>
                     <span class="item-actions">
                         <span class="item-total">$${total}</span>
                         <button class="remove-one" data-id="${id}" data-action="decrement">–</button>
-                        <button class="remove-all" data-id="${id}">شيل الكل</button>
+                        <button class="remove-all" data-id="${id}">Remove All</button>
                     </span>
                 `;
                 cartList.appendChild(li);

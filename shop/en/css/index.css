@@ -182,7 +182,6 @@ main#products-container { padding: 40px 20px; max-width: 1300px; margin: 0 auto;
 }
 .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35); }
 .product-image-container { height: 55%; overflow: hidden; }
-/* BASE STYLE: Ensures image is fully displayed and fits (no cropping, may have empty space) */
 .product-image-container img { width: 100%; height: 100%; object-fit: contain; background-color: #f0f0f0; display: block; transition: transform 0.5s ease; }
 
 .product-details { 
@@ -386,9 +385,9 @@ body.light-theme .cart-item { border-bottom-color: #cccccc; }
     
     .product-card { max-width: 100%; height: auto; }
     .product-image-container { height: 250px; }
-    /* *** MODIFICATION: Changed 'object-fit: cover;' to 'object-fit: contain;' ***
-    This ensures the image is fully displayed and not cropped on smaller screens. */
-    .product-image-container img { object-fit: contain; }
+    /* The object-fit was set to 'cover' here, which crops the image.
+       We MUST change it back to 'contain' to ensure the image is fully visible. */
+    .product-image-container img { object-fit: contain; } 
     .section-title h2 { font-size: 1.8em; }
 
     /* FIX 4: Ensure all other sections respect the same side margins */

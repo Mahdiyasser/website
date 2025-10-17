@@ -470,7 +470,7 @@
         }
 
         /**
-         * Fetches suggestions from Open-Meteo Geocoding API.
+         * Fetches suggestions from Open-Meteo Geocoding API, supporting multiple languages.
          */
         async function getSuggestions(query) {
             const suggestionsContainer = document.getElementById('suggestions-container');
@@ -479,7 +479,10 @@
                 return;
             }
 
-            const geoUrl = `${API.GEO_SEARCH_URL}?name=${encodeURIComponent(query)}&count=10&language=en&format=json`;
+            // MODIFICATION FOR MULTI-LANGUAGE SUPPORT:
+            // 1. Remove '&language=en' from the URL. This allows the API to use its internal language detection
+            //    or default to the best match for the query (which supports Arabic, English, etc.).
+            const geoUrl = `${API.GEO_SEARCH_URL}?name=${encodeURIComponent(query)}&count=10&format=json`;
 
             try {
                 const response = await fetch(geoUrl);
@@ -508,7 +511,8 @@
             results.forEach(result => {
                 const item = document.createElement('div');
                 item.className = 'suggestion-item';
-                // Display city, region (if available), and country
+                // Display city, region (if available), and country. 
+                // The 'name' field returned by the API will typically match the language of the query.
                 const region = result.admin1 ? `, ${result.admin1}` : '';
                 item.textContent = `${result.name}${region}, ${result.country}`;
                 
@@ -529,20 +533,22 @@
          * Handles selection of a suggestion.
          */
         function selectSuggestion(data) {
+            // Use the city name from the API response which matches the language
             document.getElementById('city-input').value = `${data.city}, ${data.country}`;
             document.getElementById('suggestions-container').style.display = 'none';
             fetchWeatherData(data.lat, data.lon, data.city, data.country);
         }
 
         /**
-         * Handles the search button click (used as a fallback search).
+         * Handles the search button click (used as a fallback search), supporting multiple languages.
          */
         function searchLocation() {
             const cityInput = document.getElementById('city-input').value.trim();
             if (!cityInput) return;
             
-            // To handle non-suggestion-based search, we perform the geocoding search directly
-            const geoUrl = `${API.GEO_SEARCH_URL}?name=${encodeURIComponent(cityInput)}&count=1&language=en&format=json`;
+            // MODIFICATION FOR MULTI-LANGUAGE SUPPORT:
+            // 1. Remove '&language=en' from the URL.
+            const geoUrl = `${API.GEO_SEARCH_URL}?name=${encodeURIComponent(cityInput)}&count=1&format=json`;
             
             document.getElementById('weather-container').innerHTML = `<div class="loading-state"><p>Searching for "${cityInput}"...</p></div>`;
 
@@ -551,6 +557,7 @@
                 .then(data => {
                     if (data.results && data.results.length > 0) {
                         const result = data.results[0];
+                        // The city name from the result should reflect the language if available
                         fetchWeatherData(result.latitude, result.longitude, result.name, result.country);
                     } else {
                          document.getElementById('weather-container').innerHTML = `<h2 class="widget-title">Location Not Found</h2><p style="color:red; text-align:center;">Could not find weather data for "${cityInput}". Please check the spelling or select from the suggestions.</p>`;
@@ -569,9 +576,10 @@
         
         function getDayName(dateStr, index) {
             const date = new Date(dateStr);
+            // Uses the browser's default locale for day name (e.g., 'Friday' or 'الجمعة')
             if (index === 0) return 'Today';
             if (index === 1) return 'Tomorrow';
-            return date.toLocaleDateString('en-US', { weekday: 'long' });
+            return date.toLocaleDateString(undefined, { weekday: 'long' }); 
         }
         
         function renderCurrentWeather() {
@@ -645,7 +653,10 @@
                     const timeStr = hourly.time[i].split('T')[1].substring(0, 5);
                     const weather = WEATHER_MAP[hourly.weather_code[i]] || WEATHER_MAP.default;
                     const hour = parseInt(timeStr.split(':')[0]);
-                    const displayTime = (hour % 12 || 12) + (hour >= 12 ? ' PM' : ' AM');
+                    
+                    // Uses the browser's default locale for time formatting
+                    const dateObj = new Date(hourly.time[i]);
+                    const displayTime = dateObj.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', hour12: true });
 
                     html += `
                         <div class="hour-card">
@@ -686,14 +697,16 @@
         
         function updateClock() {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+            // Uses the browser's default locale for time formatting
+            const timeString = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
             document.getElementById('live-clock').textContent = timeString;
         }
 
         function setPageLoadTime() {
             if (initialRefreshTime === null) {
                 const now = new Date();
-                initialRefreshTime = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                // Uses the browser's default locale for time formatting
+                initialRefreshTime = now.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true });
                 document.getElementById('last-updated-time').textContent = `Last refreshed: ${initialRefreshTime}`;
             }
         }

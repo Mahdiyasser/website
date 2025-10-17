@@ -1,0 +1,217 @@
+/* --- Checkout Page Specific Styles --- */
+
+/* Inherit Global Theme Variables from index.css */
+
+#checkout-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.section-heading {
+    color: var(--primary-brand-color);
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+#checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns for Shipping and Summary */
+    gap: 30px;
+}
+
+.checkout-card {
+    background-color: var(--background-secondary);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow-subtle);
+    border: var(--card-border);
+}
+
+.checkout-card h3 {
+    font-size: 1.5em;
+    color: var(--accent-color);
+    margin-bottom: 25px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* --- Form Styles --- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.form-group label span {
+    color: var(--accent-color); /* Highlight required asterisk */
+}
+
+input[type="text"],
+input[type="tel"],
+textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1em;
+    background-color: var(--background-primary); 
+    color: var(--text-primary);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus,
+textarea:focus {
+    border-color: var(--primary-brand-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(13, 71, 161, 0.2); /* Soft focus ring */
+}
+
+/* --- Order Summary Styles --- */
+#checkout-items-list {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.checkout-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1.05em;
+    color: var(--text-primary);
+}
+
+.item-name-qty {
+    font-weight: 500;
+}
+.item-total {
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.summary-totals {
+    border-top: 2px solid var(--primary-brand-color);
+    padding-top: 15px;
+    margin-top: 20px;
+    text-align: right;
+    font-size: 1.1em;
+}
+
+.grand-total-row {
+    font-size: 1.6em;
+    font-weight: 800;
+    color: var(--primary-brand-color);
+    margin-top: 10px;
+}
+
+/* --- Action Area and Button --- */
+#checkout-action-area {
+    grid-column: 1 / -1; /* Span across both columns */
+    padding-top: 30px;
+    text-align: center;
+}
+
+#place-order-whatsapp {
+    width: 100%;
+    max-width: 600px;
+    background-color: #25D366; /* WhatsApp Green */
+    color: white;
+    padding: 18px 25px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1.25em;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+#place-order-whatsapp:hover:not(:disabled) {
+    background-color: #1DA851;
+    transform: translateY(-2px);
+}
+
+#place-order-whatsapp:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    color: #cccccc;
+}
+
+.whatsapp-note {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+
+.back-to-shop-btn {
+    text-decoration: none;
+    color: var(--text-primary);
+    background-color: var(--primary-brand-color);
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.back-to-shop-btn:hover {
+    background-color: var(--dark-hover);
+}
+
+
+/* --- Responsive Adjustments --- */
+
+@media (max-width: 850px) {
+    #checkout-content {
+        grid-template-columns: 1fr; /* Stack columns on smaller screens */
+    }
+    .section-heading {
+        font-size: 2em;
+    }
+}
+
+/* New media query for very small mobile screens */
+@media (max-width: 550px) {
+    #checkout-container {
+        /* Reduce side padding for maximum screen usage on small devices */
+        padding: 0 15px; 
+        margin: 20px auto; /* Less vertical margin */
+    }
+
+    .section-heading {
+        font-size: 1.8em; /* Smaller heading */
+        margin-bottom: 20px;
+    }
+    
+    .checkout-card {
+        padding: 20px; /* Smaller card padding */
+    }
+
+    .checkout-card h3 {
+        font-size: 1.3em; /* Smaller card title */
+        margin-bottom: 15px;
+    }
+
+    /* Reduce padding for the main button for a more compact look */
+    #place-order-whatsapp {
+        padding: 15px 20px; 
+        font-size: 1.1em; 
+    }
+    
+    /* Ensure the grand total is still prominent but not overwhelmingly large */
+    .grand-total-row {
+        font-size: 1.4em;
+    }
+
+    .checkout-item {
+        font-size: 1em; /* Standard font size for item rows */
+    }
+}

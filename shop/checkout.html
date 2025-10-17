@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Mahdi's'</title>
+    <link rel="stylesheet" href="./css/index.css"> 
+    <link rel="stylesheet" href="./css/checkout.css">
+</head>
+<body id="top" class="light-theme">
+
+    <header id="main-header">
+        <div class="header-content">
+            <h1>Mahdi's' <span>Checkout</span></h1>
+            <a href="index.html" class="back-to-shop-btn">Back</a>
+        </div>
+    </header>
+    
+    <main id="checkout-container">
+        <h2 class="section-heading">Finalize Your Order</h2>
+
+        <div id="checkout-content">
+            
+            <section id="shipping-info" class="checkout-card">
+                <h3>1. Shipping Details</h3>
+                <form id="shipping-form">
+                    <div class="form-group">
+                        <label for="customerName">Full Name <span>*</span></label>
+                        <input type="text" id="customerName" name="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">Phone Number <span>*</span></label>
+                        <input type="tel" id="customerPhone" name="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">Shipping Address <span>*</span></label>
+                        <textarea id="customerAddress" name="customerAddress" rows="3" required></textarea>
+                    </div >
+                </form>
+            </section>
+            
+            <section id="order-summary" class="checkout-card">
+                <h3>2. Order Summary</h3>
+                <ul id="checkout-items-list">
+                    </ul>
+
+                <div class="summary-totals">
+                    <p>Subtotal: <span id="checkout-subtotal">$0.00</span></p>
+                    <p class="grand-total-row">GRAND TOTAL: <span id="checkout-grand-total">$0.00</span></p>
+                </div>
+                
+                <p id="empty-cart-message" style="display:none;">
+                    Your cart is empty. Please return to the <a href="index.html">shop</a> to add items.
+                </p>
+            </section>
+        </div>
+
+        <div id="checkout-action-area">
+            <button id="place-order-whatsapp" disabled>
+                Place Order via WhatsApp
+            </button>
+            <p class="whatsapp-note">Clicking "Place Order" will open WhatsApp with your order details pre-filled.</p>
+        </div>
+
+    </main>
+
+    <div id="global-footer">
+        <p>&copy; 2025 Mahdi's Shop'. All Rights Reserved.</p>
+        <p class="slogan">"Premium High Quality Is Our Name"</p>
+    </div>
+
+    <script src="./js/checkout.js"></script>
+    <script src="./js/index.js"></script> 
+</body>
+</html>

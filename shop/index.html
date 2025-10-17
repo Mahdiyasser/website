@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahdi's Shop'</title>
+    <link rel="stylesheet" href="./css/index.css"> 
+</head>
+<body id="top" class="light-theme">
+
+    <header id="main-header">
+        <div class="header-content">
+            <h1>Mahdi's '<span>Shop</span></h1>
+            <button id="theme-toggle-button">Switch</button>
+        </div>
+    </header>
+    
+    <nav id="main-nav">
+        <ul id="main-nav-ul" class="header-nav">
+            <li><a href="#top">Home</a></li>
+            <li><a href="#best-sellers-title">Sellers</a></li>
+            <li><a href="#all-products-title">Products</a></li>
+            <li><a href="#special-title">Special</a></li>
+            <li><a href="#about-us">About Us</a></li>
+            <li><a href="#contact-us">Contact Us</a></li>
+        </ul>
+    </nav>
+    
+    <main id="products-container">
+        
+        <div class="section-title"><h2 id="best-sellers-title">Best Sellers</h2></div>
+        
+        <div class="product-card" data-product-id="P001" data-name="white-t-shirt" data-price="265" data-description="A minimilst white shirt Perfect for daily use." data-image="./images/wts.jpg">
+            <div class="product-image-container">
+                <img src="./images/wts.jpg" alt="white t-shirt">
+            </div>
+            <div class="product-details">
+                <h2 class="product-name">White T-shirt</h2>
+                <p class="product-description">A minimilst white shirt Perfect for daily use.</p>
+                <p class="product-price">$265</p>
+                
+                <button class="add-to-cart-initial" data-action="increment"></button>
+
+                <div class="product-quantity-control">
+                    <button class="remove-from-card" data-action="decrement"></button>
+                    <span class="product-quantity" data-quantity="0"></span>
+                    <button class="add-to-card" data-action="increment"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-card" data-product-id="P002" data-name="orange t-shirt" data-price="320" data-description="Soft, 100% organic cotton t-shirt. Sustainably sourced and comfortable." data-image="./images/ots.jpg">
+            <div class="product-image-container">
+                <img src="./images/ots.jpg" alt="Orange Cotton T-Shirt">
+            </div>
+            <div class="product-details">
+                <h2 class="product-name">Orange T-Shirt</h2>
+                <p class="product-description">Soft, 100% organic cotton t-shirt. Sustainably sourced and comfortable.</p>
+                <p class="product-price">$320</p>
+                
+                <button class="add-to-cart-initial" data-action="increment"></button>
+                
+                <div class="product-quantity-control">
+                    <button class="remove-from-card" data-action="decrement"></button>
+                    <span class="product-quantity" data-quantity="0"></span>
+                    <button class="add-to-card" data-action="increment"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title"><h2 id="all-products-title">All Products</h2></div>
+
+        <div class="product-card" data-product-id="P003" data-name="Classic Watch" data-price="450" data-description="Sleek, black classic watch with a genuine leather strap. Water-resistant." data-image="./images/bwch.jpg">
+            <div class="product-image-container">
+                <img src="./images/3.jpg" alt="Classic Watch">
+            </div>
+            <div class="product-details">
+                <h2 class="product-name">Classic Watch</h2>
+                <p class="product-description">Sleek, black minimalist watch with a genuine leather strap. Water-resistant.</p>
+                <p class="product-price">$450</p>
+                
+                <button class="add-to-cart-initial" data-action="increment"></button>
+                
+                <div class="product-quantity-control">
+                    <button class="remove-from-card" data-action="decrement"></button>
+                    <span class="product-quantity" data-quantity="0"></span>
+                    <button class="add-to-card" data-action="increment"></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-card" data-product-id="P004" data-name="luxurios Glasses" data-price="300" data-description="Unique,premium glasses that is made for luxury " data-image="./images/lxg.jpg">
+            <div class="product-image-container">
+                <img src="./images/lxg.jpg" alt="luxrious glasses">
+            </div>
+            <div class="product-details">
+                <h2 class="product-name">Luxrious Glasses</h2>
+                <p class="product-description">Unique,premium glasses that is made for luxury.</p>
+                <p class="product-price">$300</p>
+                
+                <button class="add-to-cart-initial" data-action="increment"></button>
+                
+                <div class="product-quantity-control">
+                    <button class="remove-from-card" data-action="decrement"></button>
+                    <span class="product-quantity" data-quantity="0"></span>
+                    <button class="add-to-card" data-action="increment"></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="product-card" data-product-id="P005" data-name="Classic Pants" data-price="699" data-description="Soft and warm pants made from pure cotton." data-image="./images/clckp.jpg">
+            <div class="product-image-container">
+                <img src="./images/clckp.jpg" alt="Classic pants">
+            </div>
+            <div class="product-details">
+                <h2 class="product-name">Classic Pants</h2>
+                <p class="product-description">Soft and warm pants made from pure cotton.</p>
+                <p class="product-price">$699</p>
+                
+                <button class="add-to-cart-initial" data-action="increment"></button>
+                
+                <div class="product-quantity-control">
+                    <button class="remove-from-card" data-action="decrement"></button>
+                    <span class="product-quantity" data-quantity="0"></span>
+                    <button class="add-to-card" data-action="increment"></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="product-card" data-product-id="P006" data-name="Classic Wallet" data-price="400" data-description="Slim RFID-blocking wallet made from premium eco-friendly materials." data-image="./images/clckw.jpg">
+            <div class="product-image-container">
+                <img src="./images/clckw.jpg" alt="Classic Wallet">
+            </div>
+            <div class="product-details">
+                <h2 class="product-name">Classic Wallet</h2>
+                <p class="product-description">Slim RFID-blocking wallet made from premium eco-friendly materials.</p>
+                <p class="product-price">$400</p>
+                
+                <button class="add-to-cart-initial" data-action="increment"></button>
+                
+                <div class="product-quantity-control">
+                    <button class="remove-from-card" data-action="decrement"></button>
+                    <span class="product-quantity" data-quantity="0"></span>
+                    <button class="add-to-card" data-action="increment"></button>
+                    </div>
+                </div>
+            </div>
+
+        <div class="section-title"><h2 id="special-title">Special Editions</h2></div>
+
+        <div class="special-product-container">
+            <div class="product-card" data-product-id="P007" data-name="Black Suit" data-price="2499" data-description="premium classic black suit perfect for daily uses." data-image="./images/lbs.jpg">
+                <div class="product-image-container">
+                    <img src="./images/lbs.jpg" alt="Black suit">
+                </div>
+                <div class="product-details">
+                    <h2 class="product-name">Premium Black Suit</h2>
+                    <p class="product-description">premium classic black suit perfect for daily uses.</p>
+                    <p class="product-price">$2499</p>
+                    
+                    <button class="add-to-cart-initial" data-action="increment"></button>
+                    
+                    <div class="product-quantity-control">
+                        <button class="remove-from-card" data-action="decrement"></button>
+                        <span class="product-quantity" data-quantity="0"></span>
+                        <button class="add-to-card" data-action="increment"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="special-product-container">
+            <div class="product-card" data-product-id="P008" data-name="Classic shoes" data-price="999" data-description="premium quality classic black shoes." data-image="./images/clcks.jpg">
+                <div class="product-image-container">
+                    <img src="./images/clcks.jpg" alt="Classic Black Shoes">
+                </div>
+                <div class="product-details">
+                    <h2 class="product-name">classic shoes</h2>
+                    <p class="product-description">premium quality classic black shoes.</p>
+                    <p class="product-price">$999</p>
+                    
+                    <button class="add-to-cart-initial" data-action="increment"></button>
+                    
+                    <div class="product-quantity-control">
+                        <button class="remove-from-card" data-action="decrement"></button>
+                        <span class="product-quantity" data-quantity="0"></span>
+                        <button class="add-to-card" data-action="increment"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <section id="about-us" class="info-section">
+            <h2>About Mahdi's Shop'</h2>
+            <p>We believe in quality over quantity. Every item in our shop is sourced from independent creators and built to last. We're a small, passionate team dedicated to bringing you unique, timeless products without the complexity of a massive online store.</p>
+        </section>
+        
+        <section id="contact-us" class="info-section">
+            <h2>Get In Touch</h2>
+            <p>Need help with an order or have a question about a product? You can always reach us directly via the buttons below:</p>
+            
+            <div class="contact-buttons-container">
+                <a href="mailto:mahdiyasser526@gmail.com" class="contact-button email-btn">
+                    📧 Email: mahdiyasser526@gmail.com
+                </a>
+                <a href="tel:+201013297922" class="contact-button phone-btn">
+                    📞 Call: 201013297922
+                </a>
+            </div>
+            
+            <p style="margin-top: 20px; font-size: 0.9em; color: var(--text-secondary);">We aim to respond to all email inquiries within 24 hours.</p>
+        </section>
+
+    </main>
+
+    <div id="cart-review-section">
+        <h3>🛒 Your Order Summary</h3>
+        <ul id="cart-items-list">
+            </ul>
+        <div class="cart-summary-totals">
+            <p>Subtotal: <span id="cart-subtotal">$0.00</span></p>
+            <p class="grand-total">GRAND TOTAL: <span id="cart-grand-total">$0.00</span></p>
+        </div>
+        <a href="checkout.html" id="proceed-to-checkout" class="checkout-button disabled">
+            Finalize Order & Checkout
+        </a>
+    </div>
+
+    <div id="global-footer">
+        <p>&copy; 2025 Mahdi's Shop'. All Rights Reserved.</p>
+        <p class="slogan">"Premium High Quality Is Our Name."</p>
+    </div>
+
+    <script src="./js/index.js"></script>
+</body>
+</html>

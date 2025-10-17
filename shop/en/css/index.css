@@ -236,7 +236,7 @@ body.light-theme .product-name {
     text-align: center; 
 }
 /* ARABIC TEXT: "أضف إلى السلة" */
-.add-to-cart-initial::after { content: "أضف إلى السلة"; }
+.add-to-cart-initial::after { content: "Add to cart"; }
 .add-to-cart-initial:hover { background-color: var(--dark-hover); transform: translateY(-2px); }
 
 .product-quantity-control { 

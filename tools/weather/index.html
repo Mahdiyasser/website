@@ -10,7 +10,7 @@
             font-family: 'Roboto', sans-serif;
             background-color: #1a1a2e; /* Darker, modern background */
             color: #e9ecef; /* Light gray text */
-            padding: 20px;
+            padding: 10px; /* Reduced padding for mobile */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,21 +19,25 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px; /* Adjusted margin */
             color: #00bcd4; /* Cyan accent color */
+        }
+        .header h1 {
+            font-size: 1.8em; /* Smaller header for mobile */
         }
 
         .top-widgets-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 95%;
+            width: 100%; /* Full width container on mobile */
             max-width: 1100px;
         }
 
         /* Search Bar Wrapper for relative positioning */
         .search-wrapper {
-            width: 100%;
+            width: 95%; /* Increased width for the search area */
+            max-width: 600px; /* Max width constraint */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -46,7 +50,7 @@
             width: 100%;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 5px; /* Reduced gap */
             position: relative;
             z-index: 1001;
         }
@@ -56,20 +60,21 @@
             border-radius: 6px;
             background-color: #3a4768; /* Darker input background */
             color: white;
-            font-size: 1em;
-            width: 60%;
+            font-size: 0.9em; /* Smaller font on mobile */
+            width: 70%; /* Increased width for input */
             max-width: 400px;
             outline: none;
         }
         .search-button {
-            padding: 10px 20px;
+            padding: 10px 15px; /* Reduced padding */
             background-color: #4CAF50; /* Green button */
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 0.9em; /* Smaller font on mobile */
             transition: background-color 0.2s;
+            flex-shrink: 0; /* Prevents button from shrinking too much */
         }
         .search-button:hover {
             background-color: #45a049;
@@ -79,7 +84,7 @@
         .suggestions-container {
             position: absolute;
             top: 45px; 
-            width: 60%;
+            width: 70%; /* Matches input width for alignment */
             max-width: 400px;
             background-color: #3a4768; /* Same as input for seamless look */
             border: 1px solid #00bcd4;
@@ -87,16 +92,16 @@
             z-index: 1000;
             border-radius: 0 0 6px 6px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6);
-            max-height: 250px;
+            max-height: 200px; /* Slightly shorter suggestions */
             overflow-y: auto;
             display: none; 
         }
         .suggestion-item {
-            padding: 10px;
+            padding: 8px 10px; /* Reduced padding */
             cursor: pointer;
             border-bottom: 1px solid #2c3859;
             transition: background-color 0.1s;
-            font-size: 0.9em;
+            font-size: 0.85em; /* Smaller font */
             color: #e9ecef;
         }
         .suggestion-item:last-child {
@@ -108,73 +113,87 @@
 
         .clock-container {
             margin-bottom: 20px;
-            padding: 10px 20px;
+            padding: 10px 15px; /* Reduced padding */
             background-color: #2c3859;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
             text-align: center;
+            width: 95%; /* Fluid width */
+            max-width: 400px; /* Max width constraint */
         }
 
         .live-clock {
-            font-size: 2.5em;
+            font-size: 2em; /* Smaller clock font */
             font-weight: bold;
             color: #4CAF50; /* Green for time */
             margin-bottom: 5px;
         }
 
         .weather-container {
-            width: 95%;
+            width: 100%; /* Full width */
             max-width: 1100px;
             background-color: #2c3859;
-            padding: 40px;
+            padding: 20px; /* Reduced padding */
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+            box-sizing: border-box; /* Ensures padding is included in the width */
         }
 
         .main-forecast {
             text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
+            margin-bottom: 20px; /* Reduced margin */
+            padding-bottom: 15px; /* Reduced padding */
             border-bottom: 3px solid #00bcd4;
         }
         
         .main-forecast .widget-title {
-            font-size: 2.2em;
+            font-size: 1.8em; /* Smaller title */
             color: #00bcd4;
             margin-bottom: 5px;
         }
         .main-forecast .location-info {
-            font-size: 1.2em;
+            font-size: 1em; /* Smaller info text */
             color: #adb5bd;
         }
 
         /* Current Weather Display */
         .current-weather-box {
             display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
+            flex-direction: column; /* Stack vertically on small screens */
+            justify-content: center; /* Center content when stacked */
+            align-items: center; /* Center content when stacked */
+            margin-bottom: 20px;
+            padding: 15px; /* Reduced padding */
             background-color: #3a4768;
             border-radius: 8px;
+            text-align: center; /* Center text within the box */
         }
+        
+        .current-weather-box > div {
+            margin-bottom: 10px; /* Add space between stacked elements */
+        }
+
         .current-temp-large {
-            font-size: 4.5em;
+            font-size: 3.5em; /* Smaller temperature font */
             font-weight: bold;
             color: white;
+            display: block; /* Ensure it takes full width for centering */
         }
         .current-condition {
-            font-size: 1.5em;
+            font-size: 1.2em; /* Smaller condition font */
             color: #00bcd4;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
 
         .current-details-grid {
+            width: 100%; /* Full width for details grid */
+            max-width: 300px; /* Optional max width to keep details tight */
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px 20px;
+            gap: 5px 10px; /* Reduced gap */
             text-align: left;
-            font-size: 0.9em;
+            font-size: 0.85em; /* Smaller font for details */
+            margin-top: 10px; /* Space above grid when stacked */
         }
         .current-detail-item {
             display: flex;
@@ -183,48 +202,53 @@
         .detail-label {
             font-weight: bold;
             color: #adb5bd;
+            white-space: nowrap; /* Prevents label wrap */
         }
 
         /* 7-Day Forecast (Daily Summary) */
         .daily-forecast-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-            margin-bottom: 40px;
+            /* Use a smaller min-width for columns on mobile */
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
+            gap: 10px; /* Reduced gap */
+            margin-bottom: 30px;
+            overflow-x: auto; /* Allow horizontal scroll if cards are too wide/numerous */
+            padding-bottom: 5px;
         }
 
         .day-card {
             background-color: #3a4768;
-            padding: 15px 10px;
-            border-radius: 8px;
+            padding: 10px 5px; /* Reduced padding */
+            border-radius: 6px; /* Slightly smaller border radius */
             transition: transform 0.2s;
             text-align: center;
         }
 
         .day-card:hover {
-            transform: translateY(-5px);
+            transform: none; /* Disable transform on hover for touch devices */
             background-color: #4c5a80;
             cursor: pointer;
         }
 
         .day-card .day-name {
+            font-size: 0.9em; /* Smaller day name */
             font-weight: bold;
             color: #00bcd4;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .day-card .temp-range {
-            font-size: 0.9em;
+            font-size: 0.8em; /* Smaller temp range */
             color: #e9ecef;
         }
         .day-card .weather-icon {
-            font-size: 2em;
+            font-size: 1.8em; /* Smaller icon */
         }
 
         /* Hourly Forecast */
         .hourly-section h2 {
-            font-size: 1.6em;
+            font-size: 1.4em; /* Smaller heading */
             color: #00bcd4;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border-bottom: 1px dashed #00bcd4;
             padding-bottom: 5px;
         }
@@ -237,28 +261,42 @@
 
         .hour-card {
             display: inline-block;
-            width: 80px;
-            padding: 10px;
+            width: 70px; /* Reduced width for hourly cards */
+            padding: 8px; /* Reduced padding */
             text-align: center;
-            margin-right: 10px;
+            margin-right: 8px; /* Reduced margin */
             background-color: #3a4768;
             border-radius: 6px;
+            font-size: 0.9em; /* Smaller base font */
+            flex-shrink: 0;
         }
 
         .hour-card .time {
             font-weight: bold;
             color: #00bcd4;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .hour-card .temp {
-            font-size: 1.1em;
+            font-size: 1em;
         }
 
         .loading-state {
-            padding: 50px;
-            font-size: 1.2em;
+            padding: 30px; /* Reduced padding */
+            font-size: 1.1em;
             color: #00bcd4;
             text-align: center;
+        }
+        
+        /* Tablet/Larger Mobile Landscape adjustments */
+        @media (min-width: 600px) {
+             .current-weather-box {
+                flex-direction: row; /* Switch back to horizontal layout */
+                justify-content: space-around;
+                text-align: left;
+            }
+             .current-weather-box > div {
+                margin-bottom: 0; /* Remove vertical space */
+            }
         }
     </style>
 </head>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EMIGMA Keyed Cipher</title>
+    <title>ENIGMA Keyed Cipher</title>
     <style>
         /* CSS is here for a single-file solution */
         body {
@@ -11,7 +11,7 @@
             background-color: #1a1a1a;
             color: #00ff41; /* Neon green text */
             margin: 0;
-            padding: 20px;
+            padding: 10px; /* Reduced padding for mobile */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,33 +19,48 @@
         }
 
         .container {
-            width: 90%;
+            width: 95%; /* Wider on small screens */
             max-width: 800px;
             border: 2px solid #00ff41;
             box-shadow: 0 0 15px #00ff41;
-            padding: 30px;
+            padding: 20px; /* Reduced padding for mobile */
             background-color: #000000;
-        
+        }
 
         h1 {
             text-align: center;
             text-shadow: 0 0 5px #00ff41;
-            margin-bottom: 30px;
-            font-size: 1.5em;
+            margin-bottom: 20px; /* Adjusted margin */
+            font-size: 1.3em; /* Slightly smaller header */
         }
-
-        /* Styling for the Key Input section */
+        
+        /* General input/textarea styling */
+        textarea {
+            width: 100%;
+            height: 150px;
+            background-color: #0d0d0d;
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 10px; /* Reduced padding for mobile */
+            margin-bottom: 15px; /* Adjusted margin */
+            box-sizing: border-box;
+            font-size: 1em; /* Slightly smaller font size */
+            resize: none;
+            outline: none;
+            box-shadow: inset 0 0 5px #00ff41;
+        }
+        
         .key-input {
-            margin-top: 20px; /* Separator for the key at the bottom */
+            margin-top: 15px;
         }
         .key-input input[type="text"] {
             width: 100%;
             background-color: #0d0d0d;
             border: 1px solid #00ff41;
-            color: #ffcc00; /* Yellow text for key visibility */
+            color: #ffcc00; 
             padding: 10px;
             box-sizing: border-box;
-            font-size: 1.1em;
+            font-size: 1em;
             outline: none;
             box-shadow: inset 0 0 5px #00ff41;
         }
@@ -56,30 +71,18 @@
             font-weight: bold;
         }
 
-        textarea {
-            width: 100%;
-            height: 150px;
-            background-color: #0d0d0d;
-            border: 1px solid #00ff41;
-            color: #00ff41;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-sizing: border-box;
-            font-size: 1.1em;
-            resize: none;
-            outline: none;
-            box-shadow: inset 0 0 5px #00ff41;
-        }
-        
+
+        /* Controls/Button Styling */
         .controls {
             display: flex;
             justify-content: space-between;
-            gap: 20px;
+            gap: 15px; /* Adjusted gap */
+            margin-bottom: 15px; /* Added bottom margin */
         }
 
         button {
             flex-grow: 1;
-            padding: 12px 20px;
+            padding: 10px 15px; /* Reduced padding for mobile */
             background-color: #00ff41;
             color: #000000;
             border: none;
@@ -87,17 +90,40 @@
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.2s;
             text-transform: uppercase;
+            font-size: 0.9em; /* Smaller font on buttons */
         }
 
         button:hover {
             background-color: #00e639;
             box-shadow: 0 0 10px #00ff41;
         }
+
+        /* Responsive Breakpoint for Controls */
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column; /* Stack buttons vertically on small screens */
+            }
+
+            button {
+                width: 100%; /* Full width when stacked */
+                margin-bottom: 10px; /* Space between stacked buttons */
+                font-size: 1em; /* Slightly larger text when stacked */
+            }
+            
+            body {
+                padding: 5px;
+            }
+
+            .container {
+                padding: 15px;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>EMIGMA Keyed Cipher 🔑</h1>
+        <h1>ENIGMA Keyed Cipher 🔑</h1>
 
         <label for="plain-text">Input/Plain Text (or Cipher to Decrypt):</label>
         <textarea id="plain-text" placeholder="Type your secret message here, or paste an old cipher to decrypt..."></textarea>
@@ -107,7 +133,7 @@
             <button onclick="decryptText()">Decrypt (Secure)</button>
         </div>
         
-        <label for="cipher-text" style="margin-top: 20px; display: block;">Output/Cipher Text (or Decrypted Result):</label>
+        <label for="cipher-text" style="margin-top: 15px; display: block;">Output/Cipher Text (or Decrypted Result):</label>
         <textarea id="cipher-text" placeholder="Encrypted output will appear here. To chain, copy this and paste it into the Input box." readonly></textarea>
         
         <div class="key-input">
@@ -115,7 +141,7 @@
             <input type="text" id="cipher-key" placeholder="Enter a secret key. Leave blank for default security." maxlength="25">
         </div>
 
-        <p style="text-align: center; font-size: 0.8em; margin-top: 20px;">The key must be the same for both encryption and decryption layers.</p>
+        <p style="text-align: center; font-size: 0.75em; margin-top: 15px;">The key must be the same for both encryption and decryption layers.</p>
     </div>
 
     <script>

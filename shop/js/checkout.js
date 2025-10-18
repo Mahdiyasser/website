@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    const WHATSAPP_PHONE_NUMBER = '201013297922';
     
-    // --- Configuration ---
-    // !!! IMPORTANT: Replace 'YOUR_PHONE_NUMBER' with the actual number (e.g., 201001234567)
-    const WHATSAPP_PHONE_NUMBER = '201013297922'; // Use full international format without + or spaces
-    
-    // --- DOM Elements ---
     const form = document.getElementById('shipping-form');
     const nameInput = document.getElementById('customerName');
     const phoneInput = document.getElementById('customerPhone');
@@ -19,9 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let cart = JSON.parse(localStorage.getItem('artisanCart')) || {};
     let isCartEmpty = Object.keys(cart).length === 0;
 
-    /**
-     * Calculates the total cost of items in the cart.
-     */
     function calculateTotal() {
         let subtotal = 0;
         for (const id in cart) {
@@ -30,9 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return { subtotal, grandTotal: subtotal };
     }
 
-    /**
-     * Renders the cart contents and totals on the checkout page.
-     */
     function renderCheckoutSummary() {
         cartList.innerHTML = '';
         const { subtotal, grandTotal } = calculateTotal();
@@ -43,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isCartEmpty) {
             emptyCartMessage.style.display = 'block';
             placeOrderButton.disabled = true;
-            placeOrderButton.textContent = 'السلة فاضية'; // EGYPTIAN ARABIC TRANSLATION
+            placeOrderButton.textContent = 'السلة فاضية';
             return;
         }
         
@@ -54,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const total = (item.price * item.quantity).toFixed(2);
             const li = document.createElement('li');
             li.className = 'checkout-item';
-            // EGYPTIAN ARABIC TRANSLATION: item.quantity + 'x ' + item.name becomes 'x' + item.quantity + ' ' + item.name
             li.innerHTML = `
                 <span class="item-name-qty">${item.quantity}x ${item.name}</span>
                 <span class="item-total">$${total}</span>
@@ -62,13 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cartList.appendChild(li);
         }
         
-        // Initial check for button state after rendering summary
         checkFormValidity();
     }
 
-    /**
-     * Checks if all required form fields are filled and updates the button state.
-     */
     function checkFormValidity() {
         const isFormValid = nameInput.value.trim() !== '' && 
                             phoneInput.value.trim() !== '' && 
@@ -76,18 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!isCartEmpty && isFormValid) {
             placeOrderButton.disabled = false;
-            // EGYPTIAN ARABIC TRANSLATION: Button text
             placeOrderButton.textContent = `إطلب عبر الواتساب ($${calculateTotal().grandTotal.toFixed(2)})`;
         } else {
             placeOrderButton.disabled = true;
-            // EGYPTIAN ARABIC TRANSLATION: Button text
             placeOrderButton.textContent = 'إملأ البيانات عشان تطلب'; 
         }
     }
     
-    /**
-     * Constructs and opens the WhatsApp API link with order details.
-     */
     function generateWhatsAppLink() {
         if (isCartEmpty) return;
 
@@ -96,35 +77,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerAddress = addressInput.value.trim();
         const { grandTotal } = calculateTotal();
         
-        // 1. Build the list of products for the message (EGYPTIAN ARABIC TRANSLATION)
         let productList = '';
         for (const id in cart) {
             const item = cart[id];
-            // Uses a box emoji for list items
             productList += `\n📦 ${item.quantity} قطعة من ${item.name} (بسعر $${item.price.toFixed(2)} للقطعة)`;
         }
 
-        // 2. Construct the full message body with emojis (EGYPTIAN ARABIC TRANSLATION)
         const orderMessage = encodeURIComponent(
             `*تفاصيل الطلب*\n` +
             `\n--- 👤 العميل ---\n` +
             `الإسم: ${customerName}\n` +
-            `📞 التليفون: ${customerPhone}\n` +
-            `🏠 العنوان: ${customerAddress}\n` +
+            `التليفون: ${customerPhone}\n` +
+            `العنوان: ${customerAddress}\n` +
             `\n--- 🛍️ المنتجات المطلوبة ---\n` +
             `${productList}\n` +
             `\n*💰 الإجمالي الكلي: $${grandTotal.toFixed(2)}*\n` +
             `\n_برجاء تأكيد توافر المخزون و إنهاء الطلب._`
         );
         
-        // 3. Construct the final API URL
         const whatsappURL = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_NUMBER}&text=${orderMessage}`;
 
-        // 4. Open the link 
         window.open(whatsappURL, '_blank');
     }
 
-    // --- Event Listeners ---
     form.addEventListener('input', checkFormValidity);
     
     placeOrderButton.addEventListener('click', (e) => {
@@ -134,6 +109,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Initialization ---
     renderCheckoutSummary();
 });

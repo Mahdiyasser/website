@@ -1,10 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- Configuration ---
-    // !!! IMPORTANT: Replace 'YOUR_PHONE_NUMBER' with the actual number (e.g., 201001234567)
-    const WHATSAPP_PHONE_NUMBER = '201013297922'; // Use full international format without + or spaces
+    const WHATSAPP_PHONE_NUMBER = '201013297922';
     
-    // --- DOM Elements ---
     const form = document.getElementById('shipping-form');
     const nameInput = document.getElementById('customerName');
     const phoneInput = document.getElementById('customerPhone');
@@ -19,9 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let cart = JSON.parse(localStorage.getItem('artisanCart')) || {};
     let isCartEmpty = Object.keys(cart).length === 0;
 
-    /**
-     * Calculates the total cost of items in the cart.
-     */
     function calculateTotal() {
         let subtotal = 0;
         for (const id in cart) {
@@ -30,9 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return { subtotal, grandTotal: subtotal };
     }
 
-    /**
-     * Renders the cart contents and totals on the checkout page.
-     */
     function renderCheckoutSummary() {
         cartList.innerHTML = '';
         const { subtotal, grandTotal } = calculateTotal();
@@ -61,13 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cartList.appendChild(li);
         }
         
-        // Initial check for button state after rendering summary
         checkFormValidity();
     }
 
-    /**
-     * Checks if all required form fields are filled and updates the button state.
-     */
     function checkFormValidity() {
         const isFormValid = nameInput.value.trim() !== '' && 
                             phoneInput.value.trim() !== '' && 
@@ -82,9 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    /**
-     * Constructs and opens the WhatsApp API link with order details.
-     */
     function generateWhatsAppLink() {
         if (isCartEmpty) return;
 
@@ -93,35 +77,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerAddress = addressInput.value.trim();
         const { grandTotal } = calculateTotal();
         
-        // 1. Build the list of products for the message
         let productList = '';
         for (const id in cart) {
             const item = cart[id];
-            // Uses a box emoji for list items
             productList += `\n📦 ${item.quantity}x ${item.name} ($${item.price.toFixed(2)} ea.)`;
         }
 
-        // 2. Construct the full message body with emojis
         const orderMessage = encodeURIComponent(
             `*ORDER DETAILS*\n` +
             `\n--- 👤 Customer ---\n` +
             `Name: ${customerName}\n` +
-            `📞 Phone: ${customerPhone}\n` +
-            `🏠 Address: ${customerAddress}\n` +
+            ` Phone: ${customerPhone}\n` +
+            ` Address: ${customerAddress}\n` +
             `\n--- 🛒 Order Items ---\n` +
             `${productList}\n` +
-            `\n*💵 GRAND TOTAL: $${grandTotal.toFixed(2)}*\n` +
+            `\n*💰 GRAND TOTAL: $${grandTotal.toFixed(2)}*\n` +
             `\n_Please confirm stock and finalize the order._`
         );
         
-        // 3. Construct the final API URL
         const whatsappURL = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE_NUMBER}&text=${orderMessage}`;
 
-        // 4. Open the link 
         window.open(whatsappURL, '_blank');
     }
 
-    // --- Event Listeners ---
     form.addEventListener('input', checkFormValidity);
     
     placeOrderButton.addEventListener('click', (e) => {
@@ -131,6 +109,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Initialization ---
     renderCheckoutSummary();
 });

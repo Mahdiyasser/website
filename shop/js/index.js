@@ -1,59 +1,42 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. THEME TOGGLE LOGIC ---
     const body = document.body;
     const toggleButton = document.getElementById('theme-toggle-button');
     const THEME_KEY = 'artisanTheme';
     
-    /**
-     * Sets the theme based on the class name ('light-theme' or '').
-     * Updates local storage and the button text/emoji.
-     * @param {string} theme - The theme to apply ('light-theme' or 'dark').
-     */
     function setTheme(theme) {
         if (theme === 'light-theme') {
             body.classList.add('light-theme');
-            // Show Moon (🌙) to suggest switching to Dark Theme
             toggleButton.textContent = '🌙'; 
             localStorage.setItem(THEME_KEY, 'light');
         } else {
             body.classList.remove('light-theme');
-            // Show Sun (☀️) to suggest switching to Light Theme
             toggleButton.textContent = '☀️'; 
             localStorage.setItem(THEME_KEY, 'dark');
         }
     }
 
-    /**
-     * Initializes the theme on page load. Light theme is the default.
-     */
     function initializeTheme() {
         const savedTheme = localStorage.getItem(THEME_KEY);
         
         if (savedTheme === 'dark') {
-            // User chose dark theme in a previous session
             setTheme('dark');
         } else {
-            // User chose light theme, or no preference saved (default to light)
             setTheme('light-theme'); 
         }
     }
     
-    // Add event listener to the button
     if (toggleButton) {
         toggleButton.addEventListener('click', () => {
             const currentTheme = body.classList.contains('light-theme') ? 'light-theme' : 'dark';
-            // Toggle the theme
             const newTheme = currentTheme === 'dark' ? 'light-theme' : 'dark';
             setTheme(newTheme);
         });
     }
 
-    // Initialize the theme immediately
     initializeTheme();
     
 
-    // --- 2. SHOPPING CART LOGIC ---
     let cart = JSON.parse(localStorage.getItem('artisanCart')) || {};
     
     const productContainer = document.getElementById('products-container');
@@ -62,18 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const grandTotalDisplay = document.getElementById('cart-grand-total');
     const checkoutButton = document.getElementById('proceed-to-checkout');
 
-    /**
-     * Saves the current cart state to LocalStorage.
-     */
     function saveCart() {
         localStorage.setItem('artisanCart', JSON.stringify(cart));
     }
 
-    /**
-     * Updates the quantity of a specific product in the cart.
-     * @param {string} productId - The ID of the product.
-     * @param {string} action - 'increment' or 'decrement'.
-     */
     function updateCart(productId, action) {
         let productCard = document.querySelector(`.product-card[data-product-id="${productId}"]`);
         
@@ -103,9 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCart();
     }
     
-    /**
-     * Calculates the total cost of items in the cart.
-     */
     function calculateTotal() {
         let subtotal = 0;
         for (const id in cart) {
@@ -114,9 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return { subtotal, grandTotal: subtotal };
     }
 
-    /**
-     * Renders the cart contents and totals to the review section.
-     */
     function renderCart() {
         const { subtotal, grandTotal } = calculateTotal();
         const itemCount = Object.keys(cart).length;
@@ -126,17 +95,14 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (itemCount > 0) {
             checkoutButton.classList.remove('disabled');
-            // EGYPTIAN ARABIC TRANSLATION
             checkoutButton.textContent = `إتمام الطلب والدفع ($${grandTotal.toFixed(2)})`;
         } else {
             checkoutButton.classList.add('disabled');
-            // EGYPTIAN ARABIC TRANSLATION
             checkoutButton.textContent = 'إتمام الطلب والدفع';
         }
 
         cartList.innerHTML = '';
         if (itemCount === 0) {
-            // EGYPTIAN ARABIC TRANSLATION
             cartList.innerHTML = '<li style="color: var(--text-secondary); padding: 10px 0;">مفيش أي منتجات في السلة.</li>';
         } else {
             for (const id in cart) {
@@ -177,10 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Resets a product card to show the initial 'Add to Cart' button.
-     * @param {HTMLElement} card - The product card element.
-     */
     function resetProductCardDisplay(card) {
         card.querySelector('.add-to-cart-initial').style.display = 'block';
         card.querySelector('.product-quantity-control').style.display = 'none';
@@ -188,11 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.querySelector('.product-quantity').dataset.quantity = '0';
     }
 
-    /**
-     * Updates a product card to show the quantity control.
-     * @param {HTMLElement} card - The product card element.
-     * @param {number} quantity - The current quantity.
-     */
     function updateProductCardDisplay(card, quantity) {
         card.querySelector('.add-to-cart-initial').style.display = 'none';
         card.querySelector('.product-quantity-control').style.display = 'flex';
@@ -200,9 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         card.querySelector('.product-quantity').dataset.quantity = quantity;
     }
 
-    /**
-     * Iterates over all product cards to set their display based on the current cart state.
-     */
     function updateAllProductCardDisplays() {
         document.querySelectorAll('.product-card').forEach(card => {
             const productId = card.dataset.productId;
@@ -214,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 3. EVENT LISTENERS FOR PRODUCT CARDS ---
     
     if (productContainer) {
         productContainer.addEventListener('click', (e) => {
@@ -232,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // --- 4. INITIALIZATION ---
     updateAllProductCardDisplays();
     renderCart();
 });

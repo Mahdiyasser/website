@@ -87,8 +87,8 @@ document.addEventListener('DOMContentLoaded', () => {
             `*ORDER DETAILS*\n` +
             `\n--- 👤 Customer ---\n` +
             `Name: ${customerName}\n` +
-            ` Phone: ${customerPhone}\n` +
-            ` Address: ${customerAddress}\n` +
+            `Phone: ${customerPhone}\n` +
+            `Address: ${customerAddress}\n` +
             `\n--- 🛒 Order Items ---\n` +
             `${productList}\n` +
             `\n*💰 GRAND TOTAL: $${grandTotal.toFixed(2)}*\n` +

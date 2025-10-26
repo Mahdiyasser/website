@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدفع | التاج السوري</title>
+    <link rel="stylesheet" href="./css/index.css">
+    <link rel="stylesheet" href="./css/checkout.css">
+</head>
+
+<body id="top" class="light-theme">
+
+    <header id="main-header">
+        <div class="header-content">
+            <h1><span>الطلب من</span> التاج السوري</h1>
+            <a href="index.html" class="back-to-shop-btn">رجوع</a>
+        </div>
+    </header>
+
+    <main id="checkout-container">
+        <h2 class="section-heading">إكمال طلبك</h2>
+
+        <div id="checkout-content">
+
+            <section id="shipping-info" class="checkout-card">
+                <h3>1. بيانات التوصيل</h3>
+                <form id="shipping-form">
+                    <div class="form-group">
+                        <label for="customerName">الإسم بالكامل <span>*</span></label>
+                        <input type="text" id="customerName" name="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerPhone">رقم التليفون <span>*</span></label>
+                        <input type="tel" id="customerPhone" name="customerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerAddress">عنوان التوصيل <span>*</span></label>
+                        <textarea id="customerAddress" name="customerAddress" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="customerComments">ملاحظات إضافية (اختياري)</label>
+                        <textarea id="customerComments" name="customerComments" rows="3"></textarea>
+                    </div>
+                </form>
+            </section>
+
+            <section id="order-summary" class="checkout-card">
+                <h3>2. ملخص الطلب</h3>
+                <ul id="checkout-items-list">
+                </ul>
+
+                <div class="summary-totals">
+                    <p>المجموع الفرعي: <span id="checkout-subtotal">$0.00</span></p>
+                    <p class="grand-total-row">الإجمالي الكلي: <span id="checkout-grand-total">$0.00</span></p>
+                </div>
+
+                <p id="empty-cart-message" style="display:none;">
+                    عربيتك فاضية. إرجع للـ <a href="index.html">للصفحة الرئيسية</a> عشان تضيف اكل.
+                </p>
+            </section>
+        </div>
+
+        <div id="checkout-action-area">
+            <button id="place-order-whatsapp" disabled>
+                إطلب عبر الواتساب
+            </button>
+            <p class="whatsapp-note">الضغط على "إطلب" هيفتح الواتساب ببيانات طلبك جاهزة.</p>
+        </div>
+
+    </main>
+
+    <div id="global-footer">
+        <p>التاج السوري. كل الحقوق محفوظة &copy; 2025 </p>
+        <p class="slogan">"التاج السوري ملوك الاكل السوري"</p>
+    </div>
+
+    <script src="./js/checkout.js"></script>
+    <script src="./js/index.js"></script>
+</body>
+
+</html>

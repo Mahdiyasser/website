@@ -181,18 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
             navList.classList.add('open');
             navToggleButton.setAttribute('aria-expanded', 'true');
             body.classList.add('nav-open');
-            document.addEventListener('touchmove', preventTouchMove, { passive: false });
         }
 
         function closeNav() {
             navList.classList.remove('open');
             navToggleButton.setAttribute('aria-expanded', 'false');
             body.classList.remove('nav-open');
-            document.removeEventListener('touchmove', preventTouchMove, { passive: false });
-        }
-
-        function preventTouchMove(e) {
-            if (body.classList.contains('nav-open')) e.preventDefault();
         }
 
         navToggleButton.addEventListener('click', (e) => {
@@ -221,4 +215,5 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
 });

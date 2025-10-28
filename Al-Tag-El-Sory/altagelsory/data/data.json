@@ -9,6 +9,14 @@
                 "description": "شاورما فراخ سوري صغير",
                 "image": ".\/images\/s001.jpg",
                 "shortcut_to": "P001"
+            },
+            {
+                "id": "S002",
+                "name": "بطاطس سوري ",
+                "price": 25,
+                "description": "بطاطس سوري",
+                "image": ".\/images\/s002.jpg",
+                "shortcut_to": "P006"
             }
         ],
         "tag": "normal"

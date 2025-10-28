@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <meta name="description"
+        content="مطعم التاج السوري - أشهى شاورما سوري، برجر لحم ودجاج، ,كريب و اكتر. اطلب الآن لتجربة النكهة الأصيلة!">
+    <title> التاج السوري</title>
+    <meta property="og:title" content="التاج السوري | أشهى الاكل السوري ">
+    <meta property="og:description"
+        content="مطعم التاج السوري - أشهى شاورما سوري، برجر لحم ودجاج، ,كريب و اكتر. اطلب الآن لتجربة النكهة الأصيلة!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://altagelsory.com/index.html">
+    <meta property="og:image" content="./images/logo.jpg">
+
+    <link rel="stylesheet" href="./css/index.css">
+</head>
+
+<body id="top" class="light-theme">
+
+    <header id="main-header">
+        <div class="header-content">
+            <h1>التاج <span>السوري</span></h1>
+            <button id="theme-toggle-button">تغيير الثيم</button>
+        </div>
+    </header>
+
+    <nav id="main-nav">
+        <button id="nav-toggle-button" aria-expanded="false" aria-controls="main-nav-ul">☰</button>
+        <ul id="main-nav-ul" class="header-nav">
+            <li><a href="#top">الرئيسية</a></li>
+            <li><a href="#about-us">عنّا</a></li>
+            <li><a href="#cart-review-section">السلة</a></li>
+        </ul>
+    </nav>
+
+    <main id="products-container">
+        </main>
+
+    <section id="about-us" class="info-section">
+        <h2>عنّا</h2>
+        <p>مطعم التاج السوري هو وجهتك الأولي لتذوق أشهى المأكولات السورية الأصيلة. نحن متخصصون في الشاورما السوري، البرجر (لحم ودجاج)، والكريب، بالإضافة إلى تشكيلة واسعة من البيتزا، الفطائر، الوجبات، والمقبلات.</p>
+        <p>ندعوكم لطلبنا الآن لتجربة النكهة الأصيلة التي نقدمها.</p>
+    </section>
+
+    <section id="contact-us" class="info-section">
+        <h2>إتواصل معانا</h2>
+        <p>محتاج مساعدة في طلب أو عندك سؤال ممكن تتواصل معانا مباشرة عن طريق الأزرار اللي تحت:</p>
+
+        <div class="contact-buttons-container">
+            <a href="mailto:altagelsory@gmail.com" class="contact-button email-btn">
+                إيميل: 📧 altagelsory@gmail.com
+            </a>
+            <a href="tel:+201211117610" class="contact-button phone-btn">
+                إتصل:📞 01211117610
+            </a>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 0.9em; color: var(--text-secondary);">بنرد عليك في كل الاستفسارات
+            اللي بتيجي عالإيميل في خلال 24 ساعة.</p>
+    </section>
+
+
+    <div id="cart-review-section">
+        <h3>🛒 ملخص طلبك</h3>
+        <ul id="cart-items-list">
+        </ul>
+        <div class="cart-summary-totals">
+            <p>المجموع الفرعي: <span id="cart-subtotal">$0.00</span></p>
+            <p class="grand-total">الإجمالي الكلي: <span id="cart-grand-total">$0.00</span></p>
+        </div>
+        <a href="checkout.html" id="proceed-to-checkout" class="checkout-button disabled">
+            إتمام الطلب والدفع
+        </a>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 التاج السوري. كل الحقوق محفوظة.</p>
+    </footer>
+
+    <script src="./js/index.js"></script>
+</body>
+
+</html>

@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('customerName');
     const phoneInput = document.getElementById('customerPhone');
     const addressInput = document.getElementById('customerAddress');
-    // NEW: Reference for the optional comments input
     const commentsInput = document.getElementById('customerComments');
 
     const cartList = document.getElementById('checkout-items-list');
@@ -62,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
             phoneInput.value.trim() !== '' &&
             addressInput.value.trim() !== '';
 
-        // Note: commentsInput is NOT required for validity
 
         if (!isCartEmpty && isFormValid) {
             placeOrderButton.disabled = false;
@@ -79,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerName = nameInput.value.trim();
         const customerPhone = phoneInput.value.trim();
         const customerAddress = addressInput.value.trim();
-        // NEW: Get comments input
         const customerComments = commentsInput.value.trim();
         const { grandTotal } = calculateTotal();
 
@@ -89,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
             productList += `\n🌯 ${item.quantity} قطعة من ${item.name} (بسعر $${item.price.toFixed(2)} للقطعة)`;
         }
 
-        // NEW: Conditionally add comments section
         let commentsSection = '';
         if (customerComments) {
             commentsSection = `\n--- 📝 ملاحظات إضافية ---\nالملاحظات: ${customerComments}\n`;
@@ -101,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `الإسم: ${customerName}\n` +
             `التليفون: ${customerPhone}\n` +
             `العنوان: ${customerAddress}\n` +
-            commentsSection + // NEW: Include comments section if not empty
+            commentsSection +
             `\n--- 🌯 المنتجات المطلوبة ---\n` +
             `${productList}\n` +
             `\n*💰 الإجمالي الكلي: $${grandTotal.toFixed(2)}*\n` +

@@ -67,7 +67,7 @@ body {
     overflow-x: hidden;
     direction: rtl;
     text-align: right;
-    
+
     scrollbar-color: var(--primary-brand-color) var(--background-secondary);
     scrollbar-width: thin;
 }
@@ -111,7 +111,7 @@ header#main-header h1 span {
 #nav-toggle-button {
     display: block;
     cursor: pointer;
-    font-size: 1.5em; 
+    font-size: 1.5em;
     background: var(--background-header);
     color: var(--text-primary);
     border: 2px solid var(--border-color);
@@ -120,12 +120,12 @@ header#main-header h1 span {
     z-index: 1005;
     box-shadow: var(--shadow-subtle);
     transition: background-color 0.3s;
-    
-    position: fixed; 
-    top: 20px; 
-    right: 20px; 
-    left: auto; 
-    
+
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    left: auto;
+
     margin-inline-start: 0;
 }
 
@@ -139,7 +139,7 @@ nav#main-nav {
     justify-content: flex-end;
     align-items: center;
     width: auto;
-    position: relative; 
+    position: relative;
     top: auto;
     left: auto;
     background: transparent;
@@ -155,25 +155,25 @@ nav#main-nav {
     padding: 0;
     gap: 30px;
     width: auto;
-    
+
     flex-direction: column !important;
     flex-wrap: nowrap !important;
     align-items: center;
     justify-content: flex-start;
-    
+
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.9); 
+    background-color: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(8px);
     padding-top: 100px;
     overflow-y: auto;
     z-index: 1001;
-    
-    direction: ltr; 
-    scrollbar-width: none; 
+
+    direction: ltr;
+    scrollbar-width: none;
 }
 
 #main-nav-ul::-webkit-scrollbar {
@@ -214,12 +214,12 @@ nav#main-nav {
 }
 
 @media (max-width: 768px) {
-    
+
     #nav-toggle-button {
-        font-size: 1.5em; 
+        font-size: 1.5em;
         position: fixed;
-        top: 10px; 
-        right: 10px; 
+        top: 10px;
+        right: 10px;
         left: auto;
         z-index: 1005;
         background: var(--background-header);
@@ -227,27 +227,27 @@ nav#main-nav {
         border-radius: 10px;
         padding: 5px 10px;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        transition: none; 
+        transition: none;
     }
-    
+
     #nav-toggle-button:hover,
     #nav-toggle-button:active {
-        background-color: var(--background-header); 
+        background-color: var(--background-header);
         color: var(--text-primary);
     }
-    
+
     #main-nav-ul {
-        padding-top: 80px; 
-        background-color: rgba(0, 0, 0, 0.6); 
-        scrollbar-width: none; 
+        padding-top: 80px;
+        background-color: rgba(0, 0, 0, 0.6);
+        scrollbar-width: none;
     }
-    
+
     #main-nav-ul::-webkit-scrollbar {
         display: none;
         width: 0;
         height: 0;
     }
-    
+
     #main-nav-ul li {
         width: 90%;
     }
@@ -257,15 +257,15 @@ nav#main-nav {
     }
 }
 
-@media (min-width: 769px) { 
+@media (min-width: 769px) {
     #main-nav-ul {
-        direction: ltr; 
-        scrollbar-width: thin; 
+        direction: ltr;
+        scrollbar-width: thin;
     }
 
     #main-nav-ul::-webkit-scrollbar {
-        display: block; 
-        width: 8px; 
+        display: block;
+        width: 8px;
         height: 8px;
     }
 }
@@ -342,7 +342,7 @@ main#products-container {
 .section-special .product-card {
     border: 3px solid var(--golden-color);
     box-shadow: 0 0 25px rgba(212, 175, 55, 0.5);
-    height: 480px; 
+    height: 480px;
 }
 
 .section-special .product-name,
@@ -352,12 +352,12 @@ main#products-container {
 
 .section-special .add-to-cart-initial {
     background-color: var(--golden-color);
-    color: var(--background-header); 
+    color: var(--background-header);
     font-weight: 800;
 }
 
 .section-special .add-to-cart-initial:hover {
-    background-color: #e0b800; 
+    background-color: #e0b800;
     color: var(--background-header);
     transform: translateY(-2px);
 }
@@ -378,31 +378,31 @@ main#products-container {
 }
 
 .section-best-seller .section-title h2 {
-    border-bottom-color: #e74c3c; 
-    color: #e74c3c; 
+    border-bottom-color: #e74c3c;
+    color: #e74c3c;
 }
 
 .section-best-seller .product-card {
-    border: 2px solid #e74c3c; 
-    background-color: var(--background-header); 
+    border: 2px solid #e74c3c;
+    background-color: var(--background-header);
 }
 
 .section-best-seller .product-name {
-    color: var(--text-highlight); 
+    color: var(--text-highlight);
 }
 
 .section-best-seller .product-price {
-    color: #e74c3c; 
-    font-size: 1.7em; 
+    color: #e74c3c;
+    font-size: 1.7em;
 }
 
 .section-best-seller .add-to-cart-initial {
-    background-color: #e74c3c; 
+    background-color: #e74c3c;
     color: white;
 }
 
 .section-best-seller .add-to-cart-initial:hover {
-    background-color: #c0392b; 
+    background-color: #c0392b;
 }
 
 .section-best-seller .product-quantity-control .add-to-card {
@@ -942,4 +942,8 @@ body.light-theme .cart-item {
 
 #language-toggle-button span.lang-text {
     margin-inline-start: 8px;
+}
+
+footer p {
+    text-align: center;
 }

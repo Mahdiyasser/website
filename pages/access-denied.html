@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Access Denied</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: radial-gradient(circle at top left, #101828, #0a0f1a);
+      color: #e8edf3;
+      font-family: 'Inter', system-ui, sans-serif;
+      text-align: center;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2.5em 3em;
+      border-radius: 14px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: .3em;
+      color: #ff6b6b;
+    }
+    p {
+      color: #a0a8b7;
+      margin-bottom: 1.4em;
+      font-size: 1rem;
+    }
+    button {
+      background: linear-gradient(90deg, #ff6b6b, #ff9966);
+      border: none;
+      padding: .7em 1.4em;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .95rem;
+      transition: 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #ff7b7b, #ffaa77);
+    }
+    .id {
+      margin-top: 1.2em;
+      font-size: .85rem;
+      color: #7d8a9a;
+    }
+    .hint {
+      font-size: .8rem;
+      color: #657080;
+      margin-top: .3em;
+    }
+    .icon {
+      font-size: 3.2rem;
+      margin-bottom: 0.4em;
+      color: #ff7b7b;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon">🚫</div>
+    <h1>Access Denied</h1>
+    <p>You don’t have permission to view this page.<br> If you believe this is an error, contact the owner.</p>
+    <button onclick="window.location.href='https://mahdiyasser.site'">Go To Main</button>
+    <div class="id">Incident ID: <span id="incident">—</span></div>
+    <div class="hint">Your attempt has been logged.</div>
+  </div>
+  <script>
+    document.getElementById('incident').textContent = (new Date().getTime()).toString(36);
+  </script>
+</body>
+</html>

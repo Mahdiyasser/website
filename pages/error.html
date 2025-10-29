@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Error</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      background: radial-gradient(circle at bottom right, #1b1f33, #0a0f1a);
+      color: #e8edf3;
+      font-family: 'Inter', system-ui, sans-serif;
+      text-align: center;
+    }
+    .box {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2.5em 3em;
+      border-radius: 14px;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(6px);
+    }
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: .3em;
+      color: #ff3b3b;
+    }
+    p {
+      color: #a0a8b7;
+      margin-bottom: 1.4em;
+      font-size: 1rem;
+    }
+    button {
+      background: linear-gradient(90deg, #ff3b3b, #ff7b7b);
+      border: none;
+      padding: .7em 1.4em;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: .95rem;
+      transition: 0.2s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #ff5b5b, #ff9b9b);
+    }
+    .code {
+      margin-top: 1.2em;
+      font-size: .9rem;
+      color: #7d8a9a;
+    }
+    .hint {
+      font-size: .8rem;
+      color: #657080;
+      margin-top: .3em;
+    }
+    .icon {
+      font-size: 3.2rem;
+      margin-bottom: 0.4em;
+      color: #ff5b5b;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon">⚠️</div>
+    <h1>Something Went Wrong</h1>
+    <p>An unexpected error occurred while loading this page.<br>Please try again later.</p>
+    <button onclick="window.location.href='https://mahdiyasser.site'">Go To Main</button>
+    <div class="code">Error Code: <span id="err">ERR_<span id="id">—</span></span></div>
+    <div class="hint">If this keeps happening, contact the owner.</div>
+  </div>
+  <script>
+    document.getElementById('id').textContent = (new Date().getTime()).toString(36);
+  </script>
+</body>
+</html>
+

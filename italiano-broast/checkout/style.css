@@ -1,0 +1,221 @@
+/* Inherits main variables and core styles from menu/style.css */
+
+.checkout-main-content {
+    display: flex;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 15px;
+    gap: 30px;
+    direction: rtl;
+}
+
+/* Header Adjustments for the back button in RTL */
+.main-header .back-to-menu-btn {
+    font-size: 1.5rem;
+    color: var(--color-text-light);
+    margin-right: 20px; 
+}
+.main-header .logo {
+    margin: 0 25px 0 15px; 
+}
+
+
+.checkout-form-container, .order-summary-container {
+    padding: 25px;
+    border-radius: 10px;
+    background-color: var(--color-text-light); 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.checkout-form-container {
+    flex: 3; 
+    text-align: right;
+}
+
+.order-summary-container {
+    flex: 2;
+    height: fit-content;
+    position: sticky;
+    top: 100px; 
+    border: 2px solid var(--color-primary-green);
+    text-align: right;
+}
+
+h2 {
+    font-size: 2rem;
+    color: var(--color-secondary-red);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--color-accent-yellow);
+    display: inline-block;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--color-text-dark);
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-family: inherit;
+    background-color: #fff;
+    color: var(--color-text-dark);
+    direction: rtl;
+    text-align: right;
+}
+
+.payment-title {
+    font-size: 1.5rem;
+    color: var(--color-primary-green);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    margin-bottom: 10px;
+}
+
+.payment-option:hover {
+    background-color: #f9f9f9;
+}
+
+
+.confirm-order-btn {
+    width: 100%;
+    background-color: #25D366;
+    color: var(--color-text-light);
+    border: none;
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 30px; /* Reverted to 30px */
+}
+.confirm-order-btn:hover {
+    background-color: #128C7E;
+    transform: translateY(-2px);
+}
+.confirm-order-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- Order Summary Styles --- */
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 1rem;
+    border-bottom: 1px dashed #f0f0f0;
+}
+.order-items-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+.summary-details {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.summary-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    font-weight: normal;
+}
+/* This forces the summary subtotal and total to stay right-aligned and close to the currency */
+.summary-line span:nth-child(2) {
+    text-align: right;
+    margin-right: -5px; 
+}
+.summary-line.total-price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-primary-green);
+    border-top: 2px solid var(--color-accent-yellow);
+    padding-top: 10px;
+    margin-top: 10px;
+}
+.currency {
+    font-weight: normal;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+/* --- DARK THEME OVERRIDES --- */
+body.dark-theme .checkout-form-container,
+body.dark-theme .order-summary-container {
+    background-color: var(--color-dark-surface);
+    color: var(--color-dark-text);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-dark-card-border);
+}
+
+body.dark-theme .form-group label {
+    color: var(--color-dark-text);
+}
+
+body.dark-theme .form-group input,
+body.dark-theme .form-group textarea {
+    background-color: #333;
+    border-color: #555;
+    color: var(--color-dark-text);
+}
+body.dark-theme .payment-option {
+    border-color: #555;
+    color: var(--color-dark-text);
+}
+body.dark-theme .payment-option:hover {
+    background-color: #333;
+}
+
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 768px) {
+    .checkout-main-content {
+        flex-direction: column;
+        padding: 0 5%;
+    }
+    
+    .checkout-form-container, .order-summary-container {
+        padding: 20px;
+    }
+
+    .order-summary-container {
+        position: relative;
+        top: 0;
+    }
+}

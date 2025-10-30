@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتمام الطلب | ايطاليانو</title>
+    <link rel="stylesheet" href="../menu/style.css"> 
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+
+    <header class="main-header">
+        <a href="../menu/index.html" class="back-to-menu-btn" title="العودة إلى القائمة">
+            <i class="fas fa-arrow-right"></i>
+        </a>
+        <img src="../images/logo.jpg" alt="شعار ايطاليانو" class="logo">
+        <h1>إتمام الطلب</h1>
+        <button id="checkout-theme-toggle" class="theme-toggle-btn">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <main class="checkout-main-content">
+        
+        <section class="checkout-form-container">
+            <h2>بيانات التوصيل 🚚</h2>
+            <form id="checkout-form" class="checkout-form">
+                
+                <div class="form-group">
+                    <label for="name">الاسم كاملاً *:</label>
+                    <input type="text" id="name" name="name" required placeholder="مثال: أحمد محمد">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">رقم الهاتف *:</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="مثال: 01XXXXXXXXX">
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">الموقع (العنوان التفصيلي) *:</label>
+                    <textarea id="address" name="address" rows="3" required placeholder="التوصيل متاح بحوش عيسي فقط"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">ملاحظات إضافية (اختياري):</label>
+                    <textarea id="notes" name="notes" rows="2" placeholder="ملاحظات بخصوص الطلب أو التوصيل"></textarea>
+                </div>
+                
+                <h3 class="payment-title">طريقة الدفع</h3>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment-method" value="cash" checked>
+                        <span>الدفع عند الاستلام</span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="confirm-order-btn" id="confirm-order-btn">
+                    إرسال الطلب عبر واتساب <i class="fab fa-whatsapp"></i>
+                </button>
+            </form>
+        </section>
+
+        <section class="order-summary-container">
+            <h2>ملخص الطلب 📋</h2>
+            <div id="order-items" class="order-items-list">
+                <p>السلة فارغة. يرجى العودة إلى القائمة.</p>
+            </div>
+
+            <div class="summary-details">
+                <div class="summary-line">
+    <span>إجمالي المنتجات:</span>
+    <span class="price-group">
+        <span id="summary-subtotal">0.00</span>
+        <span class="currency">ج.م</span>
+    </span>
+</div>
+                <div class="summary-line delivery-fee">
+                    <span>رسوم التوصيل:</span>
+                    <span id="delivery-fee">10.00 ج.م</span>
+                </div>
+                <div class="summary-line total-price">
+                    <span>المبلغ المطلوب:</span>
+                    <span class="price-group">
+                        <span id="summary-total">0.00</span>
+                        <span class="currency">ج.م</span>
+                    </span>
+                </div>
+            </div>
+            
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

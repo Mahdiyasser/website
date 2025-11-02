@@ -234,5 +234,33 @@
     </div>
 
     <script src="./js/index.js"></script>
+----------------------------------------------------
+<!-- DEMO SHOP WARNING POPUP -->
+<iframe 
+  id="demoWarning"
+  src="../../pages/demo-warning.html"
+  style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.85);
+  "
+></iframe>
+
+<script>
+  // Listen for popup close from inside iframe
+  const frame = document.getElementById('demoWarning');
+  window.addEventListener('message', (event) => {
+    if (event.data === 'close-demo-popup') {
+      frame.style.display = 'none';
+    }
+  });
+</script>
+
+----------------------------------------------------
 </body>
 </html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تنبيه - Demo Warning</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: "Cairo", sans-serif;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ---- Splash Screen ---- */
+    #start-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 1000;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    #start-screen h2 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #ffcc00;
+    }
+
+    #start-btn {
+      background: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      cursor: pointer;
+      font-size: 1.2em;
+      transition: 0.2s;
+    }
+
+    #start-btn:hover {
+      background: #ffe766;
+      transform: scale(1.05);
+    }
+
+    /* ---- Popup ---- */
+    .popup {
+      background: rgba(26, 26, 26, 0.9);
+      border: 4px solid #ffcc00;
+      border-radius: 15px;
+      padding: 30px 40px;
+      max-width: 600px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 25px #ffcc00;
+      backdrop-filter: blur(5px);
+      display: none;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .popup h1 {
+      color: #ffcc00;
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+
+    .popup p {
+      font-size: 1.2em;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #ffcc00;
+      color: black;
+      border: none;
+      font-weight: bold;
+      font-size: 1em;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: not-allowed;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn.active {
+      cursor: pointer;
+      opacity: 1;
+    }
+
+    .close-btn:hover.active {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Start Screen -->
+  <div id="start-screen">
+    <h2>⚠️ هذا عرض تجريبي فقط ⚠️</h2>
+    <button id="start-btn">اضغط للمتابعة / Tap to Continue</button>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <button class="close-btn" id="closeBtn" disabled>إغلاق (5)</button>
+    <h1>⚠️ تنبيه هام ⚠️</h1>
+    <p>هذا مجرد عرض تجريبي ولا يحتوي على أي منتجات حقيقية أو معاملات فعلية.</p>
+    <hr style="margin:20px 0; border:1px solid #ffcc00;">
+    <p dir="ltr">⚠️ This is only a demo. No real products, payments, or transactions are available here.</p>
+  </div>
+
+<!-- Alert sound -->
+<audio id="alertSound" preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/16/audio_74a3a8a5d4.mp3?filename=warning-notification-248190.mp3" type="audio/mp3">
+</audio>
+
+<script>
+  const startScreen = document.getElementById("start-screen");
+  const startBtn = document.getElementById("start-btn");
+  const popup = document.getElementById("popup");
+  const btn = document.getElementById("closeBtn");
+  const audio = document.getElementById("alertSound");
+
+  let ctx, osc, gain, toneInterval;
+
+  function startAlertTone() {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    osc = ctx.createOscillator();
+    gain = ctx.createGain();
+
+    osc.type = "sine";
+    const now = ctx.currentTime;
+    const dur = 2.0;
+    const fade = 0.3;
+    const lowFreq = 250;
+    const highFreq = 450;
+
+    // base fade in
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.linearRampToValueAtTime(0.12, now + fade); // lowered from 0.2 to 0.12
+
+    // soft loop using re-trigger
+    function playCycle() {
+      const tNow = ctx.currentTime;
+      osc.frequency.setValueAtTime(lowFreq, tNow);
+      osc.frequency.linearRampToValueAtTime(highFreq, tNow + 0.5);
+      osc.frequency.linearRampToValueAtTime(lowFreq, tNow + 1.0);
+      osc.frequency.linearRampToValueAtTime(highFreq, tNow + 1.5);
+      osc.frequency.linearRampToValueAtTime(lowFreq, tNow + dur);
+    }
+    playCycle();
+    toneInterval = setInterval(playCycle, dur * 1000);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+  }
+
+  function stopAlertTone() {
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    gain.gain.linearRampToValueAtTime(0.0001, now + 1.0); // fade out smooth
+    clearInterval(toneInterval);
+    osc.stop(now + 1.0);
+    ctx.close();
+  }
+
+  startBtn.addEventListener("click", () => {
+    startAlertTone();
+    audio.currentTime = 0;
+    audio.play().catch(() => {});
+    startScreen.style.display = "none";
+    popup.style.display = "block";
+
+    let seconds = 5;
+    const timer = setInterval(() => {
+      seconds--;
+      btn.textContent = `إغلاق (${seconds})`;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        btn.textContent = "✖ Close";
+        btn.disabled = false;
+        btn.classList.add("active");
+      }
+    }, 1000);
+  });
+
+  btn.addEventListener("click", () => {
+    if (!btn.disabled) {
+      stopAlertTone();
+      window.parent.postMessage("close-demo-popup", "*");
+    }
+  });
+</script>
+
+
+</body>
+</html>
+

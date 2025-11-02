@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚠️ Demo Mode - Party Warning ⚠️</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Cairo", sans-serif;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* --- NIGHTCLUB BACKGROUND --- */
+    .party-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, #0ff2, #00f3, #f002);
+      z-index: 0;
+      opacity: 0.4;
+      animation: nightclub 2s infinite alternate ease-in-out;
+      filter: blur(25px);
+    }
+
+    @keyframes nightclub {
+      0% { background: radial-gradient(circle at 30% 30%, #f00, #00f); }
+      25% { background: radial-gradient(circle at 70% 40%, #0ff, #f0f); }
+      50% { background: radial-gradient(circle at 50% 70%, #ff0, #0ff); }
+      75% { background: radial-gradient(circle at 60% 60%, #f0f, #f00); }
+      100% { background: radial-gradient(circle at 40% 30%, #00f, #0f0); }
+    }
+
+    /* ---- Start Screen ---- */
+    #start-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 10;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    #start-screen h2 {
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      color: #ffcc00;
+    }
+
+    #start-btn {
+      background: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
+      cursor: pointer;
+      font-size: 1.3em;
+      transition: 0.3s ease;
+      box-shadow: 0 0 20px #ffcc0088;
+    }
+
+    #start-btn:hover {
+      background: #ffe766;
+      transform: scale(1.07);
+      box-shadow: 0 0 25px #ffcc00;
+    }
+
+    /* ---- Popup ---- */
+    .popup {
+      background: rgba(26, 26, 26, 0.85);
+      border: 4px solid #ffcc00;
+      border-radius: 15px;
+      padding: 30px 40px;
+      max-width: 600px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 0 25px #ffcc00;
+      backdrop-filter: blur(10px);
+      display: none;
+      z-index: 5;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .popup h1 {
+      color: #ffcc00;
+      font-size: 2em;
+      margin-bottom: 15px;
+    }
+
+    .popup p {
+      font-size: 1.2em;
+      margin: 10px 0;
+      line-height: 1.6;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #ffcc00;
+      color: black;
+      border: none;
+      font-weight: bold;
+      font-size: 1em;
+      border-radius: 5px;
+      padding: 6px 12px;
+      cursor: not-allowed;
+      opacity: 0.8;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn.active {
+      cursor: pointer;
+      opacity: 1;
+    }
+
+    .close-btn:hover.active {
+      transform: scale(1.05);
+    }
+
+    /* Mosquito 🦟 */
+    .mosquito {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: url('https://upload.wikimedia.org/wikipedia/commons/5/5b/Mosquito_icon.png') no-repeat center/contain;
+      animation: buzz 7s infinite linear;
+      z-index: 9;
+      opacity: 0.8;
+    }
+
+    @keyframes buzz {
+      0% { top:10%; left:10%; transform: rotate(0deg); }
+      25% { top:40%; left:80%; transform: rotate(15deg); }
+      50% { top:70%; left:20%; transform: rotate(-10deg); }
+      75% { top:50%; left:60%; transform: rotate(5deg); }
+      100% { top:10%; left:10%; transform: rotate(0deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="party-bg"></div>
+
+  <!-- Start Screen -->
+  <div id="start-screen">
+    <h2>⚠️ هذا عرض تجريبي فقط ⚠️</h2>
+    <button id="start-btn">اضغط للدخول إلى الوضع التجريبي 💥</button>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup" id="popup">
+    <button class="close-btn" id="closeBtn" disabled>إغلاق (5)</button>
+    <h1>🚨 تنبيه هام 🚨</h1>
+    <p>هذا مجرد عرض تجريبي ولا يحتوي على منتجات حقيقية أو معاملات فعلية.</p>
+    <hr style="margin:20px 0; border:1px solid #ffcc00;">
+    <p dir="ltr">⚠️ This is only a demo. No real products, payments, or transactions are available here.</p>
+    <div class="mosquito"></div>
+  </div>
+
+  <!-- Sounds -->
+  <audio id="buzzSound" loop preload="auto">
+    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_fa4a20cf67.mp3?filename=mosquito-buzzing-19223.mp3" type="audio/mp3">
+  </audio>
+
+  <script>
+    const startScreen = document.getElementById("start-screen");
+    const startBtn = document.getElementById("start-btn");
+    const popup = document.getElementById("popup");
+    const btn = document.getElementById("closeBtn");
+    const buzz = document.getElementById("buzzSound");
+
+    let ctx, osc, gain, toneInterval;
+
+    function startAlertTone() {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      osc = ctx.createOscillator();
+      gain = ctx.createGain();
+
+      osc.type = "sine";
+      gain.gain.value = 0.1;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      const low = 250, high = 450;
+      function cycle() {
+        const now = ctx.currentTime;
+        osc.frequency.setValueAtTime(low, now);
+        osc.frequency.linearRampToValueAtTime(high, now + 0.5);
+        osc.frequency.linearRampToValueAtTime(low, now + 1.0);
+      }
+      cycle();
+      toneInterval = setInterval(cycle, 1000);
+      osc.start();
+    }
+
+    function stopAlertTone() {
+      if (!ctx) return;
+      gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+      clearInterval(toneInterval);
+      osc.stop(ctx.currentTime + 0.5);
+      ctx.close();
+    }
+
+    function flashPopup() {
+      const colors = ["#ff0000", "#0000ff", "#ffffff", "#ff6600", "#00ffff"];
+      let i = 0;
+      setInterval(() => {
+        popup.style.borderColor = colors[i % colors.length];
+        popup.style.boxShadow = `0 0 30px ${colors[i % colors.length]}`;
+        i++;
+      }, 300);
+    }
+
+    startBtn.addEventListener("click", () => {
+      startAlertTone();
+      buzz.volume = 0.15;
+      buzz.play().catch(()=>{});
+      startScreen.style.display = "none";
+      popup.style.display = "block";
+      flashPopup();
+
+      let seconds = 5;
+      const timer = setInterval(() => {
+        seconds--;
+        btn.textContent = `إغلاق (${seconds})`;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          btn.textContent = "✖ Close";
+          btn.disabled = false;
+          btn.classList.add("active");
+        }
+      }, 1000);
+    });
+
+    btn.addEventListener("click", () => {
+      if (!btn.disabled) {
+        stopAlertTone();
+        buzz.pause();
+        buzz.currentTime = 0;
+        window.parent.postMessage("close-demo-popup", "*");
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,464 @@
+[
+    {
+        "section": "اطباق خاصة",
+        "tag": "special",
+        "products": [
+            {
+                "id": "P043",
+                "name": "طبق قنبلة الملوك",
+                "price": 70,
+                "description": "رز بلبن مع مكسرات مع مانجو مع ايس كريم مع كنافة مع بسبوسة",
+                "image": "images\/p043.jpg",
+                "variants": [],
+                "base_size": ""
+            }
+        ]
+    },
+    {
+        "section": "الاكثر مبيعا",
+        "tag": "best seller",
+        "products": [
+            {
+                "id": "S004",
+                "name": "قشطوطة صوص فراولة",
+                "price": 55,
+                "description": "قشطوطة صوص فراولة",
+                "image": "images\/s004.jpg",
+                "shortcut_to": "P004",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "S003",
+                "name": "رز بلبن مكسرات",
+                "price": 50,
+                "description": "رز بلبن مكسرات",
+                "image": "images\/s041.jpg",
+                "shortcut_to": "P041",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "S005",
+                "name": "قشطوطة لوتس",
+                "price": 60,
+                "description": "قشطوطة لوتس",
+                "image": "images\/s011.jpg",
+                "shortcut_to": "P011",
+                "variants": [],
+                "base_size": ""
+            }
+        ]
+    },
+    {
+        "section": "القشطوطة",
+        "tag": "normal",
+        "products": [
+            {
+                "id": "P001",
+                "name": "قشطوطة سادة",
+                "price": 45,
+                "description": "قشطوطة سادة",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P002",
+                "name": "قشطوطة كراميل",
+                "price": 55,
+                "description": "قشطوطة كراميل",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P003",
+                "name": "قشطوطة نوتيلا",
+                "price": 55,
+                "description": "قشطوطة نوتيلا",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P004",
+                "name": "قشطوطة صوص فراولة",
+                "price": 55,
+                "description": "قشطوطة صوص فراولة",
+                "image": "images\/p004.jpg",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P005",
+                "name": "قشطوطة ايس كريم",
+                "price": 55,
+                "description": "قشطوطة ايس كريم",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P006",
+                "name": "قشطوطة دارك شوكليت",
+                "price": 55,
+                "description": "قشطوطة دارك شوكليت",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P007",
+                "name": "قشطوطة وايت شوكليت",
+                "price": 60,
+                "description": "قشطوطة وايت شوكليت",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P008",
+                "name": "قشطوطة كندر",
+                "price": 60,
+                "description": "قشطوطة كندر",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P009",
+                "name": "قشطوطة روشيه",
+                "price": 60,
+                "description": "قشطوطة روشيه",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P010",
+                "name": "قشطوطة اوريو",
+                "price": 60,
+                "description": "قشطوطة اوريو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P011",
+                "name": "قشطوطة لوتس",
+                "price": 60,
+                "description": "قشطوطة لوتس",
+                "image": "images\/p011.jpg",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P012",
+                "name": "قشطوطة صوص بستاشيو",
+                "price": 65,
+                "description": "قشطوطة صوص بستاشيو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P013",
+                "name": "قشطوطة مكسرات",
+                "price": 65,
+                "description": "قشطوطة مكسرات",
+                "image": "images\/p013.jpg",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P014",
+                "name": "قشطوطة مانجو",
+                "price": 65,
+                "description": "قشطوطة مانجو",
+                "image": "images\/p014.jpg",
+                "variants": [],
+                "base_size": ""
+            }
+        ]
+    },
+    {
+        "section": "ميني قشطوطة",
+        "tag": "normal",
+        "products": [
+            {
+                "id": "P015",
+                "name": "ميني قشطوطة سادة",
+                "price": 25,
+                "description": "ميني قشطوطة سادة",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P016",
+                "name": "ميني قشطوطة كراميل",
+                "price": 30,
+                "description": "ميني قشطوطة كراميل",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P017",
+                "name": "ميني قشطوطة نوتيلا",
+                "price": 30,
+                "description": "ميني قشطوطة نوتيلا",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P018",
+                "name": "ميني قشطوطة صوص فراولة",
+                "price": 30,
+                "description": "ميني قشطوطة صوص فراولة",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P019",
+                "name": "ميني قشطوطة ايس كريم",
+                "price": 30,
+                "description": "ميني قشطوطة ايس كريم",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P020",
+                "name": "ميني قشطوطة دارك شوكليت",
+                "price": 30,
+                "description": "ميني قشطوطة دارك شوكليت",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P021",
+                "name": "ميني قشطوطة وايت شوكليت",
+                "price": 30,
+                "description": "ميني قشطوطة وايت شوكليت",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P022",
+                "name": "ميني قشطوطة كندر",
+                "price": 30,
+                "description": "ميني قشطوطة كندر",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P023",
+                "name": "ميني قشطوطة روشيه",
+                "price": 30,
+                "description": "ميني قشطوطة روشيه",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P024",
+                "name": "ميني قشطوطة اوريو",
+                "price": 30,
+                "description": "ميني قشطوطة اوريو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P025",
+                "name": "ميني قشطوطة لوتس",
+                "price": 30,
+                "description": "ميني قشطوطة لوتس",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P026",
+                "name": "ميني قشطوطة صوص بستاشيو",
+                "price": 35,
+                "description": "ميني قشطوطة صوص بستاشيو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P027",
+                "name": "ميني قشطوطة مكسرات",
+                "price": 35,
+                "description": "ميني قشطوطة مكسرات",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P028",
+                "name": "ميني قشطوطة مانجو",
+                "price": 35,
+                "description": "ميني قشطوطة مانجو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            }
+        ]
+    },
+    {
+        "section": "الارز بلبن",
+        "tag": "normal",
+        "products": [
+            {
+                "id": "P029",
+                "name": "رز بلبن سادة",
+                "price": 25,
+                "description": "رز بلبن سادة",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P030",
+                "name": "رز بلبن زبيب",
+                "price": 30,
+                "description": "رز بلبن زبيب",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P031",
+                "name": "رز بلبن نوتيلا",
+                "price": 30,
+                "description": "رز بلبن نوتيلا",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P032",
+                "name": "رز بلبن صوص فراولة",
+                "price": 30,
+                "description": "رز بلبن صوص فراولة",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P033",
+                "name": "رز بلبن ايس كريم",
+                "price": 40,
+                "description": "رز بلبن ايس كريم",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P034",
+                "name": "رز بلبن دارك شوكليت",
+                "price": 30,
+                "description": "رز بلبن دارك شوكليت",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P035",
+                "name": "رز بلبن وايت شوكليت",
+                "price": 35,
+                "description": "رز بلبن وايت شوكليت",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P036",
+                "name": "رز بلبن كندر",
+                "price": 40,
+                "description": "رز بلبن كندر",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P037",
+                "name": "رز بلبن روشيه",
+                "price": 40,
+                "description": "رز بلبن روشيه",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P038",
+                "name": "رز بلبن اوريو",
+                "price": 45,
+                "description": "رز بلبن اوريو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P039",
+                "name": "رز بلبن لوتس",
+                "price": 45,
+                "description": "رز بلبن لوتس",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P040",
+                "name": "رز بلبن صوص بستاشيو",
+                "price": 45,
+                "description": "رز بلبن صوص بستاشيو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P041",
+                "name": "رز بلبن مكسرات",
+                "price": 50,
+                "description": "رز بلبن مكسرات",
+                "image": "images\/p041.jpg",
+                "variants": [],
+                "base_size": ""
+            },
+            {
+                "id": "P042",
+                "name": "رز بلبن مانجو",
+                "price": 50,
+                "description": "رز بلبن مانجو",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            }
+        ]
+    },
+    {
+        "section": "الاضافات",
+        "tag": "normal",
+        "products": [
+            {
+                "id": "P044",
+                "name": "كيس مكسرات",
+                "price": 20,
+                "description": "كيس مكسرات",
+                "image": "",
+                "variants": [],
+                "base_size": ""
+            }
+        ]
+    }
+]

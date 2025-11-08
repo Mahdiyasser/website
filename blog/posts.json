@@ -13,5 +13,13 @@
         "file": "\/blog\/assets\/posts\/cms.html",
         "desc": "what is a CMS",
         "location": "Hosh issa,Behira,Egypt"
+    },
+    {
+        "title": "i make shops now",
+        "date": "2025-11-09 01:23",
+        "thumbnail": "\/blog\/assets\/images\/i-make-shops-now\/thumbnail.png",
+        "file": "\/blog\/assets\/posts\/i-make-shops-now.html",
+        "desc": "I make shops now. Yeah\u2026 I actually do.",
+        "location": "Hosh Issa, Beheira, Egypt"
     }
 ]

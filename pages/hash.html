@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Hash Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1e3c72;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 24px);
+            padding: 15px 12px;
+            margin-bottom: 20px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1.1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #2a5298;
+            outline: none;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        #resultBox {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: none;
+            text-align: left;
+            word-wrap: break-word;
+        }
+
+        #hashOutput {
+            font-size: 1em;
+            color: #d9534f;
+            font-weight: bold;
+            user-select: all;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 10px;
+            color: #1e3c72;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔑 Secure SHA-256 Hash Generator</h1>
+    <p>
+        Enter the secret access code (the original password) below to generate the secure hash required for your paywall.
+    </p>
+
+    <input type="text" id="secretCode" placeholder="Enter the Secret Code (e.g., ClientAccess123)">
+    
+    <button onclick="generateHash()">Generate Hash</button>
+
+    <div id="resultBox">
+        <span class="label">Generated Hash (Copy this entire string):</span>
+        <code id="hashOutput"></code>
+    </div>
+</div>
+
+<script>
+    function generateHash() {
+        const secretCode = document.getElementById('secretCode').value.trim();
+        const resultBox = document.getElementById('resultBox');
+        const hashOutput = document.getElementById('hashOutput');
+        
+        if (secretCode === "") {
+            hashOutput.textContent = "Please enter the code first.";
+            resultBox.style.display = 'block';
+            resultBox.style.backgroundColor = '#fceaea';
+            return;
+        }
+
+        try {
+            // Use CryptoJS instead of the restrictive native Web Crypto API
+            const hash = CryptoJS.SHA256(secretCode).toString(CryptoJS.enc.Hex);
+
+            hashOutput.textContent = hash;
+            resultBox.style.display = 'block';
+            resultBox.style.backgroundColor = '#f0f0f0';
+
+        } catch (e) {
+            hashOutput.textContent = "Error: Hashing failed. Ensure the CDN script is loaded.";
+            resultBox.style.display = 'block';
+            resultBox.style.backgroundColor = '#fceaea';
+        }
+    }
+</script>
+
+</body>
+</html>

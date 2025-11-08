@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>صفحة الدخول</title>
+
+  <!-- CryptoJS (you already used 4.2.0) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+  <style>
+    html,body{height:100%;margin:0;font-family:Arial, sans-serif;direction:rtl}
+    body{display:flex;align-items:center;justify-content:center;background:transparent;overflow:hidden}
+    .access-gate{background:#fff;padding:36px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.12);max-width:560px;width:92%;text-align:right}
+    h1{color:#dc3545;margin:0 0 6px;font-size:1.6rem}
+    p{color:#495057;margin:0 0 18px;line-height:1.6}
+    input[type="password"]{width:100%;padding:12px;border:2px solid #ced4da;border-radius:8px;margin-bottom:12px;font-size:1rem;text-align:right;box-sizing:border-box}
+    button{width:100%;padding:12px;border-radius:8px;border:0;background:#007bff;color:#fff;font-weight:700;cursor:pointer}
+    .error{color:#dc3545;height:22px;margin-top:10px;font-weight:700;visibility:hidden}
+  </style>
+</head>
+<body>
+
+  <div id="accessGate" class="access-gate" role="dialog" aria-modal="true">
+    <h1>العرض التجريبي خلص</h1>
+    <p>تواصل معايا لو عايز الخدمة دي. فترة العرض التجريبي بتاعتك خلصت.</p>
+
+    <div id="password-form">
+      <label for="accessCode" style="display:none">كود الدخول</label>
+      <input id="accessCode" type="password" placeholder="دخل الـ Code اللي معاك" dir="rtl" autocomplete="one-time-code" />
+      <button id="submitBtn">خش على الصفحة</button>
+      <div id="errorMessage" class="error" aria-live="polite"></div>
+    </div>
+  </div>
+
+<script>
+/* -------------------------
+   CONFIG
+   ------------------------- */
+const CORRECT_HASH = 'cf0b209af2c650bfc7b619fe2636a38464ad30459b4ba83d48937e8d9508532a';
+const RICKROLL_URL = 'https://youtu.be/xvFZjo5PgG0?si=Zj9PEQzVYsQlqyQc';
+/* ------------------------- */
+
+
+/*
+  Behavior summary:
+  - On load: lock parent's scroll (if same-origin).
+  - Poll: check if iframe element has been removed from parent (window.frameElement === null).
+    If removed AND we did NOT explicitly mark removal as allowed (window.__allow_removal),
+    redirect top to RICKROLL_URL.
+  - When correct code entered: set window.__allow_removal = true then remove the iframe element
+    (so the poll won't trigger the rickroll).
+*/
+
+// defensive globals (keeps console-snoopers from easily setting them)
+window.__allow_removal = false;
+window.__trap_active = true;
+
+// try to lock parent scroll (best-effort; catches cross-origin errors)
+(function lockParentScroll() {
+  try {
+    if (window.parent && window.parent.document && window.frameElement) {
+      window.parent.document.body.style.overflow = 'hidden';
+    }
+  } catch (e) {
+    // ignore cross-origin issues
+  }
+})();
+
+// helper: show error
+function setError(msg){
+  const el = document.getElementById('errorMessage');
+  el.textContent = msg || '';
+  el.style.visibility = msg ? 'visible' : 'hidden';
+}
+
+/* ---------- Access check (unchanged logic) ---------- */
+document.getElementById('submitBtn').addEventListener('click', checkAccess);
+document.getElementById('accessCode').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') checkAccess();
+});
+
+function checkAccess(){
+  const enteredCode = document.getElementById('accessCode').value.trim();
+  if (!enteredCode) {
+    setError('من فضلك دخل الكود.');
+    return;
+  }
+  try {
+    const enteredHash = CryptoJS.SHA256(enteredCode).toString(CryptoJS.enc.Hex);
+    if (enteredHash === CORRECT_HASH) {
+      // correct -> allow removal, unlock parent scroll and remove the iframe gracefully
+      window.__allow_removal = true;
+      setError('');
+      const gate = document.getElementById('accessGate');
+      gate.style.display = 'none';
+
+      // Unlock parent's scroll (best-effort)
+      try {
+        if (window.parent && window.parent.document) {
+          window.parent.document.body.style.overflow = '';
+        }
+      } catch (_) {}
+
+      // Remove iframe element (delayed a tiny bit to avoid race with the poll)
+      setTimeout(() => {
+        try {
+          if (window.frameElement && window.frameElement.remove) {
+            window.frameElement.remove();
+          } else {
+            // fallback: try navigating top to same page (safe no-op)
+            // but we prefer removal
+          }
+        } catch (_) {}
+      }, 120);
+    } else {
+      setError('الكود ده غلط. جرب تاني.');
+      document.getElementById('accessCode').value = '';
+    }
+  } catch (e) {
+    setError('خطأ في التحقق. حاول تحديث الصفحة.');
+    console.warn(e);
+  }
+}
+
+/* ---------- Self-protection / tamper detection ---------- */
+(function tamperWatch(){
+  const CHECK_INTERVAL_MS = 600; // how often to check
+  let checks = 0;
+
+  const id = setInterval(() => {
+    checks++;
+
+    // if trap disabled by code, stop
+    if (!window.__trap_active) {
+      clearInterval(id);
+      return;
+    }
+
+    // If iframe element becomes null (removed), and removal hasn't been explicitly allowed
+    try {
+      const frameStillExists = Boolean(window.frameElement);
+      if (!frameStillExists && !window.__allow_removal) {
+        // nukes page and redirect
+        try { document.documentElement.innerHTML = ''; } catch (_) {}
+        // redirect top (best-effort)
+        try {
+          top.location.href = RICKROLL_URL;
+        } catch (e) {
+          // fallback: open in same window
+          window.location.href = RICKROLL_URL;
+        }
+        clearInterval(id);
+        return;
+      }
+    } catch (e) {
+      // cross-origin oddities, ignore
+    }
+
+    // Extra checks (optional): if someone sets accessGate to null from inside the iframe, react
+    try {
+      const gate = document.getElementById('accessGate');
+      if (!gate && !window.__allow_removal) {
+        try { document.documentElement.innerHTML = ''; } catch (_) {}
+        try {
+          top.location.href = RICKROLL_URL;
+        } catch (_) {
+          window.location.href = RICKROLL_URL;
+        }
+        clearInterval(id);
+        return;
+      }
+    } catch (e){}
+
+    // safety bail after many checks (prevents infinite loop on weird envs)
+    if (checks > 6000) clearInterval(id);
+
+  }, CHECK_INTERVAL_MS);
+})();
+
+/* ---------- When iframe unloads normally (fallback unlocking) ---------- */
+window.addEventListener('beforeunload', () => {
+  try {
+    if (window.parent && window.parent.document) {
+      // only unlock if we allowed removal (safe)
+      if (window.__allow_removal) {
+        window.parent.document.body.style.overflow = '';
+      } else {
+        // if we are unloading without permission, redirect top as a final step
+        try { top.location.href = RICKROLL_URL; } catch (_) {}
+      }
+    }
+  } catch (e) {}
+});
+</script>
+
+</body>
+</html>
+

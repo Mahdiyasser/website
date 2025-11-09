@@ -3,13 +3,14 @@ html {
 }
 
 :root {
-    --color-primary-red-dark: #a30000;
-    --color-secondary-red-bright: #e60000;
+    --color-primary-green: #009933;     /* Restaurant Signage Green */
+    --color-secondary-red: #D31E1E;     /* Restaurant Appetizer Red */
     --color-text-light: #ffffff;
     --color-text-dark: #333;
-    --color-accent-black: #000000;
+    --color-accent-yellow: #FFCC00;     /* Restaurant Accent Yellow/Gold */
     --color-background-light: #f4f4f4;
 
+    /* NEW: Dark Theme Variables (Adjusted based on new palette) */
     --color-dark-background: #1a1a1a;
     --color-dark-surface: #262626;
     --color-dark-text: #f4f4f4;
@@ -20,6 +21,7 @@ html {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    /* Add smooth transition for theme changes */
     transition: background-color 0.4s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
 }
 
@@ -44,7 +46,7 @@ section {
 
 section h2 {
     font-size: 2rem;
-    color: var(--color-secondary-red-bright);
+    color: var(--color-secondary-red);
     margin-bottom: 40px;
     position: relative;
     display: inline-block;
@@ -55,12 +57,12 @@ section h2::after {
     display: block;
     width: 60%;
     height: 3px;
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     margin: 8px auto 0;
 }
 
 .main-header {
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -73,7 +75,7 @@ section h2::after {
     width: 70px;
     object-fit: cover; 
     border-radius: 50%;
-    border: 3px solid var(--color-accent-black);
+    border: 3px solid var(--color-accent-yellow); 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -85,25 +87,29 @@ section h2::after {
 }
 
 .nav-links a:hover {
-    color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
 }
 
+/* NEW: Navigation Button Styling */
 .nav-links .nav-button {
     color: var(--color-text-light);
-    margin-right: 10px; 
-    padding: 8px 15px; 
-    border: 2px solid var(--color-accent-black);
-    border-radius: 5px; 
+    margin-right: 10px; /* Reduced margin for button look */
+    padding: 8px 15px; /* Added padding to look like a button */
+    border: 2px solid var(--color-accent-yellow); /* Border for button look */
+    border-radius: 5px; /* Slightly rounded corners */
     font-weight: bold;
     font-size: 1.1rem;
     transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
 .nav-links .nav-button:hover {
-    color: var(--color-primary-red-dark);
-    background-color: var(--color-accent-black);
+    color: var(--color-primary-green);
+    background-color: var(--color-accent-yellow);
 }
+/* END NEW: Navigation Button Styling */
 
+
+/* NEW: Theme Toggle Button Styling */
 .theme-toggle-btn {
     background: none;
     border: none;
@@ -116,12 +122,14 @@ section h2::after {
     padding: 5px;
 }
 .theme-toggle-btn:hover {
-    color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
     transform: scale(1.1);
 }
 
+
+/* PC/Default Banner Style */
 .hero-section {
-    background-image: url('./images/banner.png'); 
+    background-image: url('./images/banner.png'); /* PC/Default Banner */
     background-size: cover;
     background-position: center;
     height: 60vh;
@@ -132,7 +140,7 @@ section h2::after {
     padding-right: 5%;
     color: var(--color-text-light);
     position: relative;
-    padding: 0 5%; 
+    padding: 0 5%; /* Reset padding for content alignment */
 }
 
 .hero-section::before {
@@ -149,14 +157,14 @@ section h2::after {
 .hero-content {
     z-index: 10;
     max-width: 500px;
-    padding-right: 0; 
+    padding-right: 0; /* Content padding handled by section */
 }
 
 .hero-content h1 {
     font-size: 3.5rem;
-    color: var(--color-text-light);
+    color: var(--color-accent-yellow);
     margin-bottom: 10px;
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.9);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
 .hero-content p {
@@ -167,7 +175,7 @@ section h2::after {
 
 .cta-button {
     display: inline-block;
-    background-color: var(--color-secondary-red-bright);
+    background-color: var(--color-secondary-red);
     color: var(--color-text-light);
     padding: 15px 30px;
     border-radius: 50px;
@@ -178,12 +186,12 @@ section h2::after {
 }
 
 .cta-button:hover {
-    background-color: var(--color-primary-red-dark);
+    background-color: #ff5900; /* Used the Fried Onion Orange/Red to create a rich hover effect */
     transform: translateY(-2px);
 }
 
 .about-us-section {
-    background-color: var(--color-text-light); 
+    background-color: yellow; 
     padding: 60px 5%;
 }
 
@@ -206,14 +214,14 @@ section h2::after {
     height: 300px; 
     object-fit: cover; 
     border-radius: 50%; 
-    border: 5px solid var(--color-accent-black);
+    border: 5px solid var(--color-accent-yellow); 
     display: block; 
     margin: 30px auto; 
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
 }
 
 .about-content h3 {
-    color: var(--color-secondary-red-bright);
+    color: var(--color-primary-green);
     margin-top: 30px;
     margin-bottom: 15px;
 }
@@ -227,7 +235,7 @@ section h2::after {
 
 .about-content ul li {
     padding: 8px 0;
-    border-right: 3px solid var(--color-primary-red-dark);
+    border-right: 3px solid var(--color-secondary-red); 
     padding-right: 15px;
     margin-bottom: 8px;
 }
@@ -235,7 +243,7 @@ section h2::after {
 .separator {
     border: 0;
     height: 1px;
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), var(--color-accent-black), rgba(0, 0, 0, 0));
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 153, 51, 0.75), rgba(0, 0, 0, 0)); /* Primary Green value */
     margin: 40px auto;
     max-width: 500px;
 }
@@ -263,23 +271,23 @@ section h2::after {
 
 .promise-item i {
     font-size: 3rem;
-    color: var(--color-secondary-red-bright);
+    color: var(--color-primary-green);
     margin-bottom: 15px;
 }
 
 .promise-item h3 {
     font-size: 1.4rem;
     margin-bottom: 10px;
-    color: var(--color-primary-red-dark);
+    color: var(--color-secondary-red);
 }
 
 .menu-teaser {
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     color: var(--color-text-light);
 }
 
 .menu-teaser h2 {
-    color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
 }
 
 .menu-teaser h2::after {
@@ -298,7 +306,7 @@ section h2::after {
 
 .menu-list li {
     padding: 8px 15px;
-    border: 2px solid var(--color-accent-black);
+    border: 2px solid var(--color-accent-yellow);
     border-radius: 5px;
 }
 
@@ -323,7 +331,7 @@ section h2::after {
 }
 
 .contact-info h3, .social-media h3, .footer-map h3 {
-    color: var(--color-secondary-red-bright);
+    color: var(--color-accent-yellow);
     margin-bottom: 15px;
 }
 
@@ -333,7 +341,7 @@ section h2::after {
 
 .contact-info p i {
     margin-left: 8px;
-    color: var(--color-secondary-red-bright);
+    color: var(--color-accent-yellow);
 }
 
 .contact-info p a {
@@ -344,7 +352,7 @@ section h2::after {
 }
 
 .contact-info p a:hover {
-    color: var(--color-secondary-red-bright);
+    color: var(--color-accent-yellow); 
     text-decoration: underline;
 }
 
@@ -355,7 +363,7 @@ section h2::after {
 }
 
 .social-media a:hover {
-    color: var(--color-secondary-red-bright);
+    color: var(--color-primary-green);
 }
 
 .footer-map {
@@ -376,75 +384,86 @@ section h2::after {
     color: #aaa;
 }
 
-.dark-theme {
+/* --- DARK THEME STYLES --- */
+
+/* Base overrides */
+body.dark-theme {
     background-color: var(--color-dark-background);
     color: var(--color-dark-text);
 }
 
-.dark-theme section h2 {
-    color: var(--color-secondary-red-bright);
+body.dark-theme section h2 {
+    color: var(--color-accent-yellow); /* Make section titles stand out */
 }
-.dark-theme section h2::after {
-    background-color: var(--color-secondary-red-bright);
+body.dark-theme section h2::after {
+    background-color: var(--color-accent-yellow);
 }
 
-.dark-theme .about-us-section {
+/* About Us Section Overrides */
+body.dark-theme .about-us-section {
     background-color: var(--color-dark-surface);
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5); 
 }
-.dark-theme .about-content p {
+body.dark-theme .about-content p {
     color: var(--color-dark-text);
 }
-.dark-theme .about-content ul li {
-    border-right-color: var(--color-secondary-red-bright);
+body.dark-theme .about-content ul li {
+    border-right-color: var(--color-accent-yellow); /* Yellow line instead of red */
 }
-.dark-theme .about-content h3 {
-    color: var(--color-secondary-red-bright);
-}
-
-.dark-theme .separator {
-    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), var(--color-secondary-red-bright), rgba(0, 0, 0, 0));
+body.dark-theme .about-content h3 {
+    color: var(--color-accent-yellow);
 }
 
-.dark-theme .promise-section {
+/* Separator adjustment */
+body.dark-theme .separator {
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0), var(--color-accent-yellow), rgba(0, 0, 0, 0));
+}
+
+/* Promise Section Overrides */
+body.dark-theme .promise-section {
     background-color: var(--color-dark-background);
 }
-.dark-theme .promise-item {
+body.dark-theme .promise-item {
     background-color: var(--color-dark-surface);
     border-color: var(--color-dark-card-border);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-.dark-theme .promise-item i {
-    color: var(--color-secondary-red-bright);
+body.dark-theme .promise-item i {
+    color: var(--color-accent-yellow);
 }
-.dark-theme .promise-item h3 {
-    color: var(--color-primary-red-dark);
+body.dark-theme .promise-item h3 {
+    color: var(--color-primary-green);
 }
 
-.dark-theme .main-footer {
+/* Footer Overrides */
+body.dark-theme .main-footer {
     background-color: #000;
 }
-.dark-theme .footer-content {
+body.dark-theme .footer-content {
     border-bottom-color: #333;
 }
-.dark-theme .contact-info p a {
+body.dark-theme .contact-info p a {
     color: var(--color-dark-text); 
 }
-.dark-theme .social-media a:hover {
-    color: var(--color-secondary-red-bright);
+body.dark-theme .social-media a:hover {
+    color: var(--color-accent-yellow);
 }
 
-.dark-theme .nav-links .nav-button:hover {
-    color: var(--color-primary-red-dark);
-    background-color: var(--color-secondary-red-bright);
+/* Dark Theme Nav Button Overrides */
+body.dark-theme .nav-links .nav-button:hover {
+    color: var(--color-dark-background); /* Dark background text on hover */
+    background-color: var(--color-accent-yellow);
 }
 
 
+/* --- MOBILE OPTIMIZATION (max-width: 768px) --- */
 @media (max-width: 768px) {
+    /* Global Section Adjustments */
     section {
         padding: 40px 5%;
     }
     
+    /* Header/Navigation Layout */
     .main-header {
         flex-direction: row; 
         justify-content: space-between;
@@ -470,14 +489,15 @@ section h2::after {
     }
 
     .nav-links .nav-button {
-        margin: 5px 3px; 
-        padding: 6px 10px; 
-        font-size: 0.9rem; 
+        margin: 5px 3px; /* Adjusted margin for mobile */
+        padding: 6px 10px; /* Adjusted padding for mobile */
+        font-size: 0.9rem; /* Adjusted font size for mobile */
     }
     
+    /* Hero Section FIX: Reduced Height for Mobile */
     .hero-section {
-        background-image: url('./images/banner-mobile.png'); 
-        height: 25vh; 
+        background-image: url('./images/banner-mobile.png'); /* Mobile-specific banner */
+        height: 25vh; /* REDUCED HEIGHT: Now half of the previous 50vh */
         background-size: cover;
         background-position: center;
         display: flex;
@@ -492,18 +512,19 @@ section h2::after {
     }
     
     .hero-content h1 {
-        font-size: 1.5rem; 
+        font-size: 1.5rem; /* Reduced font size to fit in smaller area */
         margin-bottom: 5px;
     }
     .hero-content p {
-        font-size: 0.9rem; 
+        font-size: 0.9rem; /* Reduced font size to fit in smaller area */
         margin-bottom: 10px;
     }
     .cta-button {
-        font-size: 0.9rem; 
+        font-size: 0.9rem; /* Reduced font size to fit in smaller area */
         padding: 8px 15px;
     }
 
+    /* About Section */
     .about-content {
         font-size: 1rem;
     }
@@ -513,6 +534,7 @@ section h2::after {
         margin: 20px auto;
     }
 
+    /* Promise Section */
     .promise-grid {
         flex-direction: column;
         align-items: center;
@@ -524,12 +546,14 @@ section h2::after {
         margin-bottom: 15px;
     }
 
+    /* Menu Teaser */
     .menu-list {
         font-size: 1rem;
         gap: 10px;
         justify-content: center;
     }
 
+    /* Footer */
     .footer-content {
         flex-direction: column;
         align-items: flex-end;

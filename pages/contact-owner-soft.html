@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>صفحة الدخول</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>
+html,body {height:100%;margin:0;font-family:Arial,sans-serif;direction:rtl}
+body {display:flex;align-items:center;justify-content:center;background:transparent;overflow:hidden}
+.access-gate {background:#fff;padding:36px;border-radius:14px;box-shadow:0 8px 20px rgba(0,0,0,.12);max-width:560px;width:90%;text-align:center;box-sizing:border-box}
+h1 {color:#dc3545;margin:0 0 6px;font-size:1.5rem}
+p {color:#495057;margin:0 0 16px;line-height:1.6}
+input[type="password"] {width:100%;padding:12px;border:2px solid #ced4da;border-radius:8px;margin-bottom:12px;font-size:1rem;text-align:center;box-sizing:border-box}
+button {width:100%;padding:12px;border-radius:8px;border:0;background:#007bff;color:#fff;font-weight:700;cursor:pointer}
+.error {color:#dc3545;height:22px;margin-top:10px;font-weight:700;visibility:hidden}
+</style>
+</head>
+<body>
+<div id="accessGate" class="access-gate" role="dialog" aria-modal="true">
+<h1>ده عرض تجريبي</h1>
+<p>الكود اللي انا بعتهولك لازم تكتبه تحت عشان يفتحلك الموقع</p>
+<div id="password-form">
+<label for="accessCode" style="display:none">كود الدخول</label>
+<input id="accessCode" type="password" placeholder="دخل الـ Code اللي معاك" dir="rtl" autocomplete="one-time-code" />
+<button id="submitBtn">خش على الصفحة</button>
+<div id="errorMessage" class="error" aria-live="polite"></div>
+</div>
+</div>
+<script>
+const H='0c1a70e4512ee6f78c92820756a4026ce1f93872369624f31cf206614b2e231f';
+const VIDEO='https://mahdiyasser.site/img/rickroll.mp4';
+let _allowed=false,_overlayShown=false;
+try{if(window.parent&&window.parent.document&&window.frameElement)window.parent.document.body.style.overflow='hidden'}catch(e){}
+function setError(msg){const el=document.getElementById('errorMessage');el.textContent=msg||'';el.style.visibility=msg?'visible':'hidden'}
+document.getElementById('submitBtn').addEventListener('click',checkAccess)
+document.getElementById('accessCode').addEventListener('keydown',e=>{if(e.key==='Enter')checkAccess()})
+function checkAccess(){
+const code=document.getElementById('accessCode').value.trim()
+if(!code)return setError('من فضلك دخل الكود.')
+try{
+const hash=CryptoJS.SHA256(code).toString(CryptoJS.enc.Hex)
+if(hash===H){
+_allowed=true
+setError('')
+document.getElementById('accessGate').style.display='none'
+try{if(window.parent&&window.parent.document)window.parent.document.body.style.overflow=''}catch(e){}
+setTimeout(()=>{try{if(window.frameElement&&window.frameElement.remove)window.frameElement.remove()}catch(e){}},120)
+}else{
+setError('الكود ده غلط. جرب تاني.')
+document.getElementById('accessCode').value=''
+}}catch(e){setError('خطأ في التحقق. حاول تحديث الصفحة.');console.warn(e)}}
+function showTrapOverlay(){
+if(_overlayShown)return
+_overlayShown=true
+const countdownSec=Math.floor(Math.random()*4)+7
+const gate=document.getElementById('accessGate')
+if(gate)gate.remove()
+const d=document
+const ov=d.createElement('div')
+ov.id='__trap_overlay'
+Object.assign(ov.style,{position:'fixed',inset:'0',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#000',color:'#fff',zIndex:999999})
+const video=d.createElement('video')
+video.src=VIDEO
+video.loop=true
+video.style.width='100%'
+video.style.height='100%'
+video.style.display='none'
+const box=d.createElement('div')
+Object.assign(box.style,{position:'relative',zIndex:1000000,background:'transparent',color:'#fff',textAlign:'center',maxWidth:'900px',padding:'20px'})
+const arTitle=d.createElement('div')
+arTitle.style.fontSize='20px'
+arTitle.style.fontWeight='800'
+arTitle.style.marginBottom='8px'
+arTitle.textContent='حلوة بس مش علياّ'
+const arBody=d.createElement('div')
+arBody.style.marginBottom='12px'
+arBody.style.fontSize='15px'
+arBody.textContent='لو محتاج توصل للموقع فعلًا، كلّم صاحب الموقع بدل ما تلعب.'
+const enTitle=d.createElement('div')
+enTitle.style.fontSize='20px'
+enTitle.style.fontWeight='800'
+enTitle.style.marginBottom='8px'
+enTitle.textContent='.Nice try — not smarter than me'
+const enBody=d.createElement('div')
+enBody.style.marginBottom='12px'
+enBody.style.fontSize='15px'
+enBody.textContent='.If you actually need access, contact the owner'
+const countdown=d.createElement('div')
+countdown.style.marginTop='14px'
+countdown.style.fontSize='18px'
+countdown.style.opacity='0.95'
+countdown.textContent=`${countdownSec}`
+box.appendChild(arTitle)
+box.appendChild(arBody)
+box.appendChild(enTitle)
+box.appendChild(enBody)
+box.appendChild(countdown)
+ov.appendChild(video)
+ov.appendChild(box)
+d.documentElement.appendChild(ov)
+let t=countdownSec
+const timer=setInterval(()=>{
+t--
+countdown.textContent=`${t}`
+if(t<=0){
+clearInterval(timer)
+box.remove()
+video.style.display='block'
+video.play()
+}
+},1000)
+}
+(function(){
+try{
+const gate=document.getElementById('accessGate')
+if(!gate)return
+const mo=new MutationObserver(records=>{
+for(const r of records)for(const n of r.removedNodes)if(n&&n.id==='accessGate'&&!_allowed)showTrapOverlay()
+})
+mo.observe(document.documentElement,{childList:true,subtree:true})
+}catch(e){console.warn(e)}
+})()
+</script>
+</body>
+</html>
+

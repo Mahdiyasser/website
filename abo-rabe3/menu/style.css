@@ -1,16 +1,18 @@
 :root {
-    --color-primary-red-dark: #a30000;
-    --color-secondary-red-bright: #e60000;
+    --color-primary-green: rgb(255 196 0);     /* Restaurant Signage Green */
+    --color-secondary-red: #D31E1E;     /* Restaurant Appetizer Red */
     --color-text-light: #ffffff;
     --color-text-dark: #333;
-    --color-accent-black: #000000;
-    --color-background-light: #f4f4f4;
+    --color-accent-yellow: #009933;     /* Restaurant Accent Yellow/Gold */
+    --color-background-light: #ebebeb; /* Reduced pure white */
+    /* NEW: Dark Theme Variables */
     --color-dark-background: #1a1a1a;
     --color-dark-surface: #262626;
     --color-dark-text: #f4f4f4;
     --color-dark-card-border: #444;
 }
 
+/* Smooth Scroll applied to the whole document */
 html {
     scroll-behavior: smooth;
 }
@@ -19,6 +21,7 @@ html {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    /* NEW: Add smooth transition for theme changes */
     transition: background-color 0.4s, color 0.4s, border-color 0.4s, box-shadow 0.4s;
 }
 
@@ -38,8 +41,10 @@ a {
 }
 
 .main-header {
-    background-color: var(--color-primary-red-dark);
+    height: 70px;
+    background-color: var(--color-primary-green);
     display: flex;
+    /* FIX: Use space-between to push the theme toggle to the end */
     justify-content: space-between; 
     align-items: center;
     padding: 15px 5%;
@@ -48,6 +53,7 @@ a {
     top: 0;
     z-index: 100;
 }
+/* NEW: Return Button Styling */
 .back-to-home-btn {
     font-size: 1.5rem;
     color: var(--color-text-light);
@@ -57,7 +63,7 @@ a {
     flex-shrink: 0;
 }
 .back-to-home-btn:hover {
-    color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
 }
 
 .main-header .logo {
@@ -65,7 +71,7 @@ a {
     width: 60px;
     object-fit: cover; 
     border-radius: 50%;
-    border: 3px solid var(--color-accent-black); 
+    border: 3px solid var(--color-accent-yellow); 
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
     margin-left: 15px;
     flex-shrink: 0;
@@ -74,8 +80,9 @@ a {
 .main-header h1 {
     color: var(--color-text-light);
     font-size: 1.8rem;
-    flex-grow: 1;
+    flex-grow: 1; /* Pushes the theme toggle to the left */
 }
+/* NEW: Theme Toggle Button Styling */
 .theme-toggle-btn {
     background: none;
     border: none;
@@ -89,11 +96,12 @@ a {
     flex-shrink: 0;
 }
 .theme-toggle-btn:hover {
-    color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
     transform: scale(1.1);
 }
 
 
+/* FIX: Re-centering the main content wrapper but maintaining flow */
 .menu-container {
     display: flex;
     max-width: 1200px;
@@ -101,6 +109,7 @@ a {
     padding: 0 15px; 
 }
 
+/* PC: Sticky Sidebar (Scrollable internally) */
 .menu-sidebar {
     width: 250px;
     padding: 20px;
@@ -113,7 +122,7 @@ a {
     max-height: calc(100vh - 120px); 
     overflow-y: auto;
     
-    background-color: var(--color-text-light);
+    background-color: var(--color-background-light);
     border-radius: 8px; 
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
     z-index: 90; 
@@ -123,10 +132,10 @@ a {
 
 .sidebar-title {
     font-size: 1.5rem;
-    color: var(--color-secondary-red-bright);
+    color: var(--color-secondary-red);
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 2px solid var(--color-primary-red-dark);
+    border-bottom: 2px solid var(--color-primary-green);
 }
 
 .menu-sidebar ul {
@@ -142,10 +151,11 @@ a {
 }
 
 .menu-sidebar ul li a:hover {
-    color: var(--color-primary-red-dark);
+    color: var(--color-primary-green);
     font-weight: bold;
 }
 
+/* Ensure menu content fills space and aligns children right */
 .menu-content {
     flex-grow: 1;
     padding-right: 30px;
@@ -159,9 +169,9 @@ a {
 
 .section-title {
     font-size: 2.5rem;
-    color: var(--color-primary-red-dark);
+    color: var(--color-primary-green);
     margin-bottom: 25px;
-    border-bottom: 3px solid var(--color-accent-black);
+    border-bottom: 3px solid var(--color-accent-yellow);
     display: inline-block; 
     padding-bottom: 5px;
 }
@@ -170,11 +180,12 @@ a {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
+    /* FIX: Ensures grid items start from the right (start in RTL) */
     justify-content: start; 
 }
 
 .product-card {
-    background-color: var(--color-text-light);
+    background-color: #fffcf2;
     border-radius: 10px;
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.4s, border 0.2s; 
@@ -198,7 +209,7 @@ a {
 
 .product-info h3 {
     font-size: 1.5rem;
-    color: var(--color-secondary-red-bright);
+    color: var(--color-secondary-red);
     margin-bottom: 5px;
 }
 
@@ -218,17 +229,17 @@ a {
 
 .variant-selector {
     padding: 5px 10px;
-    border: 2px solid var(--color-primary-red-dark);
+    border: 2px solid var(--color-primary-green);
     border-radius: 5px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: bold;
-    background-color: var(--color-text-light);
+    background-color: #fffcf2;
     transition: background-color 0.2s, border-color 0.2s;
 }
 
 .variant-selector.active {
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     color: var(--color-text-light);
 }
 
@@ -241,7 +252,7 @@ a {
 .product-price {
     font-size: 1.6rem;
     font-weight: bold;
-    color: var(--color-primary-red-dark);
+    color: var(--color-primary-green);
 }
 
 .product-price .currency {
@@ -251,7 +262,7 @@ a {
 }
 
 .add-to-cart-btn {
-    background-color: var(--color-secondary-red-bright);
+    background-color: var(--color-secondary-red);
     color: var(--color-text-light);
     border: none;
     padding: 10px 15px;
@@ -262,19 +273,19 @@ a {
 }
 
 .add-to-cart-btn:hover {
-    background-color: var(--color-primary-red-dark);
+    background-color: #ff5900;
 }
 
 .quantity-control {
     display: flex;
     align-items: center;
-    border: 2px solid var(--color-primary-red-dark);
+    border: 2px solid var(--color-primary-green);
     border-radius: 5px;
     overflow: hidden;
 }
 
 .quantity-control button {
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     color: var(--color-text-light);
     border: none;
     padding: 8px 12px;
@@ -288,75 +299,89 @@ a {
     color: var(--color-text-dark);
 }
 
+/* --- TAG STYLING (The styles you liked) --- */
+
+/* Normal Tag - GOLDEN OUTLINE */
 .tag-normal .product-card {
     border-color: #ddd; 
-    box-shadow: 0 0 0 2px var(--color-accent-black), 0 4px 15px rgba(0, 0, 0, 0.1); 
+    /* NEW: Golden shadow to mimic an outline */
+    box-shadow: 0 0 0 2px var(--color-accent-yellow), 0 4px 15px rgba(0, 0, 0, 0.1); 
 }
 .tag-normal .product-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 0 0 3px var(--color-accent-black), 0 6px 20px rgba(0, 0, 0, 0.2);
+    /* NEW: Stronger outline on hover */
+    box-shadow: 0 0 0 3px var(--color-accent-yellow), 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Special Tag - GOLDEN OUTLINE & GLOW ✨ */
 .tag-special .product-card {
-    border: 3px solid var(--color-primary-red-dark); 
-    background: radial-gradient(circle at 10% 90%, #ffffff, #f9f9f9);
-    box-shadow: 0 0 15px 5px rgba(163, 0, 0, 0.4), 0 5px 20px rgba(0, 0, 0, 0.3); 
+    /* NEW: Clean golden border */
+    border: 3px solid var(--color-accent-yellow); 
+    background: radial-gradient(circle at 10% 90%, #fffaf2, #ffffff);
+    /* INTENSE GLOW EFFECT */
+    box-shadow: 0 0 30px 10px rgba(255, 196, 0, 0.8), 0 0 80px 30px rgba(255, 196, 0, 0.5); 
     transform: perspective(1000px) rotateX(1deg); 
 }
 .tag-special .product-card:hover {
     transform: perspective(1000px) rotateX(0deg) scale(1.02) translateY(-8px); 
-    box-shadow: 0 0 25px 8px rgba(163, 0, 0, 0.6), 0 0 40px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 40px 15px rgba(255, 196, 0, 1), 0 0 100px 50px rgba(255, 196, 0, 0.9);
 }
 .tag-special .section-title {
-    color: var(--color-secondary-red-bright);
-    border-bottom-color: var(--color-primary-red-dark);
+    color: var(--color-secondary-red);
+    border-bottom-color: var(--color-accent-yellow);
 }
 .tag-special .product-info h3 {
-    color: var(--color-accent-black);
+    color: var(--color-primary-green);
 }
 .tag-special .product-price {
-    color: var(--color-primary-red-dark);
+    color: var(--color-secondary-red);
 }
 .tag-special .variant-selector {
-    border-color: var(--color-accent-black);
+    border-color: var(--color-accent-yellow);
     font-weight: 600;
 }
 .tag-special .variant-selector.active {
-    background-color: var(--color-primary-red-dark);
-    border-color: var(--color-primary-red-dark);
+    background-color: var(--color-secondary-red);
+    border-color: var(--color-secondary-red);
 }
 
+
+/* Best Seller Tag - SOLID RED BORDER & FIRE GLOW 🔥 */
 .tag-best-seller .product-card {
-    border: 4px solid var(--color-secondary-red-bright);
+    /* FIX: Solid border, not dashed */
+    border: 4px solid var(--color-secondary-red);
     background-color: #fff8f8; 
-    box-shadow: 0 0 35px 15px var(--color-secondary-red-bright), 0 0 90px 40px rgba(230, 0, 0, 0.7); 
+    /* INTENSE GLOW EFFECT - Red color only */
+    box-shadow: 0 0 35px 15px var(--color-secondary-red), 0 0 90px 40px rgba(211, 60, 0, 0.7); 
 }
 .tag-best-seller .product-card:hover {
     transform: scale(1.03);
-    box-shadow: 0 0 45px 20px var(--color-secondary-red-bright), 0 0 110px 50px rgba(230, 0, 0, 0.9);
+    box-shadow: 0 0 45px 20px var(--color-secondary-red), 0 0 110px 50px rgba(211, 60, 0, 0.9);
 }
 .tag-best-seller .section-title {
-    color: var(--color-secondary-red-bright);
-    border-bottom-color: var(--color-primary-red-dark);
+    color: #cc0000;
+    border-bottom-color: var(--color-secondary-red);
 }
 .tag-best-seller .add-to-cart-btn {
-    background-color: var(--color-secondary-red-bright); 
+    background-color: var(--color-secondary-red); /* Use RED for CTA for Best Seller */
 }
 .tag-best-seller .add-to-cart-btn:hover {
-    background-color: var(--color-primary-red-dark);
+    background-color: #ff5900;
 }
 .tag-best-seller .product-price {
-    color: var(--color-secondary-red-bright);
+    color: var(--color-secondary-red);
 }
 .tag-best-seller .variant-selector {
-    border-color: var(--color-secondary-red-bright);
+    border-color: var(--color-secondary-red);
 }
 .tag-best-seller .variant-selector.active {
-    background-color: var(--color-primary-red-dark);
-    border-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
+    border-color: var(--color-primary-green);
 }
 
 
+/* --- CART FOOTER STYLES --- */
+/* ... (Cart styles remain the same for light mode) ... */
 #cart-footer {
     position: fixed;
     bottom: 0;
@@ -384,11 +409,11 @@ a {
 .cart-icon {
     font-size: 1.5rem;
     margin-left: 10px;
-    color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
 }
 
 .cart-count {
-    background-color: var(--color-secondary-red-bright);
+    background-color: var(--color-secondary-red);
     border-radius: 50%;
     padding: 2px 8px;
     font-size: 0.8rem;
@@ -430,7 +455,7 @@ a {
     align-items: center;
     padding: 15px;
     border-bottom: 1px solid #eee;
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     color: var(--color-text-light);
 }
 
@@ -477,7 +502,7 @@ a {
     font-size: 1rem;
     font-weight: bold;
     margin-right: 15px;
-    color: var(--color-primary-red-dark);
+    color: var(--color-primary-green);
 }
 
 .cart-item .quantity-control {
@@ -486,7 +511,7 @@ a {
 
 .cart-checkout {
     padding: 15px;
-    border-top: 2px solid var(--color-primary-red-dark);
+    border-top: 2px solid var(--color-primary-green);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -500,7 +525,7 @@ a {
 }
 
 .checkout-btn {
-    background-color: var(--color-secondary-red-bright);
+    background-color: var(--color-secondary-red);
     color: var(--color-text-light);
     border: none;
     padding: 15px;
@@ -517,6 +542,8 @@ a {
 }
 
 
+/* --- DARK THEME STYLES --- */
+
 body.dark-theme {
     background-color: var(--color-dark-background);
     color: var(--color-dark-text);
@@ -528,79 +555,89 @@ body.dark-theme .main-header {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
+/* Sidebar in Dark Mode */
 body.dark-theme .menu-sidebar {
     background-color: var(--color-dark-surface);
     border-color: var(--color-dark-card-border);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
 }
 body.dark-theme .sidebar-title {
-    color: var(--color-secondary-red-bright);
-    border-bottom-color: var(--color-primary-red-dark);
+    color: var(--color-accent-yellow);
+    border-bottom-color: var(--color-primary-green);
 }
 body.dark-theme .menu-sidebar ul li a {
     color: var(--color-dark-text);
     border-bottom-color: var(--color-dark-card-border);
 }
 
+/* Menu Content in Dark Mode */
 body.dark-theme .section-title {
-    color: var(--color-secondary-red-bright);
-    border-bottom-color: var(--color-accent-black);
+    color: var(--color-accent-yellow);
+    border-bottom-color: var(--color-primary-green);
 }
 
+/* Product Cards in Dark Mode */
 body.dark-theme .product-card {
     background-color: var(--color-dark-surface);
     border-color: var(--color-dark-card-border);
 }
 body.dark-theme .product-info h3 {
-    color: var(--color-secondary-red-bright);
+    color: var(--color-accent-yellow);
 }
 body.dark-theme .product-info p {
     color: #bbb;
 }
 body.dark-theme .product-price {
-    color: var(--color-primary-red-dark);
+    color: var(--color-primary-green);
 }
 body.dark-theme .variant-selector {
     background-color: var(--color-dark-surface);
-    border-color: var(--color-primary-red-dark);
+    border-color: var(--color-primary-green);
     color: var(--color-dark-text);
 }
 body.dark-theme .variant-selector.active {
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     color: var(--color-text-light);
 }
 
+/* NEW: Quantity Control span in Dark Mode */
 body.dark-theme .quantity-control span {
     color: var(--color-text-light);
 }
 
+/* Dark Theme Tag Overrides */
+
 body.dark-theme .tag-normal .product-card {
-    box-shadow: 0 0 0 2px var(--color-accent-black), 0 4px 15px rgba(0, 0, 0, 0.4); 
+    box-shadow: 0 0 0 2px var(--color-accent-yellow), 0 4px 15px rgba(0, 0, 0, 0.4); 
 }
 body.dark-theme .tag-normal .product-card:hover {
-    box-shadow: 0 0 0 3px var(--color-accent-black), 0 6px 20px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 0 0 3px var(--color-accent-yellow), 0 6px 20px rgba(0, 0, 0, 0.7);
 }
 
+/* Special Tag - GOLDEN OUTLINE & GLOW ✨ */
 body.dark-theme .tag-special .product-card {
     background: radial-gradient(circle at 10% 90%, #363636, var(--color-dark-surface));
-    border-color: var(--color-primary-red-dark); 
+    border-color: var(--color-accent-yellow); 
 }
 body.dark-theme .tag-special .product-info h3 {
-    color: var(--color-accent-black);
+    color: var(--color-primary-green);
 }
 
+
+/* Best Seller Tag - SOLID RED BORDER & FIRE GLOW 🔥 */
 body.dark-theme .tag-best-seller .product-card {
     background-color: #331a1a; 
-    border-color: var(--color-secondary-red-bright);
+    border-color: var(--color-secondary-red);
 }
 
+/* Cart Footer in Dark Mode */
 body.dark-theme .cart-details-overlay {
     background-color: var(--color-dark-surface);
     color: var(--color-dark-text);
     box-shadow: -4px 0 10px rgba(0, 0, 0, 0.6);
 }
 body.dark-theme .cart-header {
-    background-color: var(--color-primary-red-dark);
+    background-color: var(--color-primary-green);
     border-bottom-color: #555;
 }
 body.dark-theme .cart-item {
@@ -613,15 +650,17 @@ body.dark-theme .item-variant-size {
     color: #999;
 }
 body.dark-theme .cart-checkout {
-    border-top-color: var(--color-secondary-red-bright);
+    border-top-color: var(--color-accent-yellow);
 }
 
+/* Mobile Sidebar in Dark Mode */
 @media (max-width: 768px) {
     .menu-container {
         flex-direction: column;
         padding: 0;
     }
 
+    /* Mobile Nav: Sticky Horizontal Bar */
     .menu-sidebar {
         width: 100%;
         
@@ -656,24 +695,24 @@ body.dark-theme .cart-checkout {
     }
 
     .menu-sidebar ul li a {
-        border: 1px solid var(--color-primary-red-dark);
+        border: 1px solid var(--color-primary-green);
         border-radius: 20px;
         padding: 5px 12px;
         font-size: 0.9rem;
-        background-color: var(--color-text-light);
+        background-color: #fffcf2;
         display: inline-block; 
     }
     .menu-sidebar ul li a:hover {
-        background-color: var(--color-primary-red-dark);
+        background-color: var(--color-primary-green);
         color: var(--color-text-light);
     }
     body.dark-theme .menu-sidebar ul li a {
-        border-color: var(--color-primary-red-dark);
+        border-color: var(--color-primary-green);
         background-color: var(--color-dark-surface);
         color: var(--color-dark-text);
     }
     body.dark-theme .menu-sidebar ul li a:hover {
-        background-color: var(--color-primary-red-dark);
+        background-color: var(--color-primary-green);
         color: var(--color-text-light);
     }
 

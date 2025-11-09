@@ -1,6 +1,6 @@
-const CART_STORAGE_KEY = 'alzahraa_cart';
+const CART_STORAGE_KEY = 'rabe3_cart';
 // NEW: Constant for theme storage
-const THEME_STORAGE_KEY = 'alzahraa_theme'; 
+const THEME_STORAGE_KEY = 'rabe3_theme'; 
 let menuData = [];
 let cart = {};
 

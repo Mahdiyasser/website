@@ -1,6 +1,6 @@
-const CART_STORAGE_KEY = 'alzahraa_cart';
-const THEME_STORAGE_KEY = 'alzahraa_theme';
-const WHATSAPP_NUMBER = '201024262840'; // WhatsApp receiver
+const CART_STORAGE_KEY = 'rabe3_cart';
+const THEME_STORAGE_KEY = 'rabe3_theme';
+const WHATSAPP_NUMBER = '201026124628'; // WhatsApp receiver
 
 const orderItemsEl = document.getElementById('order-items');
 const summarySubtotalEl = document.getElementById('summary-subtotal');
@@ -78,7 +78,7 @@ function renderOrderSummary() {
 
 // === Serial Number Generator ===
 function generateSerialNumber() {
-    const prefix = "ZHR";
+    const prefix = "RABE3";
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     let rand = "";
     for (let i = 0; i < 10; i++) rand += chars[Math.floor(Math.random() * chars.length)];
@@ -104,7 +104,7 @@ function generateWhatsAppMessage(orderData, serialNumber) {
         instapay: 'الدفع عبر انستاباي 💳'
     }[orderData.paymentMethod] || 'الدفع عند الاستلام 🤝';
     return encodeURIComponent(`
-*🔔 طلب جديد - الزهراء ماركت*
+*🔔 طلب جديد -ابوربيع*
 *رقم الطلب:* ${serialNumber}
 ---------------------------
 *👤 الاسم:* ${orderData.name}

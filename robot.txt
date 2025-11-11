@@ -1,0 +1,18 @@
+# ----------------------------------------------------------------------
+# Robots Exclusion Protocol (robots.txt) for mahdiyasser.site
+# ----------------------------------------------------------------------
+
+# 1. GLOBAL ACCESS RULES (Applies to all compliant crawlers)
+# Allow all bots full access to all content by default.
+User-agent: *
+Allow: /
+
+# Example paths to Disallow if you have them:
+# Disallow: /dashboard       # Internal user area
+# Disallow: /admin/          # All admin paths
+# Disallow: /search?         # Avoid indexing search results pages
+
+# 2. SITEMAP LOCATION (Crucial for SEO)
+# This tells all major search engines where to find the sitemap.
+Sitemap: https://mahdiyasser.site/sitemap.xml
+```eof

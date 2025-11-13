@@ -415,3 +415,81 @@ h1 {
         height: 24px;
     }
 }
+
+/* --- General Styles for Timeline (Card Layout with Theme Variables) --- */
+
+/* Style the main title using theme variables */
+.timeline-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg); 
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--accent-neon); /* Use the accent color for the title */
+    text-shadow: 0 0 5px rgba(0, 255, 200, 0.2);
+}
+
+/* The main container for the events (using Grid) */
+.timeline-content {
+    /* Set up the grid */
+    display: grid;
+    /* Default to 2 columns for wider screens */
+    grid-template-columns: repeat(2, 1fr); 
+    gap: var(--spacing-md); /* Space between the cards */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-sm); /* Use smaller spacing variable for padding */
+}
+
+/* Style for each event box (The "Card") */
+.timeline-event {
+    position: relative;
+    width: 100%;
+    padding: var(--spacing-md);
+    
+    /* Card design using theme variables */
+    background-color: var(--bg-content); 
+    border: 1px solid var(--grid-line); 
+    border-radius: var(--border-radius-card); 
+    box-shadow: var(--box-shadow-card); 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover effect to make cards feel interactive */
+.timeline-event:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-neon);
+    box-shadow: var(--glow-shadow);
+}
+
+/* Style the date (strong tag) */
+.timeline-event strong {
+    display: block;
+    font-size: 1.1rem;
+    color: var(--accent-neon); /* Use accent color for the date */
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--grid-line); /* Use grid line color for separator */
+    padding-bottom: 5px;
+    font-family: var(--font-primary); /* Use the primary (mono) font */
+}
+
+/* Style the description paragraph */
+.timeline-event p {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--text-primary); /* Use primary text color */
+}
+
+/* --- Responsive Adjustments (Mobile - 1 Column) --- */
+@media screen and (max-width: 768px) {
+    /* Force 1 column on smaller screens (mobile) */
+    .timeline-content {
+        grid-template-columns: 1fr; 
+        gap: var(--spacing-sm); /* Smaller gap on mobile */
+    }
+    
+    .timeline-header {
+        font-size: 1.5rem;
+        margin-bottom: var(--spacing-md);
+    }
+}

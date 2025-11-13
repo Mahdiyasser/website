@@ -1,49 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Primary Meta Tags -->
-    <title>Contact Me | Mahdi Yasser</title>
-    <meta name="title" content="Contact Me | Mahdi Yasser">
-    <meta name="description" content="Get in touch with Mahdi Yasser — reach out for projects, or tech collaborations.">
-    <meta name="author" content="Mahdi Yasser">
-    <meta name="robots" content="index, follow">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mahiyasser.site/contact.html">
-    <meta property="og:title" content="Contact Me | Mahdi Yasser">
-    <meta property="og:description" content="Get in touch with Mahdi Yasser — reach out for projects, or tech collaborations.">
-    <meta property="og:image" content="https://mahdiyasser.site/img/pfp.png">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://mahiyasser.site/contact.html">
-    <meta property="twitter:title" content="Contact Me | Mahdi Yasser">
-    <meta property="twitter:description" content="Get in touch with Mahdi Yasser — reach out for projects, or tech collaborations.">
-    <meta property="twitter:image" content="https://mahdiyasser.site/img/pfp.png">
-
-    <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Mahdi Yasser",
-      "url": "https://mahiyasser.site/",
-      "logo": "https://mahdiyasser.site/favicon.ico",
-      "description": "Contact Mahdi Yasser.",
-      "sameAs": [
-        "https://github.com/Mahdiyasser",
-        "https://instagram.com/mahdiyasser1",
-        "https://threads.com/@mahdiyasser1",
-        "https://www.tiktok.com/@_mahdiyasser_"
-      ]
-    }
-    </script>
-
+    <title>اتواصل معايا | مهدي ياسر</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="../favicon.ico">
     <link rel="apple-touch-icon" href="../favicon.ico">
@@ -64,6 +27,8 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            direction: rtl; /* Arabic support */
+            text-align: right;
         }
 
         /* Container */
@@ -133,6 +98,13 @@
                 padding: 2rem 1rem;
             }
         }
+        /* Make placeholders RTL */
+input::placeholder,
+textarea::placeholder {
+    direction: rtl;
+    text-align: right;
+}
+
     </style>
 </head>
 
@@ -146,27 +118,27 @@
     border-radius: 12px;
     cursor: pointer;
     margin-top: 1.5rem;
-    transition: all 0.25s ease;">عربي</button>
+    transition: all 0.25s ease;">English</button>
 <script>
 document.getElementById('switchlang').addEventListener('click', () => {
-    window.location.href = './eg/index.html';
+    window.location.href = '../index.html';
 });
 </script>
-        <h1>Contact Me</h1>
+        <h1>اتواصل معايا</h1>
         <form action="https://formspree.io/f/xpwkwwkn" method="POST">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
+            <label for="name">الاسم:</label>
+            <input type="text" id="name" name="name" placeholder="اكتب اسمك" required>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <label for="email">الإيميل:</label>
+            <input type="email" id="email" name="email" placeholder="example@mail.com" required>
 
-            <label for="phone">Phone:</label>
-            <input type="number" id="name" name="name" placeholder="not required">
+            <label for="phone">رقم التليفون:</label>
+            <input type="tel" id="phone" name="phone" placeholder="مش ضروري بس هيكون احسن">
 
-            <label for="message">Message:</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
+            <label for="message">رسالتك:</label>
+            <textarea id="message" name="message" rows="5" placeholder="اكتب رسالتك هنا" required></textarea>
 
-            <button type="submit">Send</button>
+            <button type="submit">ابعت</button>
         </form>
     </div>
 </body>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plans & Services</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Light/Dark Mode Toggle -->
+<button id="modeToggle">Mode</button>
+<button id="switchlang" style="background-color: #0d6efd;
+    color: #fff;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-right: 90%;
+    margin-top: 1.5rem;
+    transition: all 0.25s ease;">عربي</button>
+<script>
+document.getElementById('switchlang').addEventListener('click', () => {
+    window.location.href = './eg/index.html';
+});
+</script>
+
+
+    <!-- Intro -->
+    <section>
+        <h2 class="section-title">Plans & Services</h2>
+        <p class="section-subtitle">Fast, private, and tailored digital systems ready to use.</p>
+    </section>
+
+    <!-- ₤500 EGP One-Page Website -->
+    <section>
+        <div class="grid">
+            <div class="card" id="sponsored">
+                <h3>₤500 EGP One-Page Website</h3>
+                <ul>
+                    <li>• Clean static site with free hosting & domain</li>
+                    <li>• Delivered in under 24 hours</li>
+                    <li>• Great for portfolios, landing pages, or quick projects</li>
+                    <li>• Own your site with no hidden costs</li>
+                </ul>
+                <button class="btn" id="openContact">Get Started</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plans -->
+    <section>
+        <h2 class="section-title">Plans & Packages</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>Starter</h3>
+                <ul>
+                    <li>• Basic multi-page website</li>
+                    <li>• Free hosting & domain</li>
+                    <li>• Delivered in 1 day</li>
+                    <li>• Optional SEO for Google visibility</li>
+                </ul>
+                <button class="btn" id="openContact">Start Starter</button>
+            </div>
+            <div class="card">
+                <h3>Pro</h3>
+                <ul>
+                    <li>• Full platform (shop, CMS, or dashboard)</li>
+                    <li>• Product/section management + POS optional</li>
+                    <li>• Delivered in 2 days</li>
+                    <li>• For small businesses or creators going live fast</li>
+                </ul>
+                <button class="btn" id="openContact">Upgrade</button>
+            </div>
+            <div class="card">
+                <h3>Enterprise</h3>
+                <ul>
+                    <li>• Complex systems with dashboards, tools, and private access</li>
+                    <li>• Online or offline (local-only) builds</li>
+                    <li>• Protected private websites</li>
+                    <li>• Delivered in 3–4 days</li>
+                </ul>
+                <button class="btn" id="openContact">Deploy</button>
+            </div>
+            <div class="card">
+                <h3>Custom</h3>
+                <ul>
+                    <li>• Tailored to your unique needs</li>
+                    <li>• Mix different systems or tools</li>
+                    <li>• Delivery & pricing depend on scope</li>
+                    <li>• You explain, I build</li>
+                </ul>
+                <button class="btn" id="openContact">Custom Build</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Standalone Services -->
+    <section class="standalone">
+        <h2 class="section-title">Standalone Services</h2>
+        <div class="standalone-grid">
+            <div class="standalone-card">
+                <h4>Server Setup & Configuration</h4>
+                <p>• Set up or fix servers for any purpose — media, hosting, file, or database.</p>
+                <p>• Works on any device, even old laptops or PCs.</p>
+            </div>
+            <div class="standalone-card">
+                <h4>Hosting Setup</h4>
+                <p>• Turn your PC, laptop, or server into a working host.</p>
+                <p>• Secure remote access or local-only deployment.</p>
+            </div>
+            <div class="standalone-card">
+                <h4>Offline & Private Systems</h4>
+                <p>• Systems that run fully offline inside your local network.</p>
+                <p>• Perfect for privacy-focused setups.</p>
+            </div>
+            <div class="standalone-card">
+                <h4>POS & Orders</h4>
+                <p>• Standalone sales and order tracking tools.</p>
+                <p>• Connect to your platform or run independently.</p>
+            </div>
+            <div class="standalone-card">
+                <h4>Custom Tools</h4>
+                <p>• Tailor-made search pages, dashboards, and control panels.</p>
+                <p>• Designed exactly how you want them to look and work.</p>
+            </div>
+            <div class="standalone-card">
+                <h4>E-Commerce (No Orders)</h4>
+                <p>• Product-only stores for catalogs or display sites.</p>
+                <p>• Admin panel for total control over sections and products.</p>
+            </div>
+            <div class="standalone-card">
+                <h4>SEO / Visibility</h4>
+                <p>• Make your site appear on Google and optimize results.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Modal Button -->
+    <section>
+        <h2 class="section-title">Contact Me</h2>
+        <button class="btn" id="openContact">Open Contact Form</button>
+    </section>
+
+    <!-- Modal -->
+    <div class="modal-bg" id="contactModal">
+        <div class="modal-content">
+            <span class="modal-close" id="closeContact">&times;</span>
+            <iframe src="../contact/index.html"></iframe>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ---------------------- THEME TOGGLE ----------------------
+function applyTheme(theme) {
+    if(theme === 'dark') {
+        document.body.classList.add('dark');
+    } else {
+        document.body.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
+    applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+}
+
+// Apply saved theme on load
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    const modeToggle = document.getElementById('modeToggle');
+    if(modeToggle) modeToggle.addEventListener('click', toggleTheme);
+});
+
+// ---------------------- MODAL / CONTACT ----------------------
+const modalBg = document.querySelector('.modal-bg');
+const modalClose = document.querySelector('.modal-close');
+const contactButtons = document.querySelectorAll('.btn'); // any button with this class
+
+// Open modal
+contactButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        if(modalBg) modalBg.classList.add('show');
+    });
+});
+
+// Close modal
+if(modalClose) {
+    modalClose.addEventListener('click', () => {
+        modalBg.classList.remove('show');
+    });
+}
+
+// Close modal on outside click
+if(modalBg) {
+    modalBg.addEventListener('click', (e) => {
+        if(e.target === modalBg) modalBg.classList.remove('show');
+    });
+}
+
+// ---------------------- OPTIONAL CARD INTERACTIONS ----------------------
+// Example: if you want buttons on cards to log or highlight
+const cardButtons = document.querySelectorAll('.btn');
+cardButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // Example action: open contact modal if button has class 'contact-btn'
+        if(btn.classList.contains('contact-btn') && modalBg) {
+            modalBg.classList.add('show');
+        }
+        // You can add more custom actions here per card
+    });
+});
+</script>
+
+
+</body>
+</html>
+

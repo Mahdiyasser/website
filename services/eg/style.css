@@ -1,0 +1,302 @@
+/* ---------------------- Reset & Base ---------------------- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    color: #212529;
+    line-height: 1.6;
+    font-size: 18px;
+    transition: background-color 0.3s, color 0.3s;
+    text-align: center;
+    direction: rtl; /* added for Arabic */
+}
+
+body.dark {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+/* ---------------------- Container ---------------------- */
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ---------------------- Titles ---------------------- */
+.section-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+    font-size: 1.4rem;
+    color: #6c757d;
+    margin-bottom: 2.5rem;
+}
+
+body.dark .section-subtitle {
+    color: #bbb;
+}
+
+/* ---------------------- Grid Layout (Centered) ---------------------- */
+.grid, .standalone-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+.card, .standalone-card {
+    flex: 0 0 calc(50% - 1rem);
+    max-width: 500px;
+    padding: 2rem;
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    text-align: right; /* align text to right for Arabic */
+    box-sizing: border-box;
+}
+
+#sponsored {
+    flex: auto;
+    max-width: 75%;
+    padding: 2rem;
+    border-radius: 16px;
+    background-color: #fff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    text-align: right;
+    box-sizing: border-box;
+}
+
+body.dark #sponsored {
+    background-color: #1e1e1f;
+    border: 1px solid #333;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+/* ---------------------- Cards ---------------------- */
+.card, .standalone-card {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    text-align: right;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+body.dark .card, body.dark .standalone-card {
+    background-color: #1e1e1f;
+    border: 1px solid #333;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+
+.card h3, .standalone-card h4 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #0d6efd;
+}
+
+body.dark .card h3, body.dark .standalone-card h4 {
+    color: #22c55e;
+}
+
+.card ul {
+    list-style: none;
+    padding-left: 0;
+    text-align: right; /* right-aligned list for Arabic */
+    font-size: 1.1rem;
+}
+
+.card ul li, .standalone-card p {
+    margin-bottom: 0.8rem;
+    color: #495057;
+}
+
+body.dark .standalone-card p, body.dark .card ul li {
+    color: #ccc;
+}
+
+.card:hover, .standalone-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+}
+
+/* ---------------------- Buttons ---------------------- */
+.btn {
+    background-color: #0d6efd;
+    color: #fff;
+    border: none;
+    padding: 0.9rem 1.8rem;
+    font-size: 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: all 0.25s ease;
+}
+
+.btn:hover {
+    background-color: #0a58ca;
+    transform: translateY(-2px);
+}
+
+/* ---------------------- Modal ---------------------- */
+.modal-bg {
+    display: none;
+    position: fixed;
+    top:0; left:0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-bg.show {
+    display: flex;
+}
+
+.modal-content {
+    width: 70%;
+    max-width: 550px;
+    height: 7000px;
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 16px;
+    position: relative;
+    text-align: right; /* modal content in Arabic */
+}
+
+body.dark .modal-content {
+    background-color: #1e1e1f;
+}
+
+.modal-close {
+    position: absolute;
+    top: 0.5rem;
+    left: 1rem; /* flip side for Arabic */
+    font-size: 2rem;
+    cursor: pointer;
+    color: #212529;
+}
+
+body.dark .modal-close {
+    color: #fff;
+}
+
+.modal-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+}
+
+/* ---------------------- Toggle Button ---------------------- */
+#modeToggle {
+    position: fixed;
+    top: 1rem;
+    left: 1rem; /* flip for Arabic */
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    background-color: #0d6efd;
+    color: #fff;
+    font-size: 1rem;
+    z-index: 2000;
+}
+
+#modeToggle:hover {
+    background-color: #0a58ca;
+}
+
+/* ---------------------- Responsive (Mobile Fixes) ---------------------- */
+@media (max-width: 768px) {
+    /* Body overflow */
+    body { overflow-x: hidden; }
+
+    /* Container padding */
+    .container { padding: 1rem; }
+
+    /* Grid stacks vertically */
+    .grid, .standalone-grid {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        width: 100% !important;
+        padding: 0 0.5rem !important;
+        margin: 0 auto !important;
+    }
+
+    /* Cards & sponsored card full width */
+    .card, .standalone-card, #sponsored {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        padding: 1rem !important;
+        margin: 0 auto !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+    }
+
+    /* Card hover disabled on mobile */
+    .card:hover, .standalone-card:hover {
+        transform: none !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+    }
+
+    /* Titles smaller */
+    .section-title { font-size: 1.8rem !important; }
+    .section-subtitle { font-size: 1.05rem !important; margin-bottom: 1rem !important; }
+
+    /* Buttons */
+    .btn {
+        font-size: 0.95rem !important;
+        padding: 0.5rem 1rem !important;
+        margin: 1rem auto 0 auto !important;
+        display: inline-block !important;
+        width: auto !important;
+    }
+
+    /* Toggle button fixes (#modeToggle) */
+    #modeToggle {
+        top: 0.5rem !important;
+        right: 0.5rem !important;
+        padding: 0.4rem 0.8rem !important;
+        font-size: 0.9rem !important;
+        max-width: 90% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Sponsored card adjustments */
+    #sponsored {
+        flex: 1 1 100% !important;
+        max-width: 100% !important;
+        padding: 1rem !important;
+    }
+
+    /* Modals */
+    .modal-content {
+        width: 95% !important;
+        max-width: 400px !important;
+        height: 80vh !important;
+        padding: 1rem !important;
+        border-radius: 12px !important;
+    }
+
+    .modal-content iframe { height: 100% !important; }
+
+    /* Lists & text inside cards */
+    .card ul, .standalone-card p {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+}
+

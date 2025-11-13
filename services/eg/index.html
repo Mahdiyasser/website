@@ -10,21 +10,7 @@
 
 <!-- Light/Dark Mode Toggle -->
 <button id="modeToggle">الوضع</button>
-<button id="switchlang" style="background-color: #0d6efd;
-    color: #fff;
-    border: none;
-    padding: 0.9rem 1.8rem;
-    font-size: 1.2rem;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-left: 90%;
-    margin-top: 1.5rem;
-    transition: all 0.25s ease;">English</button>
-<script>
-document.getElementById('switchlang').addEventListener('click', () => {
-    window.location.href = '../index.html';
-});
-</script>
+<button id="langToggle">English</button>
 
 <div class="container">
 
@@ -213,6 +199,11 @@ cardButtons.forEach(btn => {
             modalBg.classList.add('show');
         }
     });
+});
+
+// ---------------------- language toggle button ----------------------
+document.getElementById('langToggle').addEventListener('click', () => {
+    window.location.href = '../index.html';
 });
 </script>
 

@@ -64,6 +64,11 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            position: relative;
+        }
+ 
+        ::-webkit-scrollbar {
+        display: none;
         }
 
         /* Container */
@@ -133,20 +138,16 @@
                 padding: 2rem 1rem;
             }
         }
+
+
+
     </style>
 </head>
 
 <body>
 
     <div class="contact-container">
-<button id="switchlang" style="background-color: #0d6efd;
-    color: #fff;
-    border: none;
-    font-size: 1.2rem;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    transition: all 0.25s ease;">عربي</button>
+<button id="switchlang" class="lang-toggle-btn">عربي</button>
 <script>
 document.getElementById('switchlang').addEventListener('click', () => {
     window.location.href = './eg/index.html';

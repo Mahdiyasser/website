@@ -10,21 +10,7 @@
 
 <!-- Light/Dark Mode Toggle -->
 <button id="modeToggle">Mode</button>
-<button id="switchlang" style="background-color: #0d6efd;
-    color: #fff;
-    border: none;
-    padding: 0.9rem 1.8rem;
-    font-size: 1.2rem;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-right: 90%;
-    margin-top: 1.5rem;
-    transition: all 0.25s ease;">عربي</button>
-<script>
-document.getElementById('switchlang').addEventListener('click', () => {
-    window.location.href = './eg/index.html';
-});
-</script>
+<button id="langToggle">عربي</button>
 
 
     <!-- Intro -->
@@ -215,6 +201,11 @@ cardButtons.forEach(btn => {
         }
         // You can add more custom actions here per card
     });
+});
+
+// ----------------------   language toggle button ----------------------
+document.getElementById('langToggle').addEventListener('click', () => {
+    window.location.href = './eg/index.html';
 });
 </script>
 

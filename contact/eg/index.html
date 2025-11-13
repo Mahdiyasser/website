@@ -29,6 +29,11 @@
             min-height: 100vh;
             direction: rtl; /* Arabic support */
             text-align: right;
+            position: relative;
+        }
+
+        ::-webkit-scrollbar {
+        display: none;
         }
 
         /* Container */
@@ -111,14 +116,7 @@ textarea::placeholder {
 <body>
 
     <div class="contact-container">
-<button id="switchlang" style="background-color: #0d6efd;
-    color: #fff;
-    border: none;
-    font-size: 1.2rem;
-    border-radius: 12px;
-    cursor: pointer;
-    margin-top: 1.5rem;
-    transition: all 0.25s ease;">English</button>
+<button id="switchlang" class="lang-toggle-btn">En</button>
 <script>
 document.getElementById('switchlang').addEventListener('click', () => {
     window.location.href = '../index.html';

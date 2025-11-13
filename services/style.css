@@ -12,12 +12,18 @@ body {
     line-height: 1.6;
     font-size: 18px;
     transition: background-color 0.3s, color 0.3s;
-    text-align: center;
+    /* LTR Change: Set direction and default text alignment */
+    direction: ltr; /* Changed from rtl */
+    text-align: left; /* Changed from right for general flow */
 }
 
 body.dark {
     background-color: #121212;
     color: #e0e0e0;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
 
 /* ---------------------- Container ---------------------- */
@@ -32,12 +38,16 @@ body.dark {
     font-size: 2.8rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
+    /* Keeping titles centered */
+    text-align: center;
 }
 
 .section-subtitle {
     font-size: 1.4rem;
     color: #6c757d;
     margin-bottom: 2.5rem;
+    /* Keeping subtitles centered */
+    text-align: center;
 }
 
 body.dark .section-subtitle {
@@ -48,15 +58,17 @@ body.dark .section-subtitle {
 .grid, .standalone-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center; /* centers each row */
+    justify-content: center;
     gap: 2rem;
-    max-width: 90%; /* optional: limits total width of grid to fit 2 cards nicely */
-    margin: 0 auto;   /* center the whole grid on the page */
+    /* LTR Change: Use standard padding for side padding */
+    padding: 0 5%; /* Changed from padding-inline */
 }
 
 .card, .standalone-card {
-    flex: 0 0 calc(50% - 1rem); /* max 2 per row, gap considered */
-    max-width: 500px;            /* card won’t grow beyond this */
+    /* Set basis to allow two cards per row (50% - half the gap) */
+    flex: 0 0 calc(50% - 1rem);
+    max-width: 600px;
+    min-width: 330px;
     padding: 2rem;
     border-radius: 16px;
     background-color: #fff;
@@ -66,15 +78,17 @@ body.dark .section-subtitle {
 }
 
 #sponsored{
-    flex: auto; 
-    max-width: 75%;          
+    flex: 0 0 calc(75% - 1rem);
+    max-width: 900px;
     padding: 2rem;
     border-radius: 16px;
     background-color: #fff;
     box-shadow: 0 8px 20px rgba(0,0,0,0.1);
     text-align: center;
     box-sizing: border-box;
+    margin: 0 auto;
 }
+
 body.dark #sponsored{
     background-color: #1e1e1f;
     border: 1px solid #333;
@@ -111,8 +125,10 @@ body.dark .card h3, body.dark .standalone-card h4 {
 
 .card ul {
     list-style: none;
+    /* LTR Change: Use padding-left instead of padding-inline-start */
     padding-left: 0;
-    text-align: left;
+    /* LTR Change: Align list items to the left */
+    text-align: left; /* Changed from right */
     font-size: 1.1rem;
 }
 
@@ -140,7 +156,16 @@ body.dark .standalone-card p, body.dark .card ul li {
     border-radius: 12px;
     cursor: pointer;
     margin-top: 1.5rem;
+    margin-bottom: 10px;
     transition: all 0.25s ease;
+}
+
+#openContact{
+    /* Force the button to take up its full width's parent container */
+    display: block;
+    /* Use auto margins on left and right to center a block element */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .btn:hover {
@@ -152,7 +177,8 @@ body.dark .standalone-card p, body.dark .card ul li {
 .modal-bg {
     display: none;
     position: fixed;
-    top:0; left:0;
+    /* LTR Change: Use standard inset property */
+    inset: 0;
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.85);
@@ -168,9 +194,9 @@ body.dark .standalone-card p, body.dark .card ul li {
 .modal-content {
     width: 70%;
     max-width: 550px;
-    height: 7000px;
+    height: 630px;
+    max-height: 90vh;
     background-color: #fff;
-    padding: 1.5rem;
     border-radius: 16px;
     position: relative;
 }
@@ -182,7 +208,9 @@ body.dark .modal-content {
 .modal-close {
     position: absolute;
     top: 0.5rem;
-    right: 1rem;
+    /* LTR Change: Flip close button position to the right */
+    right: 1rem; /* Changed from left */
+    left: unset; /* Ensure left is not set */
     font-size: 2rem;
     cursor: pointer;
     color: #212529;
@@ -203,7 +231,9 @@ body.dark .modal-close {
 #modeToggle {
     position: fixed;
     top: 1rem;
-    right: 1rem;
+    /* LTR Change: Flip mode toggle position to the right */
+    right: 1rem; /* Changed from left */
+    left: unset; /* Ensure left is not set */
     padding: 0.6rem 1.2rem;
     border-radius: 12px;
     cursor: pointer;
@@ -218,6 +248,27 @@ body.dark .modal-close {
     background-color: #0a58ca;
 }
 
+/* ---------------------- Language Toggle Button (Corrected Positioning) ---------------------- */
+#langToggle {
+    position: relative; 
+    top: 1rem;
+    left: 1rem; /* Changed from right */
+    right: unset; /* Ensure right is not set */
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    cursor: pointer;
+    border: none;
+    background-color: #0d6efd;
+    color: #fff;
+    font-size: 1rem;
+    z-index: 2000;
+}
+
+#langToggle:hover {
+    background-color: #0a58ca;
+}
+
+
 /* ---------------------- Responsive (Mobile Fixes) ---------------------- */
 @media (max-width: 768px) {
     /* Body overflow */
@@ -226,75 +277,92 @@ body.dark .modal-close {
     /* Container padding */
     .container { padding: 1rem; }
 
-    /* Grid stacks vertically */
+    /* --- FIX: Reset Grid Constraints & Stack Vertically --- */
     .grid, .standalone-grid {
-        flex-direction: column !important;
-        gap: 1rem !important;
-        width: 100% !important;
-        padding: 0 0.5rem !important;
-        margin: 0 auto !important;
+        flex-direction: column;
+        gap: 1rem;
+        width: 95%;
+        max-width: 100%;
+        /* LTR Change: Use standard padding for side padding */
+        padding: 0.5rem 0.5rem; /* Changed from padding-inline */
+        margin: 0 auto;
     }
 
     /* Cards & sponsored card full width */
     .card, .standalone-card, #sponsored {
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
-        padding: 1rem !important;
-        margin: 0 auto !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+        flex: 1 1 100%;
+        max-width: 100%;
+        padding: 1rem;
+        margin: 0 auto;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    /* FIX: Sponsored card margin fix */
+    #sponsored {
+        margin: 0 auto 1rem auto;
     }
 
     /* Card hover disabled on mobile */
     .card:hover, .standalone-card:hover {
-        transform: none !important;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.08) !important;
+        transform: none;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
 
     /* Titles smaller */
-    .section-title { font-size: 1.8rem !important; }
-    .section-subtitle { font-size: 1.05rem !important; margin-bottom: 1rem !important; }
+    .section-title { font-size: 1.8rem; }
+    .section-subtitle { font-size: 1.05rem; margin-bottom: 1rem; }
 
     /* Buttons */
     .btn {
-        font-size: 0.95rem !important;
-        padding: 0.5rem 1rem !important;
-        margin: 1rem auto 0 auto !important;
-        display: inline-block !important;
-        width: auto !important;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        margin: 1rem auto 10px auto;
+        display: block;
+        width: auto;
     }
 
     /* Toggle button fixes (#modeToggle) */
     #modeToggle {
-        top: 0.5rem !important;
-        right: 0.5rem !important;
-        padding: 0.4rem 0.8rem !important;
-        font-size: 0.9rem !important;
-        max-width: 90% !important;
-        box-sizing: border-box !important;
-    }
-
-    /* Sponsored card adjustments */
-    #sponsored {
-        flex: 1 1 100% !important;
-        max-width: 100% !important;
-        padding: 1rem !important;
+        top: 0.5rem;
+        /* LTR Change: Flip mode toggle position to the right */
+        right: 0.5rem; /* Changed from left */
+        left: unset; /* Ensure left is not set */
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
     }
 
     /* Modals */
     .modal-content {
-        width: 95% !important;
-        max-width: 400px !important;
-        height: 80vh !important;
-        padding: 1rem !important;
-        border-radius: 12px !important;
+        width: 95%;
+        max-width: 400px;
+        height: 80vh;
+        max-height: 90vh;
+        padding: 1rem;
+        border-radius: 12px;
     }
 
-    .modal-content iframe { height: 100% !important; }
+    .modal-content iframe { height: 100%; }
 
     /* Lists & text inside cards */
     .card ul, .standalone-card p {
-        font-size: 0.95rem !important;
-        margin-bottom: 0.6rem !important;
+        font-size: 0.95rem;
+        margin-bottom: 0.6rem;
+        /* LTR Change: Ensure list items/paragraph text aligns left in mobile view */
+        text-align: left; /* Changed from right */
     }
-}
 
+    /* Language Switch Button */
+    #langToggle {
+        top: 0.5rem; /* Set top to match #modeToggle for mobile */
+        /* Position to the LEFT in LTR */
+        left: 0.5rem !important; /* Changed from margin-left and made it use the positioning property */
+        right: unset !important;
+        margin-left: 0 !important; /* Reset margin */
+        margin-right: 0 !important; /* Reset margin */
+    }
+
+    #langToggle:hover {
+        background-color: #0a58ca;
+    }
+
+}

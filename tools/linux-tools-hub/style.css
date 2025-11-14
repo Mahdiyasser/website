@@ -1,0 +1,36 @@
+/* style.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0d1117; /* Dark background inspired by terminals */
+    color: #c9d1d9;
+}
+.terminal-box {
+    background-color: #161b22;
+    border: 1px solid #30363d;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    min-height: 250px;
+    overflow-y: auto;
+    /* Prevents horizontal scrollbar from appearing for long unbroken words */
+    overflow-x: hidden; 
+}
+.terminal-box pre {
+    /* Ensures long strings (like the encoded output) break to wrap vertically */
+    word-break: break-all;
+    white-space: pre-wrap; /* Maintains whitespace formatting but allows wrapping */
+}
+.tool-button {
+    transition: all 0.15s;
+}
+.tool-button:hover {
+    background-color: #238636;
+}
+.tool-button.active {
+    background-color: #2ea043;
+    box-shadow: 0 0 10px rgba(46, 160, 67, 0.4);
+}
+.input-style {
+    background-color: #0d1117;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+}

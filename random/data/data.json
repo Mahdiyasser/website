@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "name": "Photo Gallery",
+    "path": "./stuff/photo-gallery",
+    "image": "../images/photo-gallery.png",
+    "tag": "Finshed",
+    "style": "Feel-good",
+    "description": "A photo gallery that auto loads images using dynamic naming",
+    "story": "This is a photo gallery i made and its avalible on https://github.com/Mahdiyasser/resource/tree/main/photo-gallery there is a readme file in the link expalinig everything about this page"
+  },
+
+  {
+    "id": 2,
+    "name": "Coming Soon",
+    "path": "./stuff/coming-soon-1",
+    "image": "../images/coming-soon-1.png",
+    "tag": "Tiny Tool",
+    "style": "Idea",
+    "description": "A coming soon page",
+    "story": "I wanted a coming soon page this is the second version i made where is the 1st version ? i have no idea"
+  }
+
+]

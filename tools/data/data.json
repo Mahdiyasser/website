@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Website's Dashboard",
+    "path": "./dashboard",
+    "image": "../img/DB.png",
+    "tag": "",
+    "style": "card",
+    "description": "Access the main administrative or analytical dashboard for the website.",
+    "story": ""
+  },
+  {
+    "id": 2,
+    "name": "Text Encrypter",
+    "path": "./enigma",
+    "image": "../img/EGMA.png",
+    "tag": "",
+    "style": "card",
+    "description": "A tool to encrypt and decrypt text",
+    "story": ""
+  },
+  {
+    "id": 3,
+    "name": "Hash Genrator",
+    "path": "./hash",
+    "image": "../img/hash.png",
+    "tag": "",
+    "style": "card",
+    "description": "Generate cryptographic hash values (SHA-256) for input data.",
+    "story": ""
+  },
+  {
+    "id": 4,
+    "name": "Linux Tools Hub",
+    "path": "./linux-tools-hub",
+    "image": "../img/linxtls.png",
+    "tag": "",
+    "style": "card",
+    "description": "A collection of utilities and resources tailored for Linux operating system users.",
+    "story": ""
+  },
+  {
+    "id": 5,
+    "name": "Weather Dashboard",
+    "path": "./weather",
+    "image": "../img/wthr.png",
+    "tag": "",
+    "style": "card",
+    "description": "View current weather conditions and forecasts.",
+    "story": ""
+  },
+  {
+    "id": 6,
+    "name": "Search with my engine",
+    "path": "./search-page",
+    "image": "../img/chen.png",
+    "tag": "",
+    "style": "card",
+    "description": "A customized and branded search interface powered by Google search engine implementation.",
+    "story": ""
+  },
+  {
+    "id": 7,
+    "name": "Demo Shop",
+    "path": "./shop",
+    "image": "../img/shop.png",
+    "tag": "",
+    "style": "card",
+    "description": "Explore a functional mock-up of the 1st version of a online stores framework i made.",
+    "story": ""
+  },
+  {
+    "id": 8,
+    "name": "My Wikipedia page",
+    "path": "./wiki",
+    "image": "../img/wiki.png",
+    "tag": "",
+    "style": "card",
+    "description": "See my wikipedia sandbox page.",
+    "story": ""
+  },
+  {
+    "id": 9,
+    "name": "Subscribe to My Updates",
+    "path": "https://subscribe-mahdiyasser.alsmmak.site/",
+    "image": "../img/news.png",
+    "tag": "Newsletter",
+    "style": "newsletter_card",
+    "description": "Subscribe to receive news and updates via my newsletter.",
+    "story": ""
+  }
+]

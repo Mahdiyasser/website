@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo-Gallery</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-light"> 
+    
+    <header>
+        <h1>My Photo Gallery</h1>
+        <div class="theme-switcher">
+            <button id="light-btn">Light ☀️</button>
+            <button id="dark-btn">Dark 🌙</button>
+            <button id="mixed-btn">Mixed 🌗</button>
+        </div>
+    </header>
+
+    <main class="gallery" id="photo-gallery">
+        <p id="loading-message" style="grid-column: 1 / -1; text-align: center; padding: 50px;">
+            Loading images (1-250)... This may take a moment.
+        </p>
+    </main>
+
+    <div id="imageModal" class="modal">
+        <span class="close-btn" id="close-btn">&times;</span>
+        
+        <a class="prev-btn" onclick="plusSlides(-1)">&#10094;</a>
+        
+        <img class="modal-content" id="img01">
+        
+        <a class="next-btn" onclick="plusSlides(1)">&#10095;</a>
+        
+        <div id="caption"></div> 
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

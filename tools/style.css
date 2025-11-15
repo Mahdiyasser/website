@@ -362,7 +362,7 @@ body.light-theme .card-button:hover {
     
     .link-card, .non-clickable-card {
         /* Cards take up the full width of the grid column (100% of 1fr) */
-        height: 200px; /* Slightly reduced height for mobile viewing */
+        height: 230px; /* Slightly reduced height for mobile viewing */
     }
     
     .overlay {

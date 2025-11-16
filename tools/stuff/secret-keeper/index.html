@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Secret Keeper | Cross-Origin Encrypted Notepad</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <iframe id="storageFrame" src="https://storage.mahdiyasser.site" class="hidden-iframe"></iframe>
+
+    <div class="container">
+        <h1>🔐 The Secret Keeper</h1>
+        <p class="subtitle">Your data is **encrypted in your browser** and stored securely in the **iframe's Local Storage** (<code>storage.mahdiyasser.site</code>) to prevent accidental cache loss on this domain.</p>
+        
+        <div id="message" class="hidden"></div>
+
+        <fieldset class="master-pass-fieldset">
+            <legend><h2>Master Passphrase</h2></legend>
+            <p class="field-help">This is the key to encrypt/decrypt all your secrets.</p>
+            <label for="masterPassphrase">Enter Master Passphrase:</label>
+            <input type="password" id="masterPassphrase" placeholder="Highly secure key" required>
+            <button onclick="handleCheckPassphrase()" id="checkPassphraseBtn">Unlock Secrets</button>
+        </fieldset>
+        
+        <div id="appContainer" class="hidden">
+            
+            <fieldset>
+                <legend><h2>📥 Export / 📤 Import Data</h2></legend>
+                <p class="field-help">Backup your secrets. The file will contain all encrypted data from storage.mahdiyasser.site.</p>
+                <div class="action-group">
+                    <button onclick="handleExportData()">Export All Secrets (Download JSON)</button>
+                    <label for="importFile" class="custom-file-upload">
+                        Choose File to Import
+                    </label>
+                    <input type="file" id="importFile" accept="application/json" onchange="handleImportData(event)">
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend><h2>💾 Save a New Secret</h2></legend>
+                <label for="saveSecretId">Secret Title/ID:</label>
+                <input type="text" id="saveSecretId" placeholder="e.g., EmailLogin" required>
+                
+                <label for="secretContent">Secret Content (Note, Password, etc.):</label>
+                <textarea id="secretContent" rows="5" placeholder="Enter your confidential information here..." required></textarea>
+                
+                <button onclick="handleSaveSecret()">Encrypt and Save</button>
+            </fieldset>
+
+            <fieldset>
+                <legend><h2>📖 Retrieve / 🗑️ Delete Secret</h2></legend>
+                <label for="retrieveSecretId">Secret Title/ID:</label>
+                <input type="text" id="retrieveSecretId" placeholder="e.g., EmailLogin" required>
+
+                <div class="action-group">
+                    <button onclick="handleRetrieveSecret()">Decrypt and Show</button>
+                    <button onclick="handleDeleteSecret()" class="delete-btn">Delete Secret</button>
+                </div>
+
+                <label for="decryptedContent">Decrypted Content:</label>
+                <textarea id="decryptedContent" rows="5" readonly placeholder="Decrypted content will appear here..."></textarea>
+            </fieldset>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

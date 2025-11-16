@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Keeper | Offline Encrypted Notepad</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc; /* Light gray background */
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #1f2937; /* Dark gray */
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #374151;
+        }
+        input[type="text"], input[type="password"], textarea {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #3b82f6; /* Blue */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .action-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .action-group button {
+            flex-grow: 1;
+        }
+        #message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+        .success {
+            background-color: #d1fae5; /* Green light */
+            color: #065f46; /* Green dark */
+        }
+        .error {
+            background-color: #fee2e2; /* Red light */
+            color: #991b1b; /* Red dark */
+        }
+        /* Iframe styling: must be hidden */
+        #storageFrame {
+            width: 0;
+            height: 0;
+            border: none;
+            visibility: hidden;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <iframe id="storageFrame" src="https://storage.mahdiyasser.site"></iframe>
+
+    <div class="container">
+        <h1>🔐 The Secret Keeper</h1>
+        <p>Your data is encrypted in your browser and stored on <code>storage.mahdiyasser.site</code>.</p>
+        <p>We never see your secret or your passphrase.</p>
+        
+        <div id="message"></div>
+
+        <fieldset>
+            <legend><h2>Save a New Secret</h2></legend>
+            <label for="saveSecretId">Secret ID (Use to retrieve later):</label>
+            <input type="text" id="saveSecretId" placeholder="e.g., MyVacationPlans" required>
+            
+            <label for="secretContent">Secret Content:</label>
+            <textarea id="secretContent" rows="5" placeholder="Enter your confidential information here..." required></textarea>
+            
+            <label for="savePassphrase">Passphrase (REQUIRED to encrypt/decrypt):</label>
+            <input type="password" id="savePassphrase" required>
+            
+            <button onclick="handleSaveSecret()">Encrypt and Save</button>
+        </fieldset>
+
+        <fieldset>
+            <legend><h2>Retrieve Secret</h2></legend>
+            <label for="retrieveSecretId">Secret ID:</label>
+            <input type="text" id="retrieveSecretId" placeholder="e.g., MyVacationPlans" required>
+            
+            <label for="retrievePassphrase">Passphrase:</label>
+            <input type="password" id="retrievePassphrase" required>
+
+            <div class="action-group">
+                <button onclick="handleRetrieveSecret()">Decrypt and Show</button>
+                <button onclick="handleDeleteSecret()" style="background-color: #ef4444;">Delete Secret</button>
+            </div>
+
+            <label for="decryptedContent">Decrypted Content:</label>
+            <textarea id="decryptedContent" rows="5" readonly placeholder="Decrypted content will appear here..."></textarea>
+        </fieldset>
+    </div>
+
+    <script>
+        const STORAGE_ORIGIN = 'https://storage.mahdiyasser.site';
+        const iframe = document.getElementById('storageFrame');
+        let isIframeReady = false;
+        let commandCounter = 0;
+        const pendingCommands = {};
+
+        // --- Core Crypto Functions (PLACEHOLDER) ---
+        // NOTE: You MUST replace this with a robust library like CryptoJS for security.
+
+        function encryptData(data, passphrase) {
+            if (!CryptoJS) return btoa(data); // Simple Base64 fallback if library missing
+            // REAL IMPLEMENTATION (e.g., AES)
+            return CryptoJS.AES.encrypt(data, passphrase).toString();
+        }
+
+        function decryptData(ciphertext, passphrase) {
+            if (!CryptoJS) return atob(ciphertext); // Simple Base64 fallback if library missing
+            // REAL IMPLEMENTATION (e.g., AES)
+            try {
+                const bytes  = CryptoJS.AES.decrypt(ciphertext, passphrase);
+                return bytes.toString(CryptoJS.enc.Utf8);
+            } catch (e) {
+                console.error("Decryption failed:", e);
+                return null;
+            }
+        }
+        
+        // --- UI & Message Handling ---
+
+        function showMessage(type, text) {
+            const msgElement = document.getElementById('message');
+            msgElement.textContent = text;
+            msgElement.className = `success` === type ? 'success' : 'error';
+            msgElement.style.display = 'block';
+            setTimeout(() => { msgElement.style.display = 'none'; }, 5000);
+        }
+
+        // Listens for responses from the storage iframe
+        window.addEventListener('message', (event) => {
+            if (event.origin !== STORAGE_ORIGIN) return;
+
+            const response = event.data;
+
+            if (response.command === 'READY') {
+                isIframeReady = true;
+                showMessage('success', 'Storage frame connected and ready.');
+                return;
+            }
+
+            // Look up the pending command by its ID
+            const resolver = pendingCommands[response.id];
+            if (resolver) {
+                if (response.success) {
+                    resolver.resolve(response);
+                } else {
+                    resolver.reject(new Error(response.message || 'Storage operation failed.'));
+                }
+                delete pendingCommands[response.id];
+            }
+        });
+
+
+        // Posts a message to the iframe and returns a promise for the response
+        function postToStorage(command, payload) {
+            return new Promise((resolve, reject) => {
+                if (!isIframeReady) {
+                    return reject(new Error("Storage frame not ready. Please wait a moment."));
+                }
+                
+                const id = commandCounter++;
+                pendingCommands[id] = { resolve, reject };
+
+                iframe.contentWindow.postMessage({
+                    command: command,
+                    payload: payload,
+                    id: id // Include command ID for tracking response
+                }, STORAGE_ORIGIN);
+            });
+        }
+
+        // --- Main Application Logic ---
+
+        async function handleSaveSecret() {
+            const secretId = document.getElementById('saveSecretId').value.trim();
+            const content = document.getElementById('secretContent').value.trim();
+            const passphrase = document.getElementById('savePassphrase').value;
+
+            if (!secretId || !content || !passphrase) {
+                return showMessage('error', 'Please fill in the ID, Content, and Passphrase.');
+            }
+
+            try {
+                // 1. Encrypt the data locally
+                const encryptedData = encryptData(content, passphrase);
+
+                // 2. Post the encrypted data to the storage iframe
+                await postToStorage('SAVE', { 
+                    key: secretId, 
+                    value: encryptedData 
+                });
+
+                showMessage('success', `Secret successfully encrypted and stored under ID: ${secretId}`);
+                document.getElementById('secretContent').value = '';
+                document.getElementById('savePassphrase').value = '';
+            } catch (error) {
+                showMessage('error', `Save failed: ${error.message}`);
+            }
+        }
+
+        async function handleRetrieveSecret() {
+            const secretId = document.getElementById('retrieveSecretId').value.trim();
+            const passphrase = document.getElementById('retrievePassphrase').value;
+            document.getElementById('decryptedContent').value = '';
+
+            if (!secretId || !passphrase) {
+                return showMessage('error', 'Please fill in the Secret ID and Passphrase.');
+            }
+
+            try {
+                // 1. Retrieve the encrypted data from the storage iframe
+                const response = await postToStorage('RETRIEVE', { key: secretId });
+                
+                if (!response.data) {
+                    return showMessage('error', `No secret found for ID: ${secretId}`);
+                }
+
+                const encryptedData = response.data;
+                
+                // 2. Decrypt the data locally
+                const decryptedContent = decryptData(encryptedData, passphrase);
+
+                if (decryptedContent === null || decryptedContent === '') {
+                    // Decryption failed, usually due to incorrect passphrase
+                    return showMessage('error', 'Decryption failed. Check your Passphrase.');
+                }
+
+                // 3. Display the result
+                document.getElementById('decryptedContent').value = decryptedContent;
+                showMessage('success', 'Secret successfully retrieved and decrypted.');
+
+            } catch (error) {
+                showMessage('error', `Retrieve failed: ${error.message}`);
+            }
+        }
+
+        async function handleDeleteSecret() {
+            const secretId = document.getElementById('retrieveSecretId').value.trim();
+
+            if (!secretId) {
+                return showMessage('error', 'Please enter the Secret ID to delete.');
+            }
+
+            if (!confirm(`Are you sure you want to permanently delete the secret with ID: ${secretId}?`)) {
+                return;
+            }
+
+            try {
+                await postToStorage('DELETE', { key: secretId });
+                showMessage('success', `Secret ID: ${secretId} has been successfully deleted from storage.`);
+                document.getElementById('retrieveSecretId').value = '';
+                document.getElementById('retrievePassphrase').value = '';
+                document.getElementById('decryptedContent').value = '';
+            } catch (error) {
+                showMessage('error', `Deletion failed: ${error.message}`);
+            }
+        }
+
+    </script>
+</body>
+</html>

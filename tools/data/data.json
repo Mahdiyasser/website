@@ -1,5 +1,15 @@
 [
     {
+        "id": 0,
+        "name": "Subscribe to My Updates",
+        "path": "https:\/\/subscribe-mahdiyasser.alsmmak.site\/",
+        "image": "..\/img\/subscribe-to-my-updates.png",
+        "tag": "Newsletter",
+        "style": "newsletter_card",
+        "description": "Subscribe to receive news and updates via my newsletter.",
+        "story": ""
+    },
+    {
         "id": 1,
         "name": "Website's Dashboard",
         "path": ".\/stuff\/dashboard",
@@ -73,7 +83,7 @@
         "id": 8,
         "name": "My Wikipedia page",
         "path": ".\/stuff\/wiki",
-        "image": "..\/img\/wiki.png",
+        "image": "..\/img\/my-wikipedia-page.png",
         "tag": "",
         "style": "card",
         "description": "See my wikipedia sandbox page.",
@@ -81,12 +91,12 @@
     },
     {
         "id": 9,
-        "name": "Subscribe to My Updates",
-        "path": "https:\/\/subscribe-mahdiyasser.alsmmak.site\/",
-        "image": "..\/img\/news.png",
-        "tag": "Newsletter",
-        "style": "newsletter_card",
-        "description": "Subscribe to receive news and updates via my newsletter.",
+        "name": "The Secret Keeper",
+        "path": ".\/stuff\/secret-keeper",
+        "image": "..\/img\/the-secret-keeper.png",
+        "tag": "",
+        "style": "card",
+        "description": "this is a high security tool that uses localstorage to store all your data securely on your own device",
         "story": ""
     }
 ]

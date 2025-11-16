@@ -5,29 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMS Dashboard</title>
     <style>
-        /* CSS for the page */
-
         /* --- Color Variables (Default: Light Theme) --- */
         :root {
-            /* Color Palette Ratios: 70% Base, 15% Baby Blue, 5% Purple, 5% Black/Dark Text */
-            --color-base: #f7f7ff;         /* 70%: Near-white/Light background */
-            --color-surface: #ffffff;      /* Card background */
-            --color-accent-primary: #a3c9ff; /* 15%: Baby Blue */
-            --color-accent-secondary: #8e44ad; /* 5%: Purple */
-            --color-text-dark: #1a1a1a;    /* 5%: Dark text/headings */
-            --color-text-light: #555555;   /* Light gray text */
-            --color-shadow: rgba(0, 0, 0, 0.15); /* Shadow for cards */
+            --color-base: #f7f7ff;
+            --color-surface: #ffffff;
+            --color-text-dark: #1a1a1a;
+            --color-text-light: #555555;
+            --color-shadow: rgba(0, 0, 0, 0.15);
         }
 
         /* --- Dark Theme Overrides --- */
         body.dark-theme {
-            --color-base: #1a1a1a;          /* Main background: Black (5%) */
-            --color-surface: #2b2b2b;       /* Card background: Darker gray */
-            --color-accent-primary: #a3c9ff; /* Baby Blue (stays the same) */
-            --color-accent-secondary: #c077ff; /* Lighter Purple for contrast */
-            --color-text-dark: #f0f0f0;     /* Text: Light/Near-white (70%) */
-            --color-text-light: #b0b0b0;    /* Lighter gray text */
-            --color-shadow: rgba(255, 255, 255, 0.15); /* Light shadow for contrast */
+            --color-base: #1a1a1a;
+            --color-surface: #2b2b2b;
+            --color-text-dark: #f0f0f0;
+            --color-text-light: #b0b0b0;
+            --color-shadow: rgba(255, 255, 255, 0.15);
         }
 
         /* --- Global Styles --- */
@@ -43,7 +36,7 @@
             color: var(--color-text-light);
             flex-direction: column;
             gap: 40px;
-            transition: background-color 0.4s ease, color 0.4s ease; /* Smooth theme transition */
+            transition: background-color 0.4s ease, color 0.4s ease;
         }
 
         .dashboard-header {
@@ -73,99 +66,116 @@
         }
 
         .theme-toggle:hover {
-            background-color: var(--color-accent-primary);
+            /* Keep a generic hover accent */
+            background-color: #e0e0e0;
+        }
+        
+        body.dark-theme .theme-toggle:hover {
+            background-color: #444444;
         }
 
+        /* --- Container: Now a CSS Grid --- */
         .container {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns per row */
             gap: 40px;
             padding: 20px 0;
             max-width: 1000px;
             width: 90%;
-            flex-wrap: wrap;
-            justify-content: center;
         }
 
         /* --- Card Styles --- */
         .card {
             background-color: var(--color-surface);
-            border-radius: 20px; /* Increased border radius for a softer look */
-            box-shadow: 0 15px 40px -10px var(--color-shadow); /* More prominent shadow */
-            width: 100%;
-            max-width: 450px;
-            min-height: 280px; /* Slightly taller */
+            border-radius: 20px;
+            box-shadow: 0 15px 40px -10px var(--color-shadow);
+            min-height: 280px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             padding: 40px;
-            transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
             text-decoration: none;
             color: inherit;
             position: relative;
             overflow: hidden;
-            border: 1px solid transparent; /* Prepare for border hover */
+            border: 2px solid transparent; /* Prepare for the dynamically set border color */
         }
 
         .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 25px 50px -15px var(--color-shadow);
+            /* The border color is set dynamically by JS */
+        }
+        
+        /* Subtle click effect */
+        .card.clicked {
+            transform: scale(0.98);
+            opacity: 0.95;
+            transition: transform 0.1s ease, opacity 0.1s ease;
         }
 
         .card-icon {
-            font-size: 4rem; /* Larger icon */
+            font-size: 4rem;
             margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .card-icon-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15rem; /* Large emoji background */
+            opacity: 0.05; /* Very subtle */
+            color: inherit; /* Takes color from JS-set CSS variable */
+            pointer-events: none;
+            z-index: 5;
+            transition: opacity 0.4s ease;
+        }
+        
+        /* Optional: Make the background emoji a little more visible on hover */
+        .card:hover .card-icon-bg {
+             opacity: 0.1;
         }
 
         .card h2 {
             margin-top: 0;
-            font-size: 2rem; /* Larger heading */
+            font-size: 2rem;
             color: var(--color-text-dark);
             margin-bottom: 10px;
-            font-weight: 600; /* Semi-bold */
+            font-weight: 600;
+            position: relative;
+            z-index: 10;
         }
 
         .card p {
             font-size: 1.15rem;
             color: var(--color-text-light);
             line-height: 1.4;
-        }
-
-        /* --- Accent Border Hover Effect --- */
-        .card:hover {
-            /* The ribbon will be the hover border now for a cleaner look */
-            border: 1px solid;
-        }
-
-        #card-projects:hover {
-            border-color: var(--color-accent-primary); /* Baby Blue border on hover */
-        }
-
-        #card-blog:hover {
-            border-color: var(--color-accent-secondary); /* Purple border on hover */
-        }
-
-        /* Remove old ribbon styles */
-        #card-projects::before, #card-blog::before {
-            display: none;
+            position: relative;
+            z-index: 10;
         }
 
         /* --- Responsive adjustments --- */
         @media (max-width: 950px) {
             .container {
-                flex-direction: column;
+                grid-template-columns: 1fr; /* 1 column on smaller screens */
                 gap: 30px;
-                align-items: center;
                 width: 100%;
             }
-            .card {
-                max-width: 90%;
-                min-height: 200px;
-                padding: 30px;
+            body {
+                padding: 20px 15px;
             }
             .dashboard-header {
-                padding: 0 20px;
+                max-width: 100%;
             }
         }
     </style>
@@ -179,20 +189,32 @@
     </div>
 
     <div class="container">
-        <a id="card-projects" class="card" href="/projects/cms">
-            <div class="card-icon" style="color: var(--color-accent-primary);">
-                🛠️
-            </div>
+        <a class="card" href="/projects/cms">
+            <div class="card-icon">🛠️</div>
+            <div class="card-icon-bg">🛠️</div>
             <h2>Manage Projects</h2>
-            <p>Create,Publish,Edit and Delete all your projects and their posts from one dashnoard</p>
+            <p>Create, Publish, Edit and Delete all your projects and their posts from one dashboard</p>
         </a>
 
-        <a id="card-blog" class="card" href="/blog/cms">
-            <div class="card-icon" style="color: var(--color-accent-secondary);">
-                ✍️
-            </div>
+        <a class="card" href="/blog/cms">
+            <div class="card-icon">✍️</div>
+            <div class="card-icon-bg">✍️</div>
             <h2>Manage Blog Posts</h2>
             <p>Access the CMS to create, edit, or publish new articles and update existing blog content with ease.</p>
+        </a>
+
+        <a class="card" href="/tools/data">
+            <div class="card-icon">🧰</div>
+            <div class="card-icon-bg">🧰</div>
+            <h2>Tools and Extras</h2>
+            <p>Access the CMS to create, edit, or delete the cards in the tools and extras page.</p>
+        </a>
+
+        <a class="card" href="/random/data">
+            <div class="card-icon">🃏</div>
+            <div class="card-icon-bg">🃏</div>
+            <h2>The Random Zone</h2>
+            <p>Access the CMS to create, edit, or delete cards in the random zone page.</p>
         </a>
     </div>
 
@@ -201,41 +223,101 @@
             const body = document.body;
             const toggleButton = document.getElementById('theme-toggle');
             const themeIcon = document.getElementById('theme-icon');
-
-            // 1. Check for stored theme preference or default to light
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            
-            // Set initial theme
-            if (savedTheme === 'dark') {
-                body.classList.add('dark-theme');
-                themeIcon.textContent = '🌙'; // Moon icon for dark theme
-            } else {
-                body.classList.remove('dark-theme');
-                themeIcon.textContent = '☀️'; // Sun icon for light theme
-            }
-
-
-            // 2. Theme Toggle Functionality
-            toggleButton.addEventListener('click', () => {
-                const isDark = body.classList.toggle('dark-theme');
-
-                if (isDark) {
-                    localStorage.setItem('theme', 'dark');
-                    themeIcon.textContent = '🌙';
-                } else {
-                    localStorage.setItem('theme', 'light');
-                    themeIcon.textContent = '☀️';
-                }
-            });
-
-            // 3. Simple Card Click Effect (Optional but good for UX)
             const cards = document.querySelectorAll('.card');
 
+            // --- Theme Functions ---
+
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            const setTheme = (theme) => {
+                if (theme === 'dark') {
+                    body.classList.add('dark-theme');
+                    themeIcon.textContent = '🌙';
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    body.classList.remove('dark-theme');
+                    themeIcon.textContent = '☀️';
+                    localStorage.setItem('theme', 'light');
+                }
+            };
+            
+            // Set initial theme
+            setTheme(savedTheme);
+
+            // Theme Toggle Functionality
+            toggleButton.addEventListener('click', () => {
+                const currentTheme = body.classList.contains('dark-theme') ? 'dark' : 'light';
+                setTheme(currentTheme === 'light' ? 'dark' : 'light');
+            });
+
+
+            // --- Card Color Vibe Generator ---
+
+            /**
+             * Generates a unique color based on the card's text/emoji.
+             * This function is essential for the requested dynamic color change.
+             * @param {string} seed - A string (like the emoji) to use for consistent hashing.
+             * @param {number} saturation - Saturation level (0-100).
+             * @param {number} lightness - Lightness level (0-100).
+             * @returns {string} An HSL color string.
+             */
+            const generateHSLColor = (seed, saturation, lightness) => {
+                let hash = 0;
+                for (let i = 0; i < seed.length; i++) {
+                    // Simple hash to convert the emoji/text into a hue value
+                    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const hue = hash % 360;
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+            };
+
+
+            /**
+             * Applies a dynamic color scheme to the card.
+             * @param {HTMLElement} card - The card element.
+             */
+            const setCardColorVibes = (card) => {
+                // Get the emoji from the main icon div
+                const iconElement = card.querySelector('.card-icon');
+                const emoji = iconElement ? iconElement.textContent.trim() : 'default';
+
+                // Base color for the icon and hover border
+                const accentColor = generateHSLColor(emoji, 70, 50); // High saturation, medium lightness for bright color
+                
+                // Light background for a subtle tint
+                const subtleBgColor = generateHSLColor(emoji, 20, 95); // Low saturation, high lightness
+
+                // Apply colors directly to the card's style
+                iconElement.style.color = accentColor;
+                card.style.borderColor = accentColor;
+                
+                // Apply the subtle background color (mainly visible in light mode)
+                card.style.setProperty('--card-subtle-bg', subtleBgColor);
+                
+                // Add the background color on hover in light mode
+                card.addEventListener('mouseover', () => {
+                    if (!body.classList.contains('dark-theme')) {
+                        card.style.backgroundColor = subtleBgColor;
+                    }
+                });
+
+                // Remove the background color when not hovering (to return to --color-surface)
+                card.addEventListener('mouseout', () => {
+                    if (!body.classList.contains('dark-theme')) {
+                        card.style.backgroundColor = 'var(--color-surface)';
+                    }
+                });
+            };
+
+            // Apply color vibes to all cards
+            cards.forEach(setCardColorVibes);
+
+
+            // --- Simple Card Click Effect (UX improvement) ---
             cards.forEach(card => {
                 card.addEventListener('click', (e) => {
-                    // Log the action (demonstration)
                     console.log(`Navigating to: ${card.getAttribute('href')}`);
-
+                    
                     // A subtle visual feedback on click
                     card.classList.add('clicked');
                     setTimeout(() => {
@@ -243,13 +325,6 @@
                     }, 200);
                 });
             });
-            /*
-              Add this simple class to your CSS for the click effect:
-              .card.clicked {
-                 transform: scale(0.98);
-                 opacity: 0.85;
-              }
-            */
         });
     </script>
 </body>

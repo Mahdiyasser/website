@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ENIGMA Keyed Cipher</title>
+    <title>ENIGMA</title>
     <style>
         /* CSS is here for a single-file solution */
         body {
@@ -11,7 +11,7 @@
             background-color: #1a1a1a;
             color: #00ff41; /* Neon green text */
             margin: 0;
-            padding: 10px; /* Reduced padding for mobile */
+            padding: 10px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,19 +19,19 @@
         }
 
         .container {
-            width: 95%; /* Wider on small screens */
+            width: 95%; 
             max-width: 800px;
             border: 2px solid #00ff41;
             box-shadow: 0 0 15px #00ff41;
-            padding: 20px; /* Reduced padding for mobile */
+            padding: 20px; 
             background-color: #000000;
         }
 
         h1 {
             text-align: center;
             text-shadow: 0 0 5px #00ff41;
-            margin-bottom: 20px; /* Adjusted margin */
-            font-size: 1.3em; /* Slightly smaller header */
+            margin-bottom: 20px; 
+            font-size: 1.3em; 
         }
         
         /* General input/textarea styling */
@@ -41,10 +41,10 @@
             background-color: #0d0d0d;
             border: 1px solid #00ff41;
             color: #00ff41;
-            padding: 10px; /* Reduced padding for mobile */
-            margin-bottom: 15px; /* Adjusted margin */
+            padding: 10px; 
+            margin-bottom: 15px; 
             box-sizing: border-box;
-            font-size: 1em; /* Slightly smaller font size */
+            font-size: 1em; 
             resize: none;
             outline: none;
             box-shadow: inset 0 0 5px #00ff41;
@@ -70,19 +70,18 @@
             margin-bottom: 5px;
             font-weight: bold;
         }
-
-
+        
         /* Controls/Button Styling */
         .controls {
             display: flex;
             justify-content: space-between;
-            gap: 15px; /* Adjusted gap */
-            margin-bottom: 15px; /* Added bottom margin */
+            gap: 15px; 
+            margin-bottom: 15px; 
         }
 
         button {
             flex-grow: 1;
-            padding: 10px 15px; /* Reduced padding for mobile */
+            padding: 10px 15px; 
             background-color: #00ff41;
             color: #000000;
             border: none;
@@ -90,7 +89,7 @@
             cursor: pointer;
             transition: background-color 0.2s, box-shadow 0.2s;
             text-transform: uppercase;
-            font-size: 0.9em; /* Smaller font on buttons */
+            font-size: 0.9em; 
         }
 
         button:hover {
@@ -101,13 +100,13 @@
         /* Responsive Breakpoint for Controls */
         @media (max-width: 600px) {
             .controls {
-                flex-direction: column; /* Stack buttons vertically on small screens */
+                flex-direction: column; 
             }
 
             button {
-                width: 100%; /* Full width when stacked */
-                margin-bottom: 10px; /* Space between stacked buttons */
-                font-size: 1em; /* Slightly larger text when stacked */
+                width: 100%; 
+                margin-bottom: 10px; 
+                font-size: 1em; 
             }
             
             body {
@@ -119,137 +118,298 @@
                 width: 100%;
             }
         }
+        
+        .copy-button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        
+        .copy-button-container button {
+            width: 100%;
+            max-width: 200px;
+            padding: 5px 10px;
+            background-color: #ffcc00;
+            color: #000000;
+            font-size: 0.8em;
+        }
+        
+        .copy-button-container button:hover {
+            background-color: #e6b800;
+            box-shadow: 0 0 10px #ffcc00;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ENIGMA Keyed Cipher 🔑</h1>
+        <h1>ENIGMA</h1>
 
-        <label for="plain-text">Input/Plain Text (or Cipher to Decrypt):</label>
-        <textarea id="plain-text" placeholder="Type your secret message here, or paste an old cipher to decrypt..."></textarea>
+        <label for="plain-text">Input Text (or Cipher to Decrypt):</label>
+        <textarea id="plain-text" placeholder="Type your message here, or paste a cipher to decrypt..."></textarea>
 
         <div class="controls">
-            <button onclick="encryptText()">Encrypt (Secure)</button>
-            <button onclick="decryptText()">Decrypt (Secure)</button>
+            <button onclick="encryptText()">Encrypt</button>
+            <button onclick="decryptText()">Decrypt</button>
         </div>
         
-        <label for="cipher-text" style="margin-top: 15px; display: block;">Output/Cipher Text (or Decrypted Result):</label>
-        <textarea id="cipher-text" placeholder="Encrypted output will appear here. To chain, copy this and paste it into the Input box." readonly></textarea>
+        <label for="cipher-text" style="margin-top: 15px; display: block;">Cipher Output:</label>
+        <textarea id="cipher-text" placeholder="Cipher output will appear here." readonly></textarea>
         
         <div class="key-input">
-            <label for="cipher-key">Cipher Key (Optional):</label>
-            <input type="text" id="cipher-key" placeholder="Enter a secret key. Leave blank for default security." maxlength="25">
+            <label for="cipher-key">Cipher Key (Optional Strong Layer)</label>
+            <input type="text" id="cipher-key" placeholder="Enter a key for a strong extra layer. Leave blank for normal encryption." maxlength="100">
         </div>
 
-        <p style="text-align: center; font-size: 0.75em; margin-top: 15px;">The key must be the same for both encryption and decryption layers.</p>
+        <div class="copy-button-container">
+            <button onclick="copyOutput()">Copy Output</button>
+        </div>
     </div>
 
     <script>
-// --- Configuration & Maps (Updated for Keyed Cipher) ---
-const DEFAULT_SHIFT = 7; // Used if no key is provided
-const NOISE_INTERVAL = 4;
-const NOISE_CHARS = '!@#$%^&*()_+-=[]{};:|<>,./?';
-const VALIDATION_TOKEN_LENGTH = 3;
-const FALSE_START_PREFIX = 'VmVsbzM='; 
-
-const CUSTOM_SUBSTITUTION_MAP = {
-    'a': '4', 'e': '3', 'i': '1', 'o': '0', 'u': '!',
-    'A': '8', 'E': '$', 'I': '%', 'O': '^', 'U': '&',
-    ' ': '_', '.': '~', ',': '?', '\n': '|', 
-    's': '5', 't': '7', 'l': '£', 'z': '2', 'y': '¥'
+// --- Configuration: Defines the 9 UNIQUE layers (UNCHANGED) ---
+const ENCODING_SEQUENCE = [
+    'CUSTOM_B64',       // Layer 1: Fully custom Base64 (UTF-8 safe)
+    'ADD_PADDING',      // Layer 2: Add custom noise
+    'REVERSE_WORDS',    // Layer 3: Reverse the order of words
+    'HEX_SWAP',         // Layer 4: Swap hex pairs
+    'CHAR_OFFSET',      // Layer 5: Shift character ASCII values by a fixed offset
+    'CHAR_SUBTRACT',    // Layer 6: Subtract character ASCII values
+    'DIGIT_REPLACE',    // Layer 7: Replace digits 0-9 with custom chars
+    'BASE_N_CONVERT',   // Layer 8: Convert number groups to a higher base (Base 16)
+    'BASE64_VARIANT'    // Layer 9 (Final): Base64 using a modified alphabet
+];
+const PADDING_STRING = "XYZ_";
+const PADDING_INTERVAL = 10;
+const CHAR_SHIFT_OFFSET = 3;
+const CHAR_SUB_KEY = 1; 
+const DIGIT_MAP = {
+    '0': '!', '1': '@', '2': '#', '3': '$', '4': '%',
+    '5': '^', '6': '&', '7': '*', '8': '(', '9': ')'
 };
+const BASE64_VARIANT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'; // Custom alphabet
+// ------------------------------------------
 
-const REVERSE_SUBSTITUTION_MAP = {};
-for (const [key, value] of Object.entries(CUSTOM_SUBSTITUTION_MAP)) {
-    REVERSE_SUBSTITUTION_MAP[value] = key;
-}
+// --- Strong Keyed XOR Layer (Optional Layer Logic - UNCHANGED) ---
 
 /**
- * Calculates the dynamic Caesar shift based on the provided key.
- * @param {string} key The user-provided secret key.
- * @returns {number} The calculated shift value (0-25).
+ * Applies a repeating Keyed XOR to the input text.
+ * This is used for both encryption and decryption and handles all Unicode characters.
+ * @param {string} text The input string.
+ * @param {string} key The secret key string.
+ * @returns {string} The XOR-ed output string.
  */
-function getShiftKey(key) {
-    if (!key || key.trim() === '') {
-        return DEFAULT_SHIFT;
-    }
-    // Calculate shift based on the sum of character codes of the key
-    let sum = 0;
-    for (let i = 0; i < key.length; i++) {
-        sum += key.charCodeAt(i);
-    }
-    return sum % 26;
-}
+function applyKeyedXOR(text, key) {
+    if (!key || key.trim() === '') return text;
 
-
-// --- CORE UTILITY FUNCTIONS (Unchanged) ---
-
-function generateChecksum(text, length) {
-    let hash = 0;
-    for (let i = 0; i < text.length; i++) {
-        hash = (hash + text.charCodeAt(i) * 31) % 999; 
-    }
-    return String(hash).padStart(length, '0');
-}
-
-function applyCaesarShift(text, shift) {
     let result = '';
-    for (let i = 0; i < text.length; i++) {
-        let charCode = text.charCodeAt(i);
-        let char = text.charAt(i);
+    const trimmedKey = key.trim();
+    const keyLength = trimmedKey.length;
 
-        if (charCode >= 65 && charCode <= 90) { // Uppercase
-            result += String.fromCharCode(((charCode - 65 + shift) % 26) + 65);
-        } else if (charCode >= 97 && charCode <= 122) { // Lowercase
-            result += String.fromCharCode(((charCode - 97 + shift) % 26) + 97);
-        } else {
-            result += char; 
+    for (let i = 0; i < text.length; i++) {
+        // Get the character code of the current text character
+        const charCode = text.charCodeAt(i);
+        
+        // Get the character code of the key character (repeating)
+        const keyChar = trimmedKey.charCodeAt(i % keyLength);
+        
+        // Apply XOR and convert back to a character
+        const xorResult = charCode ^ keyChar; 
+        
+        result += String.fromCharCode(xorResult);
+    }
+    return result;
+}
+
+
+// --- Custom Base64 Layer (Layers 1 and 9 - UNCHANGED) ---
+function utf8ToCustomBase64(str) {
+    const bytes = new TextEncoder().encode(str);
+    let result = '';
+    for (let i = 0; i < bytes.length; i++) {
+        result += String.fromCharCode(bytes[i]);
+    }
+    return btoa(result);
+}
+
+function customBase64ToUtf8(str) {
+    const binaryStr = atob(str); 
+    const bytes = new Uint8Array(binaryStr.length);
+    for (let i = 0; i < binaryStr.length; i++) {
+        bytes[i] = binaryStr.charCodeAt(i);
+    }
+    return new TextDecoder("utf-8").decode(bytes);
+}
+
+function base64Variant(str) {
+    const standardB64 = utf8ToCustomBase64(str); 
+    let result = '';
+    const standardAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    for(const char of standardB64) {
+        let index = standardAlphabet.indexOf(char);
+        result += (index >= 0) ? BASE64_VARIANT_ALPHABET[index] : char;
+    }
+    return result;
+}
+
+function unBase64Variant(str) {
+    let standardB64 = '';
+    const standardAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+    for(const char of str) {
+        let index = BASE64_VARIANT_ALPHABET.indexOf(char);
+        standardB64 += (index >= 0) ? standardAlphabet[index] : char;
+    }
+    return customBase64ToUtf8(standardB64);
+}
+
+// --- Custom Obfuscation Layers (Layers 2-8 - UNCHANGED) ---
+function addPadding(str) {
+    let result = '';
+    for (let i = 0; i < str.length; i += PADDING_INTERVAL) {
+        result += str.substring(i, i + PADDING_INTERVAL) + PADDING_STRING;
+    }
+    return result;
+}
+function removePadding(str) {
+    return str.replaceAll(PADDING_STRING, '');
+}
+
+function reverseWords(str) {
+    return str.split(/\s+/).reverse().join(' ');
+}
+const unReverseWords = reverseWords;
+
+function hexSwap(str) {
+    let result = '';
+    const paddedStr = (str.length % 2 !== 0) ? str + ' ' : str;
+    for (let i = 0; i < paddedStr.length; i += 2) {
+        result += paddedStr[i + 1] + paddedStr[i];
+    }
+    return (str.length % 2 !== 0) ? result.substring(0, result.length - 1) : result;
+}
+const unHexSwap = hexSwap;
+
+function charOffset(str) {
+    return str.split('').map(char => String.fromCharCode(char.charCodeAt(0) + CHAR_SHIFT_OFFSET)).join('');
+}
+function unCharOffset(str) {
+    return str.split('').map(char => String.fromCharCode(char.charCodeAt(0) - CHAR_SHIFT_OFFSET)).join('');
+}
+
+function charSubtract(str) {
+    return str.split('').map(char => String.fromCharCode(char.charCodeAt(0) - CHAR_SUB_KEY)).join('');
+}
+function unCharSubtract(str) {
+    return str.split('').map(char => String.fromCharCode(char.charCodeAt(0) + CHAR_SUB_KEY)).join('');
+}
+
+function digitReplace(str) {
+    let result = str;
+    for (const [digit, symbol] of Object.entries(DIGIT_MAP)) {
+        result = result.replace(new RegExp(digit, 'g'), symbol);
+    }
+    return result;
+}
+function unDigitReplace(str) {
+    let result = str;
+    for (const [digit, symbol] of Object.entries(DIGIT_MAP)) {
+        result = result.replace(new RegExp('\\' + symbol, 'g'), digit);
+    }
+    return result;
+}
+
+function baseNConvert(str) {
+    return str.replace(/(\d+)/g, (match) => {
+        return `[B16:${parseInt(match, 10).toString(16).toUpperCase()}]`;
+    });
+}
+function unBaseNConvert(str) {
+    return str.replace(/\[B16:([0-9A-F]+)\]/g, (match, hexValue) => {
+        return parseInt(hexValue, 16).toString(10);
+    });
+}
+
+
+// --- Unified Layer Processing (UNCHANGED CORE LOGIC) ---
+const PROCESSORS = {
+    'CUSTOM_B64': { encode: utf8ToCustomBase64, decode: customBase64ToUtf8 },
+    'ADD_PADDING': { encode: addPadding, decode: removePadding },
+    'REVERSE_WORDS': { encode: reverseWords, decode: unReverseWords },
+    'HEX_SWAP': { encode: hexSwap, decode: unHexSwap },
+    'CHAR_OFFSET': { encode: charOffset, decode: unCharOffset },
+    'CHAR_SUBTRACT': { encode: charSubtract, decode: unCharSubtract },
+    'DIGIT_REPLACE': { encode: digitReplace, decode: unDigitReplace },
+    'BASE_N_CONVERT': { encode: baseNConvert, decode: unBaseNConvert },
+    'BASE64_VARIANT': { encode: base64Variant, decode: unBase64Variant }
+};
+
+function processLayers(input, direction) {
+    let result = input;
+    let sequence = ENCODING_SEQUENCE;
+
+    if (direction === 'decode') {
+        sequence = [...ENCODING_SEQUENCE].reverse();
+    }
+
+    for (let i = 0; i < sequence.length; i++) {
+        const step = sequence[i];
+        const processor = PROCESSORS[step];
+
+        if (!processor) {
+            throw new Error(`Unknown layer defined: ${step}`);
+        }
+
+        const func = (direction === 'encode') ? processor.encode : processor.decode;
+        
+        try {
+             result = func(result);
+        } catch (e) {
+            console.error(`Error processing layer ${step} in ${direction}:`, e);
+            throw new Error(`Layer Error at ${step}. Input length: ${result.length}.`);
         }
     }
+
     return result;
 }
 
-function applySubstitution(text, isEncrypting) {
-    const map = isEncrypting ? CUSTOM_SUBSTITUTION_MAP : REVERSE_SUBSTITUTION_MAP;
-    let result = '';
-    for (let char of text) {
-        result += map[char] || char;
+
+// --- Copy Functionality (UNCHANGED) ---
+function copyOutput() {
+    const outputElement = document.getElementById('cipher-text');
+    const textToCopy = outputElement.value;
+
+    if (!textToCopy.trim()) {
+        alert('Nothing valid to copy.');
+        return;
     }
-    return result;
-}
-
-// Logic assumes noise is injected AFTER every NOISE_INTERVAL chars
-function injectNoise(text) {
-    let result = '';
-    for (let i = 0; i < text.length; i++) {
-        result += text[i];
-        if ((i + 1) % NOISE_INTERVAL === 0) {
-            let noise = NOISE_CHARS.charAt(Math.floor(Math.random() * NOISE_CHARS.length));
-            result += noise;
-        }
+    
+    const tempTextArea = document.createElement('textarea');
+    tempTextArea.value = textToCopy;
+    tempTextArea.style.position = 'fixed';
+    tempTextArea.style.top = '0';
+    tempTextArea.style.left = '-9999px';
+    
+    document.body.appendChild(tempTextArea);
+    tempTextArea.focus();
+    tempTextArea.select();
+    
+    let success = false;
+    try {
+        success = document.execCommand('copy'); 
+    } catch (err) {
+        console.error('Fallback copy failed:', err);
     }
-    return result;
-}
+    
+    document.body.removeChild(tempTextArea);
 
-// Logic assumes noise stripping removes every (NOISE_INTERVAL + 1)th char
-function stripNoise(text) {
-    let result = '';
-    const step = NOISE_INTERVAL + 1;
-    for (let i = 0; i < text.length; i++) {
-        if ((i + 1) % step !== 0) {
-            result += text[i];
-        }
+    if (success) {
+        alert('Output copied to clipboard!');
+    } else {
+        alert('Failed to copy text. Your browser may require manual selection.');
     }
-    return result;
-}
-
-function reverseString(text) {
-    return text.split('').reverse().join('');
 }
 
 
-// --- ENCRYPTION PROCESS (Chaining supported by reading from plain-text) ---
-
+// --- Main Application Functions (Conditional Logic Using Strong XOR - UNCHANGED) ---
 function encryptText() {
     const plainTextarea = document.getElementById('plain-text');
     const cipherTextarea = document.getElementById('cipher-text');
@@ -257,104 +417,55 @@ function encryptText() {
     
     let text = plainTextarea.value;
     const userKey = keyInput.value.trim();
-    const dynamicShift = getShiftKey(userKey);
 
     if (text.trim() === '') {
         cipherTextarea.value = 'ERROR: Input field is empty. Cannot encrypt.';
         return;
     }
-
-    // --- ENCRYPTION CHAIN ---
-    // 1. Custom Substitution
-    text = applySubstitution(text, true);
-
-    // 2. Reverse String
-    text = reverseString(text); 
-
-    // 3. Keyed Caesar Shift
-    text = applyCaesarShift(text, dynamicShift);
-
-    // 4. Noise Injection
-    let preBase64Text = injectNoise(text);
     
-    // --- FINAL ENCODING & OBFUSCATION ---
-    
-    // Calculate Checksum *before* Base64
-    const checksum = generateChecksum(preBase64Text, VALIDATION_TOKEN_LENGTH);
-    
-    // 5. Base64 Encoding
-    let cipher = btoa(preBase64Text);
+    try {
+        // STEP 1: OPTIONAL STRONG KEY LAYER (Keyed XOR)
+        if (userKey.length > 0) {
+            text = applyKeyedXOR(text, userKey);
+        }
+        
+        // STEP 2: MANDATORY 9-LAYER ENCRYPTION CHAIN
+        let cipher = processLayers(text, 'encode');
+        
+        cipherTextarea.value = cipher;
 
-    // 6. Final OBFUSCATION: Add False Start Prefix & Checksum
-    let finalCipher = FALSE_START_PREFIX + cipher + checksum;
-
-    // Display
-    plainTextarea.value = ''; // Clear input for next operation
-    cipherTextarea.value = finalCipher;
+    } catch (e) {
+        cipherTextarea.value = `FATAL ENCRYPTION ERROR: ${e.message}`;
+    }
 }
 
-
-// --- DECRYPTION PROCESS (Chaining supported by reading from plain-text) ---
 
 function decryptText() {
     const plainTextarea = document.getElementById('plain-text');
     const cipherTextarea = document.getElementById('cipher-text');
     const keyInput = document.getElementById('cipher-key');
-    
+
     let cipherText = plainTextarea.value; 
     const userKey = keyInput.value.trim();
-    const dynamicShift = getShiftKey(userKey);
 
-    // Basic check for the full cipher structure length
-    if (!cipherText || cipherText.length < FALSE_START_PREFIX.length + VALIDATION_TOKEN_LENGTH + 4) { // +4 for some base64
-        cipherTextarea.value = 'ERROR: Cipher is too short or invalid. Is the key correct?';
+    if (cipherText.trim() === '') {
+        cipherTextarea.value = 'ERROR: Input field is empty. Cannot decrypt.';
         return;
     }
     
-    // --- DE-OBFUSCATION ---
-    // 1. Check for and remove False Start Prefix
-    if (!cipherText.startsWith(FALSE_START_PREFIX)) {
-        cipherTextarea.value = 'DECODE FAILED: Does not appear to be a valid EMIGMA cipher (Prefix missing).';
-        return;
-    }
-
-    let strippedCipher = cipherText.substring(FALSE_START_PREFIX.length);
-    
-    // 2. Extract Checksum
-    const receivedChecksum = strippedCipher.slice(-VALIDATION_TOKEN_LENGTH);
-    let base64Payload = strippedCipher.slice(0, -VALIDATION_TOKEN_LENGTH);
-
     try {
-        // 3. Reverse Base64 Decoding
-        let preBase64Text = atob(base64Payload);
+        // STEP 1: MANDATORY 9-LAYER DECRYPTION CHAIN
+        let result = processLayers(cipherText, 'decode');
 
-        // --- VALIDATION (Key dependence begins here) ---
-        const calculatedChecksum = generateChecksum(preBase64Text, VALIDATION_TOKEN_LENGTH);
-        if (receivedChecksum !== calculatedChecksum) {
-             cipherTextarea.value = 'DECODE FAILED: Checksum Mismatch. The cipher is corrupted OR the key is incorrect.';
-             return;
+        // STEP 2: OPTIONAL STRONG KEY LAYER (Reverse Keyed XOR)
+        if (userKey.length > 0) {
+            result = applyKeyedXOR(result, userKey);
         }
 
-        // --- DECRYPTION CHAIN (Reverse Order is critical!) ---
-        
-        // 4. Noise Stripping
-        let text = stripNoise(preBase64Text);
-
-        // 5. Reverse Keyed Caesar Shift
-        text = applyCaesarShift(text, 26 - dynamicShift);
-
-        // 6. Reverse String
-        text = reverseString(text);
-
-        // 7. Reverse Substitution
-        text = applySubstitution(text, false);
-
-        // Display
-        cipherTextarea.value = text;
-        plainTextarea.value = ''; // Clear input for next operation
+        cipherTextarea.value = result;
         
     } catch (e) {
-        cipherTextarea.value = 'FATAL ERROR: Could not decode cipher. Likely non-Base64 or severe corruption.';
+        cipherTextarea.value = `FATAL DECRYPTION ERROR: ${e.message}. Check if the input is correct, if the key was used, and if the key is correct.`;
     }
 }
     </script>

@@ -1,195 +1,491 @@
-/* style.css (Re-used for brevity, added .hidden-iframe) */
+/*
+    STYLE.CSS
+    Secret Keeper Desktop-First, Dark Theme Styling
+*/
 
 :root {
-    --primary-color: #3b82f6; /* Blue */
-    --primary-hover: #2563eb;
-    --dark-text: #1f2937;
-    --medium-text: #374151;
-    --light-bg: #f8fafc;
-    --white: white;
-    --success-bg: #d1fae5;
-    --success-color: #065f46;
-    --error-bg: #fee2e2;
-    --error-color: #991b1b;
-    --delete-color: #ef4444;
+    /* Color Variables - Dark Theme Default */
+    --color-background-primary: #121212;
+    --color-background-secondary: #1e1e1e;
+    --color-background-tertiary: #2a2a2a;
+    --color-text-primary: #e0e0e0;
+    --color-text-secondary: #b0b0b0;
+    --color-action-main: #6200ee; /* Purple */
+    --color-action-main-hover: #9c4dff;
+    --color-action-secondary: #03dac6; /* Teal */
+    --color-action-secondary-hover: #73fcf0;
+    --color-action-danger: #cf6679; /* Reddish */
+    --color-action-critical: #ff005d;
+    --color-action-cancel: #f4b400; /* Yellow */
+    --color-border-default: #444444;
+    --color-output-background: #333333;
+    --color-overlay-background: rgba(0, 0, 0, 0.7);
+
+    /* Layout Variables */
+    --sidebar-width: 200px;
+    --header-height: 60px;
+
+    /* Theme Transition */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light Theme Variables (Overridden when data-theme="light") */
+[data-theme="light"] {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f4f4f4;
+    --color-background-tertiary: #e0e0e0;
+    --color-text-primary: #121212;
+    --color-text-secondary: #555555;
+    --color-action-main: #1976d2; /* Blue */
+    --color-action-main-hover: #42a5f5;
+    --color-action-secondary: #00897b; /* Dark Teal */
+    --color-action-secondary-hover: #26a69a;
+    --color-action-danger: #d32f2f; /* Dark Red */
+    --color-action-critical: #b71c1c;
+    --color-action-cancel: #ffa000;
+    --color-border-default: #cccccc;
+    --color-output-background: #eeeeee;
+    --color-overlay-background: rgba(255, 255, 255, 0.8);
+}
+
+/* --- Base & Utility Styles --- */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto Mono', monospace; /* Monospace for a technical look */
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--light-bg);
-    margin: 0;
-    padding: 20px;
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    height: 100vh;
+    overflow: hidden; /* Desktop app style */
     display: flex;
     flex-direction: column;
+}
+
+.app-hidden {
+    display: none !important;
+}
+
+/* --- Main Layout: Header & Grid --- */
+
+.app-header-bar {
+    height: var(--header-height);
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    min-height: 100vh;
+    padding: 0 20px;
+    background-color: var(--color-background-secondary);
+    border-bottom: 1px solid var(--color-border-default);
+    flex-shrink: 0;
 }
 
-.container {
-    background-color: var(--white);
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 600px;
-    width: 100%;
-    margin-bottom: 20px;
+.header-branding {
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 
-h1 {
-    color: var(--dark-text);
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.subtitle {
-    text-align: center;
-    color: var(--medium-text);
-    margin-bottom: 30px;
-}
-
-h2 {
-    color: var(--dark-text);
-    margin-top: 0;
-    margin-bottom: 15px;
-    font-size: 1.4em;
-}
-
-fieldset {
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 25px;
-}
-
-legend {
-    padding: 0 10px;
-    color: var(--primary-color);
+#appTitleText {
+    font-size: 1.5rem;
     font-weight: 700;
 }
+
+.app-main-content-wrapper {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.app-grid-layout {
+    display: grid;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    height: 100%;
+}
+
+/* --- Sidebar Navigation --- */
+
+.grid-sidebar-panel {
+    background-color: var(--color-background-tertiary);
+    border-right: 1px solid var(--color-border-default);
+    padding: 15px 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.nav-link-btn {
+    display: block;
+    width: 100%;
+    padding: 12px 20px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.nav-link-btn:hover {
+    background-color: var(--color-border-default);
+    color: var(--color-text-primary);
+}
+
+.nav-link-btn.active {
+    background-color: var(--color-action-main);
+    color: var(--color-background-primary);
+    font-weight: 700;
+}
+
+.action-logout {
+    margin-top: 30px;
+    color: var(--color-action-danger);
+}
+
+.action-logout:hover {
+    background-color: var(--color-action-danger);
+    color: var(--color-background-primary);
+}
+
+/* --- Content Panel --- */
+
+.grid-content-panel {
+    overflow: hidden; /* Important for inner scrolling */
+    padding: 20px;
+}
+
+.panel-scroll-area {
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 10px; /* Space for scrollbar */
+}
+
+.view-panel-area {
+    min-height: 100%;
+    /* All view-panels are displayed, but only one is made visible/active by JS */
+}
+
+/* --- Login View --- */
+
+.full-screen-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.login-form-area {
+    width: 400px;
+    padding: 30px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    background-color: var(--color-background-secondary);
+}
+
+.login-form-area legend h2 {
+    font-weight: 700;
+    color: var(--color-action-main);
+}
+
+/* --- Form Elements --- */
 
 label {
     display: block;
     margin-top: 15px;
     margin-bottom: 5px;
-    font-weight: 600;
-    color: var(--medium-text);
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
 }
 
-.field-help {
-    font-size: 0.9em;
-    color: #6b7280;
-    margin-bottom: 15px;
-}
-
-input[type="text"], input[type="password"], textarea {
-    width: 95%;
+input[type="text"],
+input[type="password"],
+textarea {
+    width: 100%;
     padding: 10px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-}
-
-input:focus, textarea:focus {
-    border-color: var(--primary-color);
-    outline: none;
+    margin-bottom: 10px;
+    background-color: var(--color-background-tertiary);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-primary);
+    border-radius: 4px;
 }
 
 textarea {
     resize: vertical;
 }
 
-button {
-    background-color: var(--primary-color);
-    color: var(--white);
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
+/* Key Visibility Toggle */
+.input-with-toggle-key {
+    position: relative;
+}
+
+.key-visibility-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s, transform 0.1s;
+    color: var(--color-action-secondary);
 }
 
-button:hover {
-    background-color: var(--primary-hover);
+/* --- Buttons --- */
+
+button {
+    padding: 10px 15px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
 }
 
-button:active {
-    transform: scale(0.98);
+.action-main, #authActionButton {
+    background-color: var(--color-action-main);
+    color: var(--color-background-primary);
 }
 
-.action-group {
+.action-main:hover, #authActionButton:hover {
+    background-color: var(--color-action-main-hover);
+}
+
+.action-secondary {
+    background-color: var(--color-action-secondary);
+    color: var(--color-background-primary);
+}
+
+.action-secondary:hover {
+    background-color: var(--color-action-secondary-hover);
+}
+
+.action-delete {
+    background-color: var(--color-action-danger);
+    color: var(--color-background-primary);
+}
+
+.action-delete:hover {
+    opacity: 0.8;
+}
+
+.action-critical {
+    background-color: var(--color-action-critical);
+    color: var(--color-background-primary);
+}
+
+.action-critical:hover {
+    opacity: 0.8;
+}
+
+.action-cancel {
+    background-color: var(--color-action-cancel);
+    color: var(--color-background-primary);
+}
+
+.action-cancel:hover {
+    opacity: 0.8;
+}
+
+.action-group-pair {
     display: flex;
     gap: 10px;
 }
 
-.action-group button {
+.action-group-pair button, .action-group-pair .file-label {
     flex-grow: 1;
+    margin-top: 15px;
+}
+
+.file-label {
+    display: inline-block;
+    padding: 10px 15px;
+    text-align: center;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* --- Data Display & Output --- */
+
+fieldset {
+    border: 1px solid var(--color-border-default);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+}
+
+legend {
+    color: var(--color-action-secondary);
+    font-weight: 700;
+    padding: 0 10px;
+    font-size: 1.1rem;
+}
+
+.data-output .output-display-area {
+    min-height: 100px;
+    background-color: var(--color-output-background);
+    padding: 15px;
+    border-radius: 4px;
+    white-space: pre-wrap; /* Preserve formatting for data */
+    word-break: break-all;
+    border: 1px solid var(--color-border-default);
+}
+
+/* Key Tags on Decode View */
+.key-tag-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 0;
+    min-height: 50px;
+}
+
+.key-tag {
+    background-color: var(--color-action-tertiary);
+    padding: 8px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    border: 1px solid var(--color-action-secondary);
+    color: var(--color-action-secondary);
+    transition: background-color 0.2s;
+}
+
+.key-tag:hover {
+    background-color: var(--color-action-secondary);
+    color: var(--color-background-primary);
+}
+
+.key-tag.selected {
+    background-color: var(--color-action-main);
+    color: var(--color-background-primary);
+    border-color: var(--color-action-main);
+    font-weight: 700;
+}
+
+/* --- Entry Type Tabs (Store View) --- */
+.entry-type-tabs {
+    display: flex;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--color-border-default);
+}
+
+.type-tab-btn {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    font-weight: 400;
+    margin-top: 0;
+    margin-right: 5px;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-bottom-color 0.2s;
+}
+
+.type-tab-btn.active {
+    color: var(--color-action-main);
+    border-bottom-color: var(--color-action-main);
+    font-weight: 700;
+}
+
+.entry-data-tab {
+    padding: 10px 0;
+}
+
+/* --- Avatar Display --- */
+.user-avatar-display {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--color-action-secondary);
+    color: var(--color-background-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.user-avatar-display.large {
+    width: 100px;
+    height: 100px;
+    font-size: 3rem;
+    border: 3px solid var(--color-action-main);
+}
+
+.user-avatar-display img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#modeToggleBtn {
+    background: var(--color-background-tertiary);
+    border: 1px solid var(--color-border-default);
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: 0;
 }
 
-.delete-btn {
-    background-color: var(--delete-color) !important;
+/* --- Popup Modal --- */
+
+.popup-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-overlay-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
 }
 
-.delete-btn:hover {
-    background-color: #c52727 !important;
+.popup-modal-content {
+    background-color: var(--color-background-primary);
+    padding: 30px;
+    border-radius: 8px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--color-border-default);
 }
 
-#message {
+.popup-modal-content h3 {
+    color: var(--color-action-main);
+    margin-bottom: 15px;
+}
+
+.popup-modal-content p {
     margin-bottom: 20px;
-    padding: 15px;
-    border-radius: 6px;
-    text-align: center;
-    font-weight: 600;
-    display: none;
+    color: var(--color-text-secondary);
 }
 
-#message.success {
-    background-color: var(--success-bg);
-    color: var(--success-color);
+#popupControls {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
 }
 
-#message.error {
-    background-color: var(--error-bg);
-    color: var(--error-color);
+#popupControls button {
+    margin-top: 0;
 }
 
-.hidden {
-    display: none !important;
+.action-confirm {
+    background-color: var(--color-action-main);
+    color: var(--color-background-primary);
 }
 
-/* New style to hide the storage iframe */
-.hidden-iframe {
-    width: 0;
-    height: 0;
-    border: none;
-    visibility: hidden;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-}
-
-/* Custom file input styling */
-input[type="file"] {
-    display: none;
-}
-
-.custom-file-upload {
-    display: inline-block;
-    background-color: #6b7280;
-    color: var(--white);
-    padding: 12px 20px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s;
-    text-align: center;
-    flex-grow: 1;
-}
-
-.custom-file-upload:hover {
-    background-color: #4b5563;
+.action-confirm:hover {
+    background-color: var(--color-action-main-hover);
 }

@@ -1,12 +1,12 @@
 [
     {
-        "id": 0,
-        "name": "Subscribe to My Updates",
-        "path": "https:\/\/subscribe-mahdiyasser.alsmmak.site\/",
-        "image": "..\/img\/subscribe-to-my-updates.png",
-        "tag": "Newsletter",
-        "style": "newsletter_card",
-        "description": "Subscribe to receive news and updates via my newsletter.",
+        "id": 9,
+        "name": "The Secret Keeper",
+        "path": "https:\/\/keeper.mahdiyasser.site",
+        "image": "..\/img\/the-secret-keeper.png",
+        "tag": "Security Vault",
+        "style": "card",
+        "description": "this is a high security tool that uses localstorage to store all your data securely on your own device",
         "story": ""
     },
     {
@@ -90,13 +90,13 @@
         "story": ""
     },
     {
-        "id": 9,
-        "name": "The Secret Keeper",
-        "path": ".\/stuff\/secret-keeper\/off",
-        "image": "..\/img\/the-secret-keeper.png",
-        "tag": "",
-        "style": "card",
-        "description": "this is a high security tool that uses localstorage to store all your data securely on your own device",
+        "id": 0,
+        "name": "Subscribe to My Updates",
+        "path": "https:\/\/subscribe-mahdiyasser.alsmmak.site\/",
+        "image": "..\/img\/subscribe-to-my-updates.png",
+        "tag": "Newsletter",
+        "style": "newsletter_card",
+        "description": "Subscribe to receive news and updates via my newsletter.",
         "story": ""
     }
 ]

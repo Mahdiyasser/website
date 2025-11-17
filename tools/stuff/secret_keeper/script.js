@@ -52,7 +52,7 @@ function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         // Wait for the window to load before registering the Service Worker
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
+            navigator.serviceWorker.register('./service-worker.js')
                 .then(registration => {
                     console.log('Service Worker registered: ', registration);
                 })

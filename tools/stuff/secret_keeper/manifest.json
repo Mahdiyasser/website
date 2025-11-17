@@ -3,7 +3,7 @@
   "short_name": "Keeper-Off",
   "description": "A secure, client-side encrypted vault for storing sensitive data.",
   "start_url": "./index.html",
-  "scope": "/",
+  "scope": "/tools/stuff/secret_keeper",
   "display": "standalone",
   "background_color": "#1e1e1e",
   "theme_color": "#6200ee",

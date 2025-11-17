@@ -1,6 +1,6 @@
 /*
     SCRIPT.JS
-    Secret Keeper Application Logic with AES Encryption
+    Secure Vault Keeper Application Logic with AES Encryption
 */
 
 // --- CONSTANTS & GLOBAL STATE ---
@@ -9,7 +9,7 @@ const STORAGE_KEY_USER_ID = 'sk_userId';
 const STORAGE_KEY_VAULT_DATA = 'sk_vaultData';
 const STORAGE_KEY_AVATAR = 'sk_avatar';
 const STORAGE_KEY_THEME = 'sk_theme';
-const MAX_AVATAR_SIZE_KB = 512; // 512KB limit
+const MAX_AVATAR_SIZE_KB = 1024; // 1024KB limit
 
 let CURRENT_MASTER_KEY = null;
 let VAULT_DATA = {}; // Structure: { userId: '...', entries: { accessId: { type: '...', encryptedData: '...' } } }
@@ -22,23 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
     setupNavigation();
     setupEntryTypeTabs();
+    
+    // Wire up buttons for authentication view
+    document.getElementById('authActionButton').onclick = performAuthentication;
 });
 
 function initializeApp() {
-    // 1. Check for existing User ID
     const storedUserId = localStorage.getItem(STORAGE_KEY_USER_ID);
     if (storedUserId) {
         CURRENT_USER_ID = storedUserId;
         document.getElementById('vaultUsernameInput').value = storedUserId;
-        // Update header/config view with initial/existing ID
         updateAvatarDisplay(CURRENT_USER_ID); 
         document.getElementById('updateUserID').value = CURRENT_USER_ID;
-        // User ID is set, now user must enter the key to authenticate
     } else {
-        // First run or data wiped. Set default placeholder.
         updateAvatarDisplay(CURRENT_USER_ID);
     }
-    // Only show the login gate initially
     showView('loginGateView'); 
 }
 
@@ -50,21 +48,21 @@ function initializeApp() {
  * @returns {string} Encrypted string (CryptoJS format).
  */
 function encryptData(plaintext) {
-    if (!CURRENT_MASTER_KEY) throw new Error("Encryption failed: Master key not set.");
+    if (!CURRENT_MASTER_KEY) throw new Error("Encryption failed: Master Key not set.");
     return CryptoJS.AES.encrypt(plaintext, CURRENT_MASTER_KEY).toString();
 }
 
 /**
- * Decrypts an encrypted string using the current master key.
+ * Decrypts an encrypted string using a given key.
  * @param {string} encryptedText 
+ * @param {string} decryptionKey The key to use for decryption.
  * @returns {string|null} Decrypted plaintext or null if decryption fails.
  */
-function decryptData(encryptedText) {
-    if (!CURRENT_MASTER_KEY) return null;
+function decryptData(encryptedText, decryptionKey) {
+    if (!decryptionKey) return null;
     try {
-        const bytes = CryptoJS.AES.decrypt(encryptedText, CURRENT_MASTER_KEY);
+        const bytes = CryptoJS.AES.decrypt(encryptedText, decryptionKey);
         if (!bytes || bytes.sigBytes === 0) {
-            // Decryption failed (wrong key or invalid ciphertext)
             return null;
         }
         return bytes.toString(CryptoJS.enc.Utf8);
@@ -76,42 +74,37 @@ function decryptData(encryptedText) {
 
 // --- AUTHENTICATION & VAULT MANAGEMENT ---
 
-/**
- * Handles the login/setup process.
- */
 async function performAuthentication() {
     const userIdInput = document.getElementById('vaultUsernameInput').value.trim();
     const masterKeyInput = document.getElementById('masterSecurityKeyInput').value;
 
     if (!userIdInput || !masterKeyInput) {
-        return showAppPopup('Error', 'User Identifier and Master Key are required.', false, false);
+        return showAppPopup('Missing Information', 'User Identifier and Master Security Key are required.', false, false);
     }
 
     const isSetup = !localStorage.getItem(STORAGE_KEY_USER_ID);
     CURRENT_MASTER_KEY = masterKeyInput;
     
     if (isSetup) {
-        // --- INITIAL SETUP ---
         await handleInitialSetup(userIdInput);
     } else {
-        // --- LOGIN ATTEMPT ---
         await handleLoginAttempt(userIdInput);
     }
 }
 
 async function handleInitialSetup(userIdInput) {
-    // Save new user ID and empty vault data
     localStorage.setItem(STORAGE_KEY_USER_ID, userIdInput);
     VAULT_DATA = { userId: userIdInput, entries: {} };
-    // Encrypt the empty vault object for initial storage
+    
+    // Encrypt the empty vault object with the new key
     const encryptedVault = encryptData(JSON.stringify(VAULT_DATA));
     localStorage.setItem(STORAGE_KEY_VAULT_DATA, encryptedVault);
 
     CURRENT_USER_ID = userIdInput;
     updateAvatarDisplay(CURRENT_USER_ID);
 
-    showAppPopup('Setup Complete', 'New Vault created successfully!', false, true);
-    document.getElementById('masterSecurityKeyInput').value = ''; // Clear key input
+    showAppPopup('Setup Complete', 'New Vault created and secured! You are now logged in.', false, true);
+    document.getElementById('masterSecurityKeyInput').value = ''; 
     showAuthenticatedApp();
 }
 
@@ -120,34 +113,26 @@ async function handleLoginAttempt(userIdInput) {
     const storedUserId = localStorage.getItem(STORAGE_KEY_USER_ID);
 
     if (storedUserId !== userIdInput) {
-        // User ID mismatch - potential security issue or simple typo
-        return showAppPopup('Error', 'User Identifier does not match the stored ID.', false, false);
+        return showAppPopup('Login Failed', 'The User Identifier does not match the stored account.', false, false);
     }
 
-    if (!storedEncryptedVault) {
-        // Vault data missing but ID exists (corrupted state)
-        return showAppPopup('Error', 'Vault data not found. Please contact support or try "Wipe All Data".', false, false);
-    }
-
-    // Attempt decryption
-    const decryptedVaultString = decryptData(storedEncryptedVault);
+    const decryptedVaultString = decryptData(storedEncryptedVault, CURRENT_MASTER_KEY);
 
     if (decryptedVaultString === null) {
-        // Decryption failed: WRONG KEY
-        return showAppPopup('Authentication Failed', 'Invalid Master Security Key.', false, false);
+        return showAppPopup('Access Denied', 'Invalid Master Security Key. Please try again.', false, false);
     }
 
     try {
         VAULT_DATA = JSON.parse(decryptedVaultString);
-        CURRENT_USER_ID = userIdInput; // Re-confirm
+        CURRENT_USER_ID = userIdInput;
         updateAvatarDisplay(CURRENT_USER_ID);
         
-        showAppPopup('Authentication Success', 'Vault unlocked.', false, true);
-        document.getElementById('masterSecurityKeyInput').value = ''; // Clear key input
+        showAppPopup('Vault Unlocked', 'You have successfully logged in.', false, true);
+        document.getElementById('masterSecurityKeyInput').value = ''; 
         showAuthenticatedApp();
     } catch (e) {
         console.error("Vault Parse Error:", e);
-        showAppPopup('Error', 'Vault data corrupted. Cannot parse JSON.', false, false);
+        showAppPopup('Data Error', 'Vault data is corrupted and cannot be loaded.', false, false);
     }
 }
 
@@ -162,28 +147,20 @@ function saveVaultData() {
         return true;
     } catch (e) {
         console.error("Save Vault Error:", e);
-        showAppPopup('Save Error', 'Could not save vault data. Encryption failed or storage limit reached.', false, false);
+        showAppPopup('Storage Error', 'Could not save vault data. The browser storage limit might be reached.', false, false);
         return false;
     }
 }
 
-/**
- * Displays the main app grid and updates the decoded key list.
- */
 function showAuthenticatedApp() {
     showView('authenticatedAppGrid');
     updateAccessKeyList();
-    // Pre-select the first tab in Store Data View
     const firstTab = document.querySelector('#storeDataView .type-tab-btn');
     if(firstTab) firstTab.click(); 
 }
 
 // --- NAVIGATION & UI FLOW ---
 
-/**
- * Toggles visibility between the Login Gate and the main App Grid.
- * @param {string} viewId The ID of the view to show ('loginGateView' or 'authenticatedAppGrid')
- */
 function showView(viewId) {
     document.getElementById('loginGateView').classList.add('app-hidden');
     document.getElementById('authenticatedAppGrid').classList.add('app-hidden');
@@ -192,29 +169,22 @@ function showView(viewId) {
     if (targetElement) {
         targetElement.classList.remove('app-hidden');
         if (viewId === 'authenticatedAppGrid') {
-            // Default to 'Decode Data' view upon successful login
-            document.querySelector('.nav-link-btn').click();
+            const defaultNav = document.querySelector('.nav-link-btn[data-target="storeDataView"]');
+            if(defaultNav) defaultNav.click();
         }
     }
 }
 
-/**
- * Sets up sidebar navigation to toggle view panels.
- */
 function setupNavigation() {
     document.querySelectorAll('.nav-link-btn').forEach(button => {
         button.addEventListener('click', (e) => {
-            // Remove 'active' from all links
             document.querySelectorAll('.nav-link-btn').forEach(btn => btn.classList.remove('active'));
-            // Hide all content panels
             document.querySelectorAll('.view-panel-area').forEach(panel => panel.classList.add('app-hidden'));
 
-            // Show target panel and set link as active
             const targetId = e.target.dataset.target;
             document.getElementById(targetId).classList.remove('app-hidden');
             e.target.classList.add('active');
 
-            // Specific updates for views
             if (targetId === 'decodeDataView') {
                 updateAccessKeyList();
             } else if (targetId === 'settingsConfigView') {
@@ -224,18 +194,12 @@ function setupNavigation() {
     });
 }
 
-/**
- * Sets up the tabs on the 'Store Data' view.
- */
 function setupEntryTypeTabs() {
     document.querySelectorAll('.type-tab-btn').forEach(button => {
         button.addEventListener('click', (e) => {
-            // Remove 'active' from all tabs
             document.querySelectorAll('.type-tab-btn').forEach(btn => btn.classList.remove('active'));
-            // Hide all content blocks
             document.querySelectorAll('.entry-data-tab').forEach(block => block.classList.add('app-hidden'));
 
-            // Show target block and set tab as active
             const entryType = e.target.dataset.entryType;
             document.getElementById(`entry-content-${entryType}`).classList.remove('app-hidden');
             e.target.classList.add('active');
@@ -246,42 +210,45 @@ function setupEntryTypeTabs() {
 
 // --- VIEW SPECIFIC FUNCTIONS: STORE DATA ---
 
-/**
- * Gathers, encrypts, and stores a new vault entry.
- * @param {string} type The type of entry ('credentials', 'memo', 'link').
- */
 function storeNewEntry(type) {
     let entryData = { type: type, timestamp: Date.now() };
-    let entryIdInput;
+    let accessIdInput;
 
     switch (type) {
         case 'credentials':
-            entryIdInput = document.getElementById('credEntryID');
+            accessIdInput = document.getElementById('credEntryID');
             entryData.user = document.getElementById('credEntryUser').value.trim();
             entryData.pass = document.getElementById('credEntryPass').value;
             entryData.notes = document.getElementById('credEntryNotes').value.trim();
             break;
-        case 'memo':
-            entryIdInput = document.getElementById('memoEntryID');
-            entryData.content = document.getElementById('memoEntryContent').value.trim();
+        case 'contact': // NEW TYPE
+            accessIdInput = document.getElementById('contactEntryID');
+            entryData.name = document.getElementById('contactEntryName').value.trim();
+            entryData.email = document.getElementById('contactEntryEmail').value.trim();
+            entryData.phone = document.getElementById('contactEntryPhone').value.trim();
+            entryData.notes = document.getElementById('contactEntryNotes').value.trim();
+            break;
+        case 'securenote': // NEW TYPE
+            accessIdInput = document.getElementById('noteEntryID');
+            entryData.content = document.getElementById('noteEntryContent').value.trim();
             break;
         case 'link':
-            entryIdInput = document.getElementById('linkEntryID');
+            accessIdInput = document.getElementById('linkEntryID');
             entryData.address = document.getElementById('linkEntryAddress').value.trim();
             entryData.notes = document.getElementById('linkEntryNotes').value.trim();
             break;
         default:
-            return showAppPopup('Error', 'Invalid entry type.', false, false);
+            return showAppPopup('Error', 'Invalid entry type selected.', false, false);
     }
 
-    const accessId = entryIdInput.value.trim();
+    const accessId = accessIdInput.value.trim();
 
-    if (!accessId || (type === 'memo' && !entryData.content)) {
-        return showAppPopup('Error', 'ID/Title and all required fields must be filled.', false, false);
+    if (!accessId || (type === 'securenote' && !entryData.content)) {
+        return showAppPopup('Missing Information', 'Title/Access ID and content fields are required.', false, false);
     }
     
     if (VAULT_DATA.entries[accessId]) {
-        return showAppPopup('Error', `Entry with ID '${accessId}' already exists. Please choose a different ID.`, false, false);
+        return showAppPopup('Error', `An entry with the ID '<strong>${accessId}</strong>' already exists.`, false, false);
     }
     
     // Encrypt the full entry data object
@@ -290,16 +257,21 @@ function storeNewEntry(type) {
     VAULT_DATA.entries[accessId] = { type: type, encryptedData: encryptedData };
 
     if (saveVaultData()) {
-        showAppPopup('Success', `New entry '${accessId}' stored securely!`, false, true);
-        entryIdInput.value = ''; // Clear ID input
+        showAppPopup('Success', `New secret '<strong>${accessId}</strong>' saved securely!`, false, true);
+        accessIdInput.value = ''; 
+        
         // Clear other fields based on type
-        document.querySelector(`#entry-content-${type} form`)?.reset(); // If form was used
         if(type === 'credentials') {
             document.getElementById('credEntryUser').value = '';
             document.getElementById('credEntryPass').value = '';
             document.getElementById('credEntryNotes').value = '';
-        } else if (type === 'memo') {
-            document.getElementById('memoEntryContent').value = '';
+        } else if (type === 'contact') {
+            document.getElementById('contactEntryName').value = '';
+            document.getElementById('contactEntryEmail').value = '';
+            document.getElementById('contactEntryPhone').value = '';
+            document.getElementById('contactEntryNotes').value = '';
+        } else if (type === 'securenote') {
+            document.getElementById('noteEntryContent').value = '';
         } else if (type === 'link') {
             document.getElementById('linkEntryAddress').value = '';
             document.getElementById('linkEntryNotes').value = '';
@@ -309,9 +281,6 @@ function storeNewEntry(type) {
 
 // --- VIEW SPECIFIC FUNCTIONS: DECODE DATA ---
 
-/**
- * Updates the list of access keys available for retrieval.
- */
 function updateAccessKeyList() {
     const listContainer = document.getElementById('accessKeyList');
     listContainer.innerHTML = '';
@@ -319,9 +288,9 @@ function updateAccessKeyList() {
     const accessIds = Object.keys(entries).sort();
 
     if (accessIds.length === 0) {
-        listContainer.innerHTML = '<p>No keys found.</p>';
+        listContainer.innerHTML = '<p>No saved secrets found in your vault.</p>';
         document.getElementById('selectedAccessID').value = '';
-        document.getElementById('decodedDataOutput').innerHTML = '<p>Data will appear here upon retrieval.</p>';
+        document.getElementById('decodedDataOutput').innerHTML = '<p style="color: var(--color-text-secondary);">Content will appear here after successful decryption.</p>';
         return;
     }
 
@@ -343,20 +312,14 @@ function updateAccessKeyList() {
         listContainer.appendChild(tag);
     });
 
-    // If the currently selected key was deleted or is null, clear the selection
     if (!selectedTagFound || !selectedId) {
         document.getElementById('selectedAccessID').value = '';
     }
 }
 
-/**
- * Selects an access key ID from the list to prepare for retrieval/deletion.
- * @param {string} id The access ID to select.
- */
 function selectAccessKey(id) {
     document.getElementById('selectedAccessID').value = id;
     
-    // Update visual selection
     document.querySelectorAll('.key-tag').forEach(tag => {
         tag.classList.remove('selected');
         if (tag.dataset.id === id) {
@@ -364,181 +327,251 @@ function selectAccessKey(id) {
         }
     });
 
-    // Clear previous output
-    document.getElementById('decodedDataOutput').innerHTML = '<p>Key selected. Click "Retrieve Data" to decrypt.</p>';
+    document.getElementById('decodedDataOutput').innerHTML = '<p style="color: var(--color-text-secondary);">Key selected. Click "Decrypt Selected Data" to unlock content.</p>';
+}
+
+/**
+ * Helper function to create clickable links and emails in the output.
+ */
+const formatValue = (key, value) => {
+    if (!value || value.trim() === '') return '<em>[None Provided]</em>';
+
+    // 1. Email check
+    if (key.toLowerCase().includes('email') && value.includes('@')) {
+        return `<a href="mailto:${value}">${value}</a>`;
+    }
+    
+    // 2. URL/Link check
+    if ((key.toLowerCase().includes('link') || key.toLowerCase().includes('address') || key.toLowerCase().includes('url')) && (value.startsWith('http') || value.startsWith('www'))) {
+        let url = value.startsWith('http') ? value : `http://${value}`;
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer">${value}</a>`;
+    }
+    
+    // 3. Phone check
+    if (key.toLowerCase().includes('phone') && (/\d/g.test(value))) {
+        let phoneLink = value.replace(/[\s\-\(\)]/g, ''); 
+        return `<a href="tel:${phoneLink}">${value}</a>`;
+    }
+
+    return value;
+};
+
+
+/**
+ * Prompts user for the Master Key and returns it.
+ */
+function promptKeyForDecode() {
+    return new Promise(resolve => {
+        const overlay = document.getElementById('popupOverlay');
+        const originalConfirmText = document.querySelector('#popupControls .action-confirm').textContent;
+
+        document.getElementById('popupTitle').textContent = 'Security Check Required';
+        document.getElementById('popupMessage').innerHTML = 
+            'For security, please re-enter your Master Security Key to decrypt the selected item: <br><br>' +
+            '<input type="password" id="tempDecodeKeyInput" placeholder="Master Security Key" style="width: 100%; margin: 10px 0;">';
+        
+        const confirmBtn = document.querySelector('#popupControls .action-confirm');
+        confirmBtn.textContent = 'Decrypt';
+        const cancelBtn = document.querySelector('#popupControls .action-cancel');
+        cancelBtn.classList.remove('app-hidden');
+        
+        const keyAttemptHandler = () => {
+            const tempKey = document.getElementById('tempDecodeKeyInput').value;
+            confirmBtn.textContent = originalConfirmText; // Restore button text
+            cancelBtn.classList.add('app-hidden');
+            closeAppPopup(true);
+            resolve(tempKey);
+        };
+
+        confirmBtn.onclick = keyAttemptHandler;
+        cancelBtn.onclick = () => {
+            confirmBtn.textContent = originalConfirmText;
+            cancelBtn.classList.add('app-hidden');
+            closeAppPopup(false);
+            resolve(null); 
+        };
+        
+        overlay.classList.remove('app-hidden');
+        document.getElementById('tempDecodeKeyInput').focus();
+    });
 }
 
 /**
  * Decrypts and displays the data for the currently selected key.
  */
-function retrieveSelectedData() {
+async function retrieveSelectedData() {
     const accessId = document.getElementById('selectedAccessID').value;
     const outputArea = document.getElementById('decodedDataOutput');
 
     if (!accessId) {
-        return outputArea.innerHTML = '<p style="color: var(--color-action-danger);">Please select an Access Key ID first.</p>';
+        return outputArea.innerHTML = '<p style="color: var(--color-action-danger);">Please select an Access ID first.</p>';
     }
 
     const entry = VAULT_DATA.entries[accessId];
     if (!entry) {
-        return outputArea.innerHTML = `<p style="color: var(--color-action-danger);">Error: Key ID '${accessId}' not found in vault.</p>`;
+        return outputArea.innerHTML = `<p style="color: var(--color-action-danger);">Error: ID '<strong>${accessId}</strong>' not found in vault.</p>`;
     }
 
-    const decryptedString = decryptData(entry.encryptedData);
+    // 1. Prompt for Key
+    const keyAttempt = await promptKeyForDecode();
+
+    if (!keyAttempt) {
+        return outputArea.innerHTML = `<p style="color: var(--color-action-danger);">Decryption canceled by user.</p>`;
+    }
+    
+    // 2. Attempt Decryption
+    const decryptedString = decryptData(entry.encryptedData, keyAttempt);
 
     if (decryptedString === null) {
-        // This should not happen if key is correct, but serves as a failsafe
-        return outputArea.innerHTML = `<p style="color: var(--color-action-critical);">Decryption failed! Master key may be incorrect or data corrupted.</p>`;
+        return outputArea.innerHTML = `<p style="color: var(--color-action-critical);">Decryption failed! The key you entered is incorrect.</p>`;
     }
 
+    // 3. Format Output
     let displayOutput = '';
     try {
         const data = JSON.parse(decryptedString);
         
         switch(data.type) {
             case 'credentials':
-                displayOutput = `--- Credentials: ${accessId} ---\n` +
-                                `User: ${data.user}\n` +
-                                `Password: ${data.pass}\n` +
-                                `Notes: ${data.notes || 'None'}`;
+                displayOutput = `
+                <div class="decode-output-grid">
+                    <h3>Secret: Credentials (ID: ${accessId})</h3>
+                    <div class="field-label">Username:</div><div class="field-value">${data.user}</div>
+                    <div class="field-label">Password:</div><div class="field-value">${data.pass}</div>
+                    <div class="field-label">Notes:</div><div class="field-value">${formatValue('Notes', data.notes)}</div>
+                </div>`;
                 break;
-            case 'memo':
-                displayOutput = `--- Secure Memo: ${accessId} ---\n` +
-                                `${data.content}`;
+            case 'contact': // NEW TYPE
+                displayOutput = `
+                <div class="decode-output-grid">
+                    <h3>Secret: Contact Detail (ID: ${accessId})</h3>
+                    <div class="field-label">Name:</div><div class="field-value">${data.name}</div>
+                    <div class="field-label">Email:</div><div class="field-value">${formatValue('Email', data.email)}</div>
+                    <div class="field-label">Phone:</div><div class="field-value">${formatValue('Phone', data.phone)}</div>
+                    <div class="field-label">Notes:</div><div class="field-value">${formatValue('Notes', data.notes)}</div>
+                </div>`;
+                break;
+            case 'securenote': // NEW TYPE
+                displayOutput = `
+                <div class="decode-output-grid">
+                    <h3>Secret: Secure Note (ID: ${accessId})</h3>
+                    <div class="field-label" style="grid-column: 1 / -1;">Encrypted Note Content:</div>
+                    <div class="field-value" style="grid-column: 1 / -1; padding-left: 0;">${data.content}</div>
+                </div>`;
                 break;
             case 'link':
-                displayOutput = `--- Web Link: ${accessId} ---\n` +
-                                `URL: ${data.address}\n` +
-                                `Notes: ${data.notes || 'None'}`;
+                displayOutput = `
+                <div class="decode-output-grid">
+                    <h3>Secret: Secure Link (ID: ${accessId})</h3>
+                    <div class="field-label">URL:</div><div class="field-value">${formatValue('Address', data.address)}</div>
+                    <div class="field-label">Notes:</div><div class="field-value">${formatValue('Notes', data.notes)}</div>
+                </div>`;
                 break;
             default:
-                displayOutput = `--- RAW DATA: ${accessId} ---\n${decryptedString}`;
+                displayOutput = `<p style="color: var(--color-action-danger);">Unknown entry type: ${data.type}. Raw data: <br><br>${decryptedString}</p>`;
         }
         
     } catch (e) {
-        // Fallback for non-JSON content (e.g. from an old version or corrupted data)
-        displayOutput = `--- RAW/CORRUPTED DATA: ${accessId} ---\n${decryptedString}`;
+        displayOutput = `<p style="color: var(--color-action-critical);">Data Error: Content for ID '<strong>${accessId}</strong>' is corrupted.</p>`;
     }
 
-    outputArea.textContent = displayOutput;
+    outputArea.innerHTML = displayOutput;
 }
 
-/**
- * Deletes the currently selected access key after confirmation.
- */
 function deleteSelectedData() {
     const accessId = document.getElementById('selectedAccessID').value;
 
     if (!accessId) {
-        return showAppPopup('Error', 'Please select a key to delete.', false, false);
+        return showAppPopup('Missing Selection', 'Please select a secret to delete first.', false, false);
     }
 
     showAppPopup('Confirm Deletion', 
-                 `Are you sure you want to PERMANENTLY delete the key: **${accessId}**? This cannot be undone.`, 
-                 true, // Requires Confirmation
-                 false, // Is not a success message
-                 () => { // Confirmation Callback
+                 `Are you sure you want to <strong>PERMANENTLY</strong> delete the secret with ID: <strong>${accessId}</strong>? This action cannot be reversed.`, 
+                 true, 
+                 false, 
+                 () => { 
                     if (VAULT_DATA.entries[accessId]) {
                         delete VAULT_DATA.entries[accessId];
                         if (saveVaultData()) {
-                            showAppPopup('Success', `Key '${accessId}' deleted.`, false, true);
+                            showAppPopup('Success', `Secret '<strong>${accessId}</strong>' deleted.`, false, true);
                             document.getElementById('selectedAccessID').value = '';
-                            document.getElementById('decodedDataOutput').innerHTML = '<p>Data will appear here upon retrieval.</p>';
+                            document.getElementById('decodedDataOutput').innerHTML = '<p style="color: var(--color-text-secondary);">Content will appear here after successful decryption.</p>';
                             updateAccessKeyList();
                         }
                     } else {
-                        showAppPopup('Error', `Key '${accessId}' not found.`, false, false);
+                        showAppPopup('Error', `Secret '<strong>${accessId}</strong>' not found.`, false, false);
                     }
                  });
 }
 
 // --- VIEW SPECIFIC FUNCTIONS: SETTINGS ---
 
-/**
- * Updates the user ID display in the settings view.
- */
 function updateConfigView() {
-    // Ensure the latest user ID is reflected
     document.getElementById('updateUserID').value = CURRENT_USER_ID;
     updateAvatarDisplay(CURRENT_USER_ID);
 }
 
-/**
- * Updates the main User Identifier for the vault.
- */
 function updateAccountIdentifier() {
     const newId = document.getElementById('updateUserID').value.trim();
     if (!newId) {
-        return showAppPopup('Error', 'New User Identifier cannot be empty.', false, false);
+        return showAppPopup('Missing Information', 'New User Identifier cannot be empty.', false, false);
     }
     if (newId === CURRENT_USER_ID) {
-        return showAppPopup('Info', 'User ID is already set to that value.', false, true);
+        return showAppPopup('No Change', 'Identifier is already set to that value.', false, true);
     }
 
     showAppPopup('Confirm Update', 
-                 `Change User ID from **${CURRENT_USER_ID}** to **${newId}**? This is the ID required for login.`, 
-                 true, // Requires Confirmation
-                 false, // Is not a success message
-                 () => { // Confirmation Callback
+                 `Change your login Identifier from <strong>${CURRENT_USER_ID}</strong> to <strong>${newId}</strong>?`, 
+                 true, 
+                 false, 
+                 () => { 
                     localStorage.setItem(STORAGE_KEY_USER_ID, newId);
                     CURRENT_USER_ID = newId;
                     updateAvatarDisplay(CURRENT_USER_ID);
-                    showAppPopup('Success', `User ID successfully updated to **${CURRENT_USER_ID}**.`, false, true);
+                    showAppPopup('Success', `User Identifier successfully updated to <strong>${CURRENT_USER_ID}</strong>.`, false, true);
                  });
 }
 
-/**
- * Updates the Master Security Key by re-encrypting the entire vault.
- */
 function updateMasterSecurityKey() {
     const newKey = document.getElementById('updateSecurityKeyInput').value;
     if (!newKey) {
-        return showAppPopup('Error', 'New Master Security Key cannot be empty.', false, false);
+        return showAppPopup('Missing Information', 'New Master Security Key cannot be empty.', false, false);
     }
     if (newKey === CURRENT_MASTER_KEY) {
-        return showAppPopup('Info', 'The new key is the same as the current key.', false, true);
+        return showAppPopup('No Change', 'The new key is the same as your current key.', false, true);
     }
 
     showAppPopup('Confirm Key Change', 
-                 'Are you sure you want to change your Master Security Key? The entire vault will be RE-ENCRYPTED. Do not proceed if you are unsure of the new key.', 
-                 true, // Requires Confirmation
-                 false, // Is not a success message
-                 () => { // Confirmation Callback
-                    // Temporarily store the old key and set the new one
+                 'Are you certain you want to change your Master Key? The entire vault will be <strong>RE-ENCRYPTED</strong> with the new key.', 
+                 true, 
+                 false, 
+                 () => { 
                     const oldKey = CURRENT_MASTER_KEY;
                     CURRENT_MASTER_KEY = newKey; 
 
                     try {
-                        // 1. Re-encrypt the entire VAULT_DATA object with the new key
                         if (saveVaultData()) {
-                            showAppPopup('Success', 'Master Security Key updated and vault successfully re-encrypted!', false, true);
-                            document.getElementById('updateSecurityKeyInput').value = ''; // Clear input
+                            showAppPopup('Success', 'Master Security Key updated and vault re-encrypted!', false, true);
+                            document.getElementById('updateSecurityKeyInput').value = '';
                         } else {
-                             // Re-encryption failed, revert to old key
                             CURRENT_MASTER_KEY = oldKey; 
-                            // Try to re-save with old key for consistency
                             saveVaultData(); 
-                            showAppPopup('Failure', 'Key update failed. Master Key has NOT been changed.', false, false);
+                            showAppPopup('Failure', 'Key update failed due to a storage error. Key has <strong>NOT</strong> been changed.', false, false);
                         }
                     } catch (e) {
-                        // In case of a critical error during re-encryption
                         CURRENT_MASTER_KEY = oldKey;
                         saveVaultData();
-                        console.error('Key update critical failure:', e);
                         showAppPopup('Critical Error', 'Key update failed critically. Reverted to previous key.', false, false);
                     }
                  });
 }
 
-/**
- * Wipes all application data from localStorage.
- */
 function wipeAllVaultData() {
     showAppPopup('DANGER ZONE', 
-                 '**WARNING:** This will PERMANENTLY WIPE all encrypted vault data, User ID, and Avatar image. The application will be reset to its initial state. Are you ABSOLUTELY sure?', 
-                 true, // Requires Confirmation
-                 false, // Is not a success message
-                 () => { // Confirmation Callback
+                 '<strong>WARNING:</strong> This will <strong>PERMANENTLY</strong> wipe all encrypted data, User ID, and Avatar image. Are you <strong>ABSOLUTELY</strong> sure?', 
+                 true, 
+                 false, 
+                 () => { 
                     localStorage.removeItem(STORAGE_KEY_USER_ID);
                     localStorage.removeItem(STORAGE_KEY_VAULT_DATA);
                     localStorage.removeItem(STORAGE_KEY_AVATAR);
@@ -547,9 +580,8 @@ function wipeAllVaultData() {
                     VAULT_DATA = {};
                     CURRENT_USER_ID = 'USER';
 
-                    showAppPopup('Vault Wiped', 'All data has been wiped. Please setup a new vault.', false, true);
+                    showAppPopup('Vault Wiped', 'All data has been wiped. The application is now reset.', false, true);
                     
-                    // Reset UI
                     document.getElementById('vaultUsernameInput').value = '';
                     document.getElementById('masterSecurityKeyInput').value = '';
                     initializeApp();
@@ -559,69 +591,63 @@ function wipeAllVaultData() {
 
 // --- AVATAR MANAGEMENT ---
 
-/**
- * Updates all avatar displays with the initial or image.
- * @param {string} userId The current user ID for initial generation.
- */
 function updateAvatarDisplay(userId) {
     const avatarData = localStorage.getItem(STORAGE_KEY_AVATAR);
     const initial = userId.charAt(0).toUpperCase();
 
-    // Elements to update: Header and Config views
     const elements = [
         { initial: document.getElementById('headerAvatarInitial'), img: document.getElementById('headerAvatarImage') },
         { initial: document.getElementById('configAvatarInitial'), img: document.getElementById('configAvatarImage') }
     ];
 
     if (avatarData) {
-        // Show image, hide initial
-        elements.forEach(el => {
-            el.img.src = decryptData(avatarData); // Decrypt base64 data URL
-            el.img.classList.remove('app-hidden');
-            el.initial.classList.add('app-hidden');
-        });
-    } else {
-        // Show initial, hide image
-        elements.forEach(el => {
-            el.initial.textContent = initial;
-            el.initial.classList.remove('app-hidden');
-            el.img.classList.add('app-hidden');
-            el.img.src = '';
-        });
+        const decryptedAvatar = decryptData(avatarData, CURRENT_MASTER_KEY);
+        if (decryptedAvatar) {
+            elements.forEach(el => {
+                el.img.src = decryptedAvatar;
+                el.img.classList.remove('app-hidden');
+                el.initial.classList.add('app-hidden');
+            });
+            return;
+        }
     }
+    
+    // Fallback to initial
+    elements.forEach(el => {
+        el.initial.textContent = initial;
+        el.initial.classList.remove('app-hidden');
+        el.img.classList.add('app-hidden');
+        el.img.src = '';
+    });
 }
 
 let pendingAvatarBase64 = null;
 
-/**
- * Handles the file input change event for avatar upload.
- * @param {Event} event 
- */
 function handleAvatarFile(event) {
     const file = event.target.files[0];
-    pendingAvatarBase64 = null; // Clear previous
+    pendingAvatarBase64 = null; 
 
     if (!file) return;
 
     if (file.size > MAX_AVATAR_SIZE_KB * 1024) {
-        event.target.value = ''; // Clear file input
-        return showAppPopup('Error', `File size exceeds the limit of ${MAX_AVATAR_SIZE_KB}KB.`, false, false);
+        event.target.value = ''; 
+        return showAppPopup('File Too Large', `File size exceeds the limit of ${MAX_AVATAR_SIZE_KB}KB.`, false, false);
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
         pendingAvatarBase64 = e.target.result;
-        showAppPopup('Avatar Ready', 'Image uploaded successfully. Click **Save Avatar** to store it securely.', false, true);
+        showAppPopup('Image Ready', 'Image uploaded successfully. Click <strong>Save Avatar</strong> to encrypt and store it.', false, true);
     };
     reader.readAsDataURL(file);
 }
 
-/**
- * Encrypts and saves the pending avatar to localStorage.
- */
 function saveUserAvatar() {
+    if (!CURRENT_MASTER_KEY) {
+         return showAppPopup('Error', 'Master Key is needed to encrypt the avatar. Please log out and back in.', false, false);
+    }
     if (!pendingAvatarBase64) {
-        return showAppPopup('Error', 'Please select a file to upload first.', false, false);
+        return showAppPopup('Missing Image', 'Please select a file to upload first.', false, false);
     }
 
     try {
@@ -630,15 +656,12 @@ function saveUserAvatar() {
         updateAvatarDisplay(CURRENT_USER_ID);
         showAppPopup('Success', 'New avatar saved and encrypted.', false, true);
         pendingAvatarBase64 = null;
-        document.getElementById('avatarFileInput').value = ''; // Clear file input
+        document.getElementById('avatarFileInput').value = ''; 
     } catch (e) {
-        showAppPopup('Save Error', 'Could not encrypt/save avatar. Is the Master Key correct?', false, false);
+        showAppPopup('Save Error', 'Could not encrypt/save avatar. Encryption failed.', false, false);
     }
 }
 
-/**
- * Removes the saved avatar from localStorage.
- */
 function removeUserAvatar() {
     showAppPopup('Confirm Removal', 
                  'Are you sure you want to remove the stored Avatar image?', 
@@ -655,13 +678,10 @@ function removeUserAvatar() {
 
 // --- DATA IMPORT/EXPORT ---
 
-/**
- * Exports the entire encrypted vault as a JSON file.
- */
 function exportVaultData() {
     const encryptedData = localStorage.getItem(STORAGE_KEY_VAULT_DATA);
     if (!encryptedData) {
-        return showAppPopup('Error', 'No vault data found to export.', false, false);
+        return showAppPopup('Export Error', 'No vault data found to export.', false, false);
     }
 
     const exportObject = {
@@ -676,25 +696,21 @@ function exportVaultData() {
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = `SecretKeeper_Vault_Backup_${CURRENT_USER_ID}_${Date.now()}.json`;
+    a.download = `VaultBackup_${CURRENT_USER_ID}_${Date.now()}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    showAppPopup('Export Complete', 'Encrypted vault backup downloaded.', false, true);
+    showAppPopup('Export Complete', 'Encrypted vault backup file downloaded.', false, true);
 }
 
-/**
- * Imports vault data from a JSON file.
- * @param {Event} event 
- */
 function importVaultData(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    showAppPopup('Confirm Import', 
-                 'Importing a vault backup will **OVERWRITE** your current vault data. Proceed?', 
+    showAppPopup('Confirm Overwrite', 
+                 'Importing a backup will <strong>OVERWRITE</strong> your current vault data. Proceed?', 
                  true, 
                  false, 
                  () => {
@@ -704,32 +720,29 @@ function importVaultData(event) {
                             const importedObject = JSON.parse(e.target.result);
                             
                             if (!importedObject.vaultData || !importedObject.userId) {
-                                return showAppPopup('Error', 'Invalid backup file structure.', false, false);
+                                return showAppPopup('Import Error', 'Invalid backup file structure.', false, false);
                             }
 
-                            // Attempt to decrypt the data with the CURRENT_MASTER_KEY
-                            // This ensures the key matches the imported data
-                            const testDecryption = decryptData(importedObject.vaultData);
+                            // Test decryption with CURRENT_MASTER_KEY
+                            const testDecryption = decryptData(importedObject.vaultData, CURRENT_MASTER_KEY);
                             if (testDecryption === null) {
-                                return showAppPopup('Import Failed', 'The current Master Key is INCORRECT for the imported vault data. Import aborted.', false, false);
+                                return showAppPopup('Import Failed', 'The current Master Key is <strong>INCORRECT</strong> for the imported vault data. Import aborted.', false, false);
                             }
 
-                            // Decryption worked, proceed with overwrite
+                            // Overwrite data
                             localStorage.setItem(STORAGE_KEY_USER_ID, importedObject.userId);
                             localStorage.setItem(STORAGE_KEY_VAULT_DATA, importedObject.vaultData);
                             
-                            // Load the newly imported vault data
                             VAULT_DATA = JSON.parse(testDecryption);
                             CURRENT_USER_ID = importedObject.userId;
                             updateAvatarDisplay(CURRENT_USER_ID);
                             
-                            showAppPopup('Import Success', 'Vault data successfully imported and loaded!', false, true);
+                            showAppPopup('Import Success', 'Vault data successfully loaded!', false, true);
                             updateAccessKeyList();
                         } catch (err) {
-                            console.error('Import Error:', err);
-                            showAppPopup('Error', 'File is not a valid JSON or data is corrupted.', false, false);
+                            showAppPopup('Import Error', 'File is not valid JSON or data is corrupted.', false, false);
                         } finally {
-                            document.getElementById('importDataFile').value = ''; // Clear file input
+                            document.getElementById('importDataFile').value = ''; 
                         }
                     };
                     reader.readAsText(file);
@@ -738,10 +751,6 @@ function importVaultData(event) {
 
 // --- THEME & VISIBILITY TOGGLES ---
 
-/**
- * Toggles the visibility of a password input field.
- * @param {HTMLElement} toggleElement The <span> element clicked.
- */
 function toggleKeyVisibility(toggleElement) {
     const targetId = toggleElement.dataset.target;
     const targetInput = document.getElementById(targetId);
@@ -755,9 +764,6 @@ function toggleKeyVisibility(toggleElement) {
     }
 }
 
-/**
- * Toggles between 'dark' and 'light' themes.
- */
 function toggleAppTheme() {
     const currentTheme = document.body.parentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -765,13 +771,9 @@ function toggleAppTheme() {
     document.body.parentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem(STORAGE_KEY_THEME, newTheme);
     
-    // Update the icon
     document.getElementById('modeToggleIcon').textContent = newTheme === 'dark' ? '☀️' : '🌙';
 }
 
-/**
- * Loads the saved theme on startup.
- */
 function loadAppTheme() {
     const savedTheme = localStorage.getItem(STORAGE_KEY_THEME) || 'dark';
     document.body.parentElement.setAttribute('data-theme', savedTheme);
@@ -782,44 +784,32 @@ function loadAppTheme() {
 
 let popupResolve = null;
 
-/**
- * Shows a custom application popup modal.
- * @param {string} title Popup title.
- * @param {string} message Popup message (supports basic HTML/bolding).
- * @param {boolean} needsConfirmation True for a "Proceed/Cancel" dialog.
- * @param {boolean} isSuccess True if the popup confirms success (affects color/tone).
- * @param {function} onConfirm Callback function for confirmation.
- */
 function showAppPopup(title, message, needsConfirmation, isSuccess, onConfirm = null) {
     const overlay = document.getElementById('popupOverlay');
     document.getElementById('popupTitle').textContent = title;
-    document.getElementById('popupMessage').innerHTML = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Replace custom bold with HTML strong
+    document.getElementById('popupMessage').innerHTML = message.replace(/<strong>(.*?)<\/strong>/g, '<strong>$1</strong>');
     
     const confirmBtn = document.querySelector('#popupControls .action-confirm');
     const cancelBtn = document.querySelector('#popupControls .action-cancel');
     
+    confirmBtn.textContent = needsConfirmation ? 'Proceed' : 'OK';
     confirmBtn.onclick = () => closeAppPopup(true);
 
     if (needsConfirmation) {
         cancelBtn.classList.remove('app-hidden');
+        cancelBtn.textContent = 'Cancel';
     } else {
         cancelBtn.classList.add('app-hidden');
     }
 
-    if (isSuccess) {
-        // Optional: change title color based on success
-        document.getElementById('popupTitle').style.color = 'var(--color-action-secondary)';
-    } else {
-        document.getElementById('popupTitle').style.color = needsConfirmation ? 'var(--color-action-danger)' : 'var(--color-action-main)';
-    }
+    document.getElementById('popupTitle').style.color = isSuccess ? 'var(--color-action-secondary)' : (needsConfirmation ? 'var(--color-action-danger)' : 'var(--color-action-main)');
 
     overlay.classList.remove('app-hidden');
     
-    // Return a promise that resolves when the user closes the popup
     return new Promise(resolve => {
         popupResolve = resolve;
         if (onConfirm) {
-            // Overwrite the confirm button action to execute the callback
             confirmBtn.onclick = () => {
                 closeAppPopup(true);
                 if (onConfirm) onConfirm();
@@ -828,10 +818,6 @@ function showAppPopup(title, message, needsConfirmation, isSuccess, onConfirm = 
     });
 }
 
-/**
- * Closes the custom application popup modal.
- * @param {boolean} confirmed True if the user clicked "Proceed/Confirm".
- */
 function closeAppPopup(confirmed) {
     const overlay = document.getElementById('popupOverlay');
     overlay.classList.add('app-hidden');
@@ -841,13 +827,10 @@ function closeAppPopup(confirmed) {
     }
 }
 
-/**
- * Simple logout function.
- */
 function processVaultLogout() {
     CURRENT_MASTER_KEY = null;
-    VAULT_DATA = {}; // Clear sensitive data from memory
-    document.getElementById('masterSecurityKeyInput').value = ''; // Clear key input
-    showAppPopup('Signed Out', 'You have securely signed out. Master Key has been cleared from memory.', false, true);
+    VAULT_DATA = {};
+    document.getElementById('masterSecurityKeyInput').value = ''; 
+    showAppPopup('Signed Out', 'You have securely signed out. The Master Key has been cleared from memory.', false, true);
     showView('loginGateView');
 }

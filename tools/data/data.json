@@ -92,7 +92,7 @@
     {
         "id": 9,
         "name": "The Secret Keeper",
-        "path": ".\/stuff\/secret-keeper",
+        "path": ".\/stuff\/secret-keeper\/off",
         "image": "..\/img\/the-secret-keeper.png",
         "tag": "",
         "style": "card",

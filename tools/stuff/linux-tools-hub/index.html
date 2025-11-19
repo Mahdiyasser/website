@@ -11,6 +11,33 @@
 </head>
 <body class="p-4 md:p-8">
 
+<!--cloudflare worker tracking only session IDs no user data-->
+<script>
+(function() {
+  // --- Generate or read a unique session ID (session cookie) ---
+  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+  if (!sessionID) {
+    sessionID = crypto.randomUUID();
+    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+  }
+
+  // --- Set these per page/tool ---
+  const type = 'tool';   // 'page' or 'tool'
+  const name = 'linux-tools-hub'; // unique page/tool name
+
+  // --- Send data to Worker ---
+  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionID, type, name })
+  }).catch(err => {
+    console.error('Tracking failed:', err);
+  });
+})();
+</script>
+<!--worker end-->
+
+
     <div class="max-w-6xl mx-auto">
         <header class="mb-8 border-b border-gray-700 pb-4">
             <h1 class="text-4xl font-extrabold text-[#2ea043] flex items-center">

@@ -101,6 +101,33 @@
 </head>
 <body>
 
+<!--cloudflare worker tracking only session IDs no user data-->
+<script>
+(function() {
+  // --- Generate or read a unique session ID (session cookie) ---
+  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+  if (!sessionID) {
+    sessionID = crypto.randomUUID();
+    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+  }
+
+  // --- Set these per page/tool ---
+  const type = 'tool';   // 'page' or 'tool'
+  const name = 'hash'; // unique page/tool name
+
+  // --- Send data to Worker ---
+  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionID, type, name })
+  }).catch(err => {
+    console.error('Tracking failed:', err);
+  });
+})();
+</script>
+<!--worker end-->
+
+
 <div class="container">
     <h1>🔑 Secure SHA-256 Hash Generator</h1>
     <p>

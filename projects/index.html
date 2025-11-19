@@ -40,6 +40,33 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<!--cloudflare worker tracking only session IDs no user data-->
+<script>
+(function() {
+  // --- Generate or read a unique session ID (session cookie) ---
+  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+  if (!sessionID) {
+    sessionID = crypto.randomUUID();
+    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+  }
+
+  // --- Set these per page/tool ---
+  const type = 'page';   // 'page' or 'tool'
+  const name = 'projects'; // unique page/tool name
+
+  // --- Send data to Worker ---
+  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionID, type, name })
+  }).catch(err => {
+    console.error('Tracking failed:', err);
+  });
+})();
+</script>
+<!--worker end-->
+
     <div class="container">
         <header class="main-header">
             <div class="header-left"></div> 

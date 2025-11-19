@@ -39,6 +39,7 @@
   .edit { background: #0077ff; color: white; }
   .delete { background: #ff0033; color: white; }
   .newkey { background: #00cc66; color: white; margin-top: 10px; }
+  .exportBtn { background: #ffcc00; color: #111; margin-bottom: 15px; }
   input {
     background: #111;
     border: 1px solid #444;
@@ -63,7 +64,6 @@
     max-width: 400px;
     border-radius: 12px;
   }
-  .exportBtn { background: #ffcc00; color: #111; margin-bottom: 15px; }
 </style>
 </head>
 <body>
@@ -94,11 +94,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-const API_EXPORT = "https://main-website-track.mahdiyasser526.workers.dev/export";
+const API_ROOT = "https://main-website-track.mahdiyasser526.workers.dev";
+const API_EXPORT = API_ROOT + "/export";
 let editing = null;
 
+// Load all keys from /export
 async function load() {
-  const res = await fetch(API_EXPORT, { credentials: "include" });
+  const res = await fetch(API_EXPORT);
   const data = await res.json();
   const tbody = document.querySelector('#kvTable tbody');
   tbody.innerHTML = '';
@@ -117,6 +119,7 @@ async function load() {
   });
 }
 
+// Open modal to edit a key
 function openEdit(key, value) {
   editing = key;
   document.getElementById('modalTitle').innerText = "Edit Key";
@@ -126,6 +129,7 @@ function openEdit(key, value) {
   document.getElementById('modal').style.display = "flex";
 }
 
+// Open modal to create a new key
 function openCreate() {
   editing = null;
   document.getElementById('modalTitle').innerText = "Create Key";
@@ -135,28 +139,43 @@ function openCreate() {
   document.getElementById('modal').style.display = "flex";
 }
 
+// Save a key (create or update)
 async function saveModal() {
   const key = document.getElementById('modalKey').value.trim();
   const val = document.getElementById('modalValue').value.trim();
   if (!key) return alert("Key cannot be empty");
 
-  // Use POST to the root worker, it will auto create or update KV keys
-  await fetch("https://main-website-track.mahdiyasser526.workers.dev", {
+  await fetch(API_ROOT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "page", name: key }) // type can be page/tool as needed
+    body: JSON.stringify({ type: "page", name: key, value: val })
   });
 
   closeModal();
   load();
 }
 
+// Delete a key
+async function deleteKey(key) {
+  if (!confirm(`Delete key: ${key}?`)) return;
+
+  await fetch(API_ROOT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ type: "page", name: key, action: "delete" })
+  });
+
+  load();
+}
+
+// Close modal
 function closeModal() {
   document.getElementById('modal').style.display = "none";
 }
 
+// Export all keys to PDF
 async function exportPDF() {
-  const res = await fetch(API_EXPORT, { credentials: "include" });
+  const res = await fetch(API_EXPORT);
   const data = await res.json();
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -170,6 +189,7 @@ async function exportPDF() {
   doc.save("kv_export.pdf");
 }
 
+// Initial load
 load();
 </script>
 

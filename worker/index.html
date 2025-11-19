@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>KV Manager</title>
 <style>
   body {
@@ -12,12 +12,12 @@
     margin: 0;
     padding: 20px;
   }
-  h1 { font-size: 28px; margin-bottom: 10px; }
+  h1 { font-size: 28px; margin-bottom: 20px; }
   .box {
     background: #1a1a1a;
     padding: 20px;
     border-radius: 12px;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
   }
   table {
     width: 100%;
@@ -47,12 +47,30 @@
     border-radius: 6px;
     width: 100%;
   }
+  #modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #000000aa;
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+  }
+  #modalContent {
+    background: #1a1a1a;
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 12px;
+  }
+  .exportBtn { background: #ffcc00; color: #111; margin-bottom: 15px; }
 </style>
 </head>
 <body>
+
 <h1>KV Manager Dashboard</h1>
 <div class="box">
-  <h2>All Keys</h2>
+  <button class="newkey exportBtn" onclick="exportPDF()">Export PDF</button>
   <button class="newkey" onclick="openCreate()">+ New Key</button>
   <table id="kvTable">
     <thead>
@@ -62,8 +80,8 @@
   </table>
 </div>
 
-<div id="modal" style="display:none; position:fixed; inset:0; background:#000000aa; backdrop-filter:blur(4px); justify-content:center; align-items:center;">
-  <div style="background:#1a1a1a; padding:20px; width:90%; max-width:400px; border-radius:12px;">
+<div id="modal">
+  <div id="modalContent">
     <h2 id="modalTitle"></h2>
     <label>Key:</label>
     <input id="modalKey"><br><br>
@@ -74,14 +92,13 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 const API_EXPORT = "https://main-website-track.mahdiyasser526.workers.dev/export";
-const API_EDIT   = "https://main-website-track.mahdiyasser526.workers.dev/edit";
-
 let editing = null;
 
 async function load() {
-  const res = await fetch(API_EXPORT);
+  const res = await fetch(API_EXPORT, { credentials: "include" });
   const data = await res.json();
   const tbody = document.querySelector('#kvTable tbody');
   tbody.innerHTML = '';
@@ -98,18 +115,6 @@ async function load() {
     `;
     tbody.appendChild(tr);
   });
-}
-
-async function deleteKey(key) {
-  if (!confirm(`Delete key: ${key}?`)) return;
-
-  await fetch(API_EDIT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action: "delete", key })
-  });
-
-  load();
 }
 
 function openEdit(key, value) {
@@ -133,17 +138,13 @@ function openCreate() {
 async function saveModal() {
   const key = document.getElementById('modalKey').value.trim();
   const val = document.getElementById('modalValue').value.trim();
-
   if (!key) return alert("Key cannot be empty");
 
-  await fetch(API_EDIT, {
+  // Use POST to the root worker, it will auto create or update KV keys
+  await fetch("https://main-website-track.mahdiyasser526.workers.dev", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      action: editing ? "edit" : "create",
-      key,
-      value: val
-    })
+    body: JSON.stringify({ type: "page", name: key }) // type can be page/tool as needed
   });
 
   closeModal();
@@ -152,6 +153,21 @@ async function saveModal() {
 
 function closeModal() {
   document.getElementById('modal').style.display = "none";
+}
+
+async function exportPDF() {
+  const res = await fetch(API_EXPORT, { credentials: "include" });
+  const data = await res.json();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 10;
+  doc.setFontSize(12);
+  for (const [k,v] of Object.entries(data)) {
+    doc.text(`${k}: ${v}`, 10, y);
+    y += 10;
+    if (y > 280) { doc.addPage(); y = 10; }
+  }
+  doc.save("kv_export.pdf");
 }
 
 load();

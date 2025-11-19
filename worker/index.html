@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KV Manager</title>
+<style>
+  body {
+    background: #0d0d0d;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  h1 { font-size: 28px; margin-bottom: 10px; }
+  .box {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border-bottom: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+  }
+  button {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .edit { background: #0077ff; color: white; }
+  .delete { background: #ff0033; color: white; }
+  .newkey { background: #00cc66; color: white; margin-top: 10px; }
+  input {
+    background: #111;
+    border: 1px solid #444;
+    color: white;
+    padding: 8px;
+    border-radius: 6px;
+    width: 100%;
+  }
+</style>
+</head>
+<body>
+<h1>KV Manager Dashboard</h1>
+<div class="box">
+  <h2>All Keys</h2>
+  <button class="newkey" onclick="openCreate()">+ New Key</button>
+  <table id="kvTable">
+    <thead>
+      <tr><th>Key</th><th>Value</th><th>Actions</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div id="modal" style="display:none; position:fixed; inset:0; background:#000000aa; backdrop-filter:blur(4px); justify-content:center; align-items:center;">
+  <div style="background:#1a1a1a; padding:20px; width:90%; max-width:400px; border-radius:12px;">
+    <h2 id="modalTitle"></h2>
+    <label>Key:</label>
+    <input id="modalKey"><br><br>
+    <label>Value:</label>
+    <input id="modalValue"><br><br>
+    <button class="newkey" onclick="saveModal()">Save</button>
+    <button class="delete" onclick="closeModal()" style="float:right;">Cancel</button>
+  </div>
+</div>
+
+<script>
+const API_EXPORT = "https://main-website-track.mahdiyasser526.workers.dev/export";
+const API_EDIT   = "https://main-website-track.mahdiyasser526.workers.dev/edit";
+
+let editing = null;
+
+async function load() {
+  const res = await fetch(API_EXPORT);
+  const data = await res.json();
+  const tbody = document.querySelector('#kvTable tbody');
+  tbody.innerHTML = '';
+
+  Object.entries(data).forEach(([key, value]) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${key}</td>
+      <td>${value}</td>
+      <td>
+        <button class="edit" onclick="openEdit('${key}', '${value}')">Edit</button>
+        <button class="delete" onclick="deleteKey('${key}')">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function deleteKey(key) {
+  if (!confirm(`Delete key: ${key}?`)) return;
+
+  await fetch(API_EDIT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "delete", key })
+  });
+
+  load();
+}
+
+function openEdit(key, value) {
+  editing = key;
+  document.getElementById('modalTitle').innerText = "Edit Key";
+  document.getElementById('modalKey').value = key;
+  document.getElementById('modalKey').disabled = true;
+  document.getElementById('modalValue').value = value;
+  document.getElementById('modal').style.display = "flex";
+}
+
+function openCreate() {
+  editing = null;
+  document.getElementById('modalTitle').innerText = "Create Key";
+  document.getElementById('modalKey').value = "";
+  document.getElementById('modalKey').disabled = false;
+  document.getElementById('modalValue').value = "";
+  document.getElementById('modal').style.display = "flex";
+}
+
+async function saveModal() {
+  const key = document.getElementById('modalKey').value.trim();
+  const val = document.getElementById('modalValue').value.trim();
+
+  if (!key) return alert("Key cannot be empty");
+
+  await fetch(API_EDIT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      action: editing ? "edit" : "create",
+      key,
+      value: val
+    })
+  });
+
+  closeModal();
+  load();
+}
+
+function closeModal() {
+  document.getElementById('modal').style.display = "none";
+}
+
+load();
+</script>
+
+</body>
+</html>
+

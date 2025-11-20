@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Tracker Ultimate</title>
+    <style>
+        /* --- CSS STYLING (Mobile First) --- */
+        :root {
+            --primary: #0d6efd;
+            --success: #198754;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #0dcaf0;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #eef2f7;
+            color: var(--dark);
+            margin: 0;
+            padding: 10px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: auto;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 { color: var(--primary); font-size: 1.6em; margin: 0 0 10px 0; }
+        h2 { color: var(--dark); font-size: 1.2em; margin-top: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
+        p { margin: 5px 0; color: #666; font-size: 0.9em; }
+
+        /* Inputs */
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 5px 0 10px 0;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px; /* Prevents zoom on mobile */
+        }
+        input:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+
+        /* Buttons */
+        button {
+            color: white;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px 5px 5px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: opacity 0.2s, transform 0.1s;
+            display: inline-block;
+        }
+        button:active { transform: scale(0.98); }
+        button:hover { opacity: 0.9; }
+        button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* Specific Buttons */
+        #saveFieldBtn { background-color: var(--dark); width: 100%; }
+        #cancelEditBtn { background-color: var(--warning); color: #333; width: 100%; display: none; }
+        
+        #saveRoundBtn { background-color: var(--success); flex-grow: 1; }
+        #clearDataBtn { background-color: var(--danger); }
+        
+        .action-bar { display: flex; gap: 10px; margin-top: 15px; }
+        
+        /* Field Definition Area */
+        #fieldDefinition {
+            background-color: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Active Fields List */
+        #currentFieldsList { margin-top: 15px; }
+        .field-item {
+            background: #fff;
+            border: 1px solid #eee;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .field-info { font-size: 0.95em; }
+        .field-actions { display: flex; gap: 8px; }
+        .edit-btn { background-color: var(--info); padding: 6px 10px; font-size: 0.8em; color: #000; }
+        .delete-btn { background-color: var(--danger); padding: 6px 10px; font-size: 0.8em; }
+
+        /* Round Input */
+        .input-group {
+            margin-bottom: 12px;
+            padding: 12px;
+            border-left: 4px solid var(--primary);
+            background-color: #fff;
+            border-radius: 0 6px 6px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 6px; color: #495057; }
+
+        /* History */
+        details {
+            margin-bottom: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #fff;
+            overflow: hidden;
+        }
+        summary {
+            padding: 15px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .round-data { padding: 15px; border-top: 1px solid #eee; }
+        .round-data ul { list-style: none; padding: 0; margin: 0; }
+        .round-data li { padding: 5px 0; border-bottom: 1px dashed #eee; }
+        .copy-btn { background-color: var(--warning); color: #333; margin-top: 15px; width: 100%; }
+
+        /* Calculation */
+        #calculationOutput {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            border: 1px solid #badbcc;
+            word-break: break-word;
+        }
+        .calc-help { font-size: 0.8em; color: #6c757d; background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 10px; }
+
+        @media (min-width: 600px) {
+            .container { padding: 30px; }
+            #saveFieldBtn, #cancelEditBtn, .copy-btn { width: auto; }
+            .action-bar button { width: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<!--cloudflare worker tracking only session IDs no user data-->
+<script>
+(function() {
+  // --- Generate or read a unique session ID (session cookie) ---
+  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+  if (!sessionID) {
+    sessionID = crypto.randomUUID();
+    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+  }
+
+  // --- Set these per page/tool ---
+  const type = 'tool';   // 'page' or 'tool'
+  const name = 'game-tracker'; // unique page/tool name
+
+  // --- Send data to Worker ---
+  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionID, type, name })
+  }).catch(err => {
+    console.error('Tracking failed:', err);
+  });
+})();
+</script>
+<!--worker end-->
+
+
+<div class="container">
+    <h1>Game Tracker</h1>
+    
+    <h2>Define Fields</h2>
+    <div id="fieldDefinition">
+        <input type="hidden" id="editingFieldId"> <label>Field Name:</label>
+        <input type="text" id="fieldName" placeholder="e.g. Score, Health">
+
+        <label>Default Value (Optional):</label>
+        <input type="text" id="fieldDefault" placeholder="e.g. 0, 100">
+
+        <label>Type:</label>
+        <select id="fieldType">
+            <option value="number">Number</option>
+            <option value="text">Text</option>
+            <option value="choice">Choice (Dropdown)</option>
+        </select>
+
+        <div id="choiceInputArea" style="display: none;">
+            <label>Choices (comma separated):</label>
+            <input type="text" id="fieldChoices" placeholder="e.g. Red, Blue, Green">
+        </div>
+
+        <div style="margin-top:10px;">
+            <button id="saveFieldBtn" onclick="saveFieldDefinition()">+ Add Field</button>
+            <button id="cancelEditBtn" onclick="cancelEdit()">Cancel Edit</button>
+        </div>
+
+        <div id="currentFieldsList"></div>
+    </div>
+
+    <h2>Round <span id="currentRoundNumber">1</span></h2>
+    <div id="currentRoundInput">
+        <p style="text-align:center; padding:20px;">No fields yet. Add one above!</p>
+    </div>
+
+    <div class="action-bar">
+        <button id="saveRoundBtn" onclick="saveRound()">Save Round</button>
+        <button id="clearDataBtn" onclick="clearLocalStorage()">Clear All</button>
+    </div>
+
+    <h2>Calculator</h2>
+    <div class="calc-help">
+        <strong>Rules:</strong><br>
+        • <code>(all)_name</code> : Sum of 'name' in all rounds.<br>
+        • <code>(3)_name</code> : Value of 'name' in Round 3.<br>
+        • <code>(1,2,5)_name</code> : Sum of Round 1, 2, and 5.<br>
+        • <code>name</code> : Value in the LAST saved round.
+    </div>
+    <div style="display:flex; gap:5px;">
+        <input type="text" id="calcRule" placeholder="e.g. (all)_score + (3)_bonus" style="margin-bottom:0;">
+        <button onclick="calculateData()" style="margin:0; background-color:var(--primary);">Calculate</button>
+    </div>
+    <div id="calculationOutput">Result: ...</div>
+
+    <h2>History</h2>
+    <div id="roundsHistory"></div>
+</div>
+
+<script>
+    const STORAGE_KEY = 'gameDataTrackerV4';
+    let gameState = { fields: [], rounds: [], currentRound: 1 };
+
+    // --- UTILS ---
+    function nameToId(name) {
+        return name.toLowerCase().replace(/\s/g, '_').replace(/[^a-z0-9_]/g, '');
+    }
+
+    function saveGameState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+    }
+
+    function loadGameState() {
+        const data = localStorage.getItem(STORAGE_KEY);
+        if (data) {
+            try { gameState = JSON.parse(data); } catch(e) { console.error(e); }
+        }
+        // Update round number based on history
+        gameState.currentRound = (gameState.rounds.length > 0) 
+            ? gameState.rounds[gameState.rounds.length - 1].number + 1 : 1;
+
+        document.getElementById('currentRoundNumber').textContent = gameState.currentRound;
+        renderFieldList();
+        renderRoundInputs();
+        renderHistory();
+    }
+
+    // --- FIELD LOGIC (ADD/EDIT/DELETE) ---
+
+    document.getElementById('fieldType').addEventListener('change', (e) => {
+        document.getElementById('choiceInputArea').style.display = 
+            (e.target.value === 'choice') ? 'block' : 'none';
+    });
+
+    function saveFieldDefinition() {
+        const idInput = document.getElementById('editingFieldId').value; // ID if editing
+        const name = document.getElementById('fieldName').value.trim();
+        const defVal = document.getElementById('fieldDefault').value.trim();
+        const type = document.getElementById('fieldType').value;
+        const choices = document.getElementById('fieldChoices').value.trim();
+
+        if (!name) { alert("Name is required"); return; }
+
+        // If adding new, check duplicate ID
+        const newId = nameToId(name);
+        if (!idInput && gameState.fields.some(f => f.id === newId)) {
+            alert("Field with this name already exists!"); return;
+        }
+
+        const fieldObj = {
+            id: idInput || newId, // Keep old ID if editing, make new if adding
+            name: name,
+            type: type,
+            defaultValue: defVal,
+            choices: (type === 'choice') ? choices.split(',').map(c => c.trim()).filter(c=>c) : []
+        };
+
+        if (idInput) {
+            // UPDATE EXISTING
+            const index = gameState.fields.findIndex(f => f.id === idInput);
+            if (index !== -1) gameState.fields[index] = fieldObj;
+        } else {
+            // ADD NEW
+            gameState.fields.push(fieldObj);
+        }
+
+        saveGameState();
+        resetFieldForm();
+        renderFieldList();
+        renderRoundInputs();
+    }
+
+    function editField(id) {
+        const field = gameState.fields.find(f => f.id === id);
+        if (!field) return;
+
+        document.getElementById('editingFieldId').value = field.id;
+        document.getElementById('fieldName').value = field.name;
+        document.getElementById('fieldDefault').value = field.defaultValue || '';
+        document.getElementById('fieldType').value = field.type;
+        
+        if (field.type === 'choice') {
+            document.getElementById('choiceInputArea').style.display = 'block';
+            document.getElementById('fieldChoices').value = field.choices.join(', ');
+        } else {
+            document.getElementById('choiceInputArea').style.display = 'none';
+        }
+
+        const saveBtn = document.getElementById('saveFieldBtn');
+        saveBtn.textContent = "💾 Update Field";
+        saveBtn.style.backgroundColor = "#0dcaf0";
+        saveBtn.style.color = "#000";
+        document.getElementById('cancelEditBtn').style.display = "inline-block";
+        document.getElementById('fieldName').focus();
+    }
+
+    function deleteField(id) {
+        if(!confirm("Delete this field? Past data will be kept but the input will be gone.")) return;
+        gameState.fields = gameState.fields.filter(f => f.id !== id);
+        saveGameState();
+        renderFieldList();
+        renderRoundInputs();
+    }
+
+    function cancelEdit() {
+        resetFieldForm();
+    }
+
+    function resetFieldForm() {
+        document.getElementById('editingFieldId').value = '';
+        document.getElementById('fieldName').value = '';
+        document.getElementById('fieldDefault').value = '';
+        document.getElementById('fieldChoices').value = '';
+        document.getElementById('fieldType').value = 'number';
+        document.getElementById('choiceInputArea').style.display = 'none';
+        
+        const btn = document.getElementById('saveFieldBtn');
+        btn.textContent = "+ Add Field";
+        btn.style.backgroundColor = "#212529";
+        btn.style.color = "#fff";
+        document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    function renderFieldList() {
+        const list = document.getElementById('currentFieldsList');
+        list.innerHTML = '';
+        
+        if (gameState.fields.length === 0) {
+             list.innerHTML = '<div style="text-align:center; color:#888; font-style:italic;">No active fields.</div>';
+             return;
+        }
+
+        gameState.fields.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'field-item';
+            div.innerHTML = `
+                <div class="field-info">
+                    <strong>${f.name}</strong>
+                    <div style="color:#888; font-size:0.85em; margin-top:2px;">
+                        ID: <code>${f.id}</code> | Def: ${f.defaultValue || '-'}
+                    </div>
+                </div>
+                <div class="field-actions">
+                    <button class="edit-btn" onclick="editField('${f.id}')">✏️</button>
+                    <button class="delete-btn" onclick="deleteField('${f.id}')">🗑️</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    // --- ROUND INPUTS ---
+
+    function renderRoundInputs() {
+        const container = document.getElementById('currentRoundInput');
+        container.innerHTML = '';
+
+        if (gameState.fields.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color: #666;">No fields defined.</p>';
+            document.getElementById('saveRoundBtn').disabled = true;
+            return;
+        }
+        document.getElementById('saveRoundBtn').disabled = false;
+
+        // Get values from last round for auto-fill
+        const lastRound = gameState.rounds[gameState.rounds.length - 1];
+
+        gameState.fields.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            
+            const label = document.createElement('label');
+            label.textContent = f.name;
+            div.appendChild(label);
+
+            let input;
+            // Logic: Last round value -> Default value -> Empty/Zero
+            let val = lastRound && lastRound.values[f.id] !== undefined 
+                      ? lastRound.values[f.id] 
+                      : (f.defaultValue !== undefined && f.defaultValue !== "" ? f.defaultValue : "");
+
+            if (f.type === 'choice') {
+                input = document.createElement('select');
+                f.choices.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c; 
+                    opt.textContent = c;
+                    input.appendChild(opt);
+                });
+                // Try to set value, if not valid choice, default to first
+                if (f.choices.includes(val)) input.value = val;
+                else if (f.choices.length > 0 && !val) input.value = f.choices[0];
+
+            } else {
+                input = document.createElement('input');
+                input.type = f.type;
+                if (f.type === 'number' && val === "") val = 0;
+                input.value = val;
+            }
+            
+            input.id = "input_" + f.id; 
+            input.dataset.fieldId = f.id; 
+            
+            div.appendChild(input);
+            container.appendChild(div);
+        });
+    }
+
+    // --- SAVE ROUND ---
+
+    function saveRound() {
+        const inputs = document.querySelectorAll('#currentRoundInput input, #currentRoundInput select');
+        let values = {};
+        
+        inputs.forEach(inp => {
+            const realId = inp.dataset.fieldId;
+            let v = inp.value;
+            if (inp.type === 'number') v = parseFloat(v) || 0;
+            values[realId] = v;
+        });
+
+        const newRound = {
+            number: gameState.currentRound,
+            timestamp: new Date().toLocaleString(),
+            values: values
+        };
+
+        gameState.rounds.push(newRound);
+        gameState.currentRound++;
+        saveGameState();
+        
+        document.getElementById('currentRoundNumber').textContent = gameState.currentRound;
+        renderRoundInputs();
+        renderHistory();
+    }
+
+    // --- HISTORY ---
+
+    function renderHistory() {
+        const historyDiv = document.getElementById('roundsHistory');
+        historyDiv.innerHTML = '';
+        
+        if (gameState.rounds.length === 0) {
+             historyDiv.innerHTML = '<p style="color:#888; padding:10px;">No history yet.</p>';
+             return;
+        }
+
+        [...gameState.rounds].reverse().forEach(r => {
+            const det = document.createElement('details');
+            const timeShort = r.timestamp.split(',')[1] || ''; 
+            
+            let listHtml = '';
+            // Sort keys to match current field order if possible
+            const sortedKeys = Object.keys(r.values).sort();
+
+            for (let fid of sortedKeys) {
+                const fieldDef = gameState.fields.find(f => f.id === fid);
+                const name = fieldDef ? fieldDef.name : fid;
+                listHtml += `<li><strong>${name}:</strong> ${r.values[fid]}</li>`;
+            }
+
+            det.innerHTML = `
+                <summary>Round ${r.number} <span style="font-weight:normal; font-size:0.85em; color:#666;">${timeShort}</span></summary>
+                <div class="round-data">
+                    <ul>${listHtml}</ul>
+                    <button class="copy-btn" onclick="copyRound(${r.number})">Copy to Clipboard</button>
+                </div>
+            `;
+            historyDiv.appendChild(det);
+        });
+    }
+
+    function copyRound(num) {
+        const r = gameState.rounds.find(x => x.number === num);
+        if (!r) return;
+        let txt = `--- Round ${r.number} ---\n`;
+        for (let [fid, val] of Object.entries(r.values)) {
+            const fieldDef = gameState.fields.find(f => f.id === fid);
+            txt += `${fieldDef ? fieldDef.name : fid}: ${val}\n`;
+        }
+        navigator.clipboard.writeText(txt).then(() => alert("Copied!"));
+    }
+
+    function clearLocalStorage() {
+        if(confirm("Are you sure? This deletes ALL fields and history.")) {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+    }
+
+    // --- NEW CALCULATION ENGINE ---
+    function calculateData() {
+        let expr = document.getElementById('calcRule').value.toLowerCase().trim();
+        const out = document.getElementById('calculationOutput');
+        
+        if (!expr) { out.textContent = "Result: Please enter a rule."; return; }
+        if (gameState.rounds.length === 0) { out.textContent = "Result: No rounds to calculate."; return; }
+
+        // 1. Handle (all)_field -> Sum of that field across ALL rounds
+        expr = expr.replace(/\(all\)_([a-z0-9_]+)/g, (match, fieldId) => {
+            return gameState.rounds.reduce((sum, r) => sum + (parseFloat(r.values[fieldId]) || 0), 0);
+        });
+
+        // 2. Handle (x,y,z)_field -> Sum of specific rounds (covers single (x)_field too)
+        expr = expr.replace(/\(([\d,]+)\)_([a-z0-9_]+)/g, (match, nums, fieldId) => {
+            const targetRounds = nums.split(',').map(n => parseInt(n.trim()));
+            let sum = 0;
+            gameState.rounds.forEach(r => {
+                if (targetRounds.includes(r.number)) {
+                    sum += (parseFloat(r.values[fieldId]) || 0);
+                }
+            });
+            return sum;
+        });
+
+        // 3. Handle plain 'field' -> Value from LAST round
+        const lastRound = gameState.rounds[gameState.rounds.length - 1];
+        if (lastRound) {
+            for (const [id, val] of Object.entries(lastRound.values)) {
+                // Only replace whole word matches that haven't been replaced yet
+                // (Simple approach: check if ID exists in string)
+                if (typeof val === 'number' || !isNaN(parseFloat(val))) {
+                     expr = expr.replace(new RegExp(`\\b${id}\\b`, 'g'), parseFloat(val));
+                }
+            }
+        }
+
+        // 4. Evaluate
+        try {
+            // Safe-ish evaluation
+            const res = new Function('return ' + expr)();
+            if (isNaN(res)) throw new Error("Result is NaN");
+            out.textContent = "Result: " + (Number.isInteger(res) ? res : res.toFixed(2));
+        } catch(e) {
+            out.textContent = `Error parsing: ${expr} (Check your syntax)`;
+        }
+    }
+
+    // Init
+    document.addEventListener('DOMContentLoaded', loadGameState);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,357 @@
+:root {
+    /* Dark Theme Palette - Adjusted for contrast and modern feel */
+    --primary-color: #64ffda; /* Neon Green/Cyan for accents */
+    --secondary-color: #00bcd4; /* Brighter Blue for secondary actions */
+    --background-dark: #121212; /* Deeper Main Background */
+    --card-background: #1e1e1e; /* Card/Panel Background */
+    --text-color: #ffffff; /* Pure white text */
+    --subtle-text: #b3b3b3; /* Lighter grey for subtle text */
+    --border-color: #333333;
+    --code-background: #0d0d0d; /* Code Block Background */
+    --shadow-color: rgba(0, 0, 0, 0.6);
+}
+
+* {
+    box-sizing: border-box; /* Crucial for responsive and predictable layout */
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--background-dark);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container {
+    width: 95%;
+    max-width: 1400px; /* Increased max width */
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px var(--shadow-color);
+    height: 95vh; /* Take up more screen height */
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+h2 {
+    color: var(--subtle-text);
+    font-size: 1.3em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* --- Input Section --- */
+.input-section {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    gap: 15px;
+}
+
+.markdown-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#markdown-input {
+    width: 100%;
+    flex-grow: 1;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--code-background);
+    color: var(--text-color);
+    resize: none;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    transition: border-color 0.3s;
+}
+
+#markdown-input:focus {
+    border-color: var(--primary-color);
+    outline: 2px solid var(--primary-color); /* More prominent focus */
+}
+
+.file-upload-container {
+    display: flex;
+    align-items: center;
+    padding: 15px 0 0 0;
+    gap: 15px;
+    border-top: 1px solid var(--border-color);
+    margin-top: 15px;
+}
+
+.upload-label {
+    margin: 0;
+    font-size: 1em;
+    color: var(--subtle-text);
+}
+
+/* --- Controls --- */
+.controls-panel {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px 0;
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1em;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    flex-shrink: 0;
+}
+
+#convert-button {
+    background-color: var(--primary-color);
+    color: var(--background-dark);
+    box-shadow: 0 4px 20px rgba(100, 255, 218, 0.3);
+}
+
+#convert-button:hover {
+    background-color: #53d0b8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(100, 255, 218, 0.4);
+}
+
+#copy-html-outside-button, #preview-button {
+    background-color: var(--secondary-color);
+    color: var(--background-dark);
+    box-shadow: 0 4px 20px rgba(0, 188, 212, 0.3);
+}
+
+#copy-html-outside-button:hover, #preview-button:hover {
+    background-color: #0097a7;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 188, 212, 0.4);
+}
+
+/* ----------------------------------------------------
+   --- MODALS (HTML OUTPUT) --- 
+   ---------------------------------------------------- */
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    background-color: rgba(0,0,0,0.85); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+    visibility: hidden; /* Use visibility to hide/show for proper transitions */
+    opacity: 0;
+    transition: opacity 0.3s ease-out;
+}
+
+.modal.visible {
+    display: flex;
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%; 
+    max-width: 900px; /* Wider modal for code */
+    max-height: 90vh;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    animation: slideInContent 0.3s ease-out;
+}
+
+.close-button {
+    color: var(--subtle-text);
+    align-self: flex-end; /* Move to the top right */
+    font-size: 32px;
+    font-weight: bold;
+    line-height: 1;
+    cursor: pointer;
+    transition: color 0.2s;
+    margin-top: -10px; /* Adjust positioning */
+    margin-right: -10px;
+}
+
+.close-button:hover {
+    color: var(--primary-color);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+/* HTML Output Code Block */
+.html-output-container {
+    flex-grow: 1;
+    background-color: var(--code-background); 
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    overflow: auto; /* Allow scroll within the code block */
+    border: 1px solid var(--border-color);
+}
+
+pre {
+    margin: 0;
+    white-space: pre; 
+    word-wrap: normal; /* Do not break long lines */
+}
+
+#html-output-code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    color: var(--primary-color);
+    display: block;
+    min-width: 100%; /* Ensure content determines width */
+}
+
+.modal-controls {
+    text-align: center;
+}
+
+#copy-html-modal-button { 
+    background-color: var(--secondary-color);
+    color: var(--background-dark);
+    box-shadow: 0 4px 15px rgba(0, 188, 212, 0.2);
+    width: 200px;
+}
+
+#copy-html-modal-button:hover { 
+    background-color: #0097a7;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 188, 212, 0.3);
+}
+
+/* ----------------------------------------------------
+   --- LIVE PREVIEW MODAL (The new full-screen, slide-in version) --- 
+   ---------------------------------------------------- */
+#preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    background-color: var(--background-dark);
+    /* Initial state: off-screen to the right */
+    transform: translateX(100%); 
+    transition: transform 0.4s ease-out;
+    display: block; /* Always 'block' so the transition works */
+    padding: 0;
+    box-shadow: none;
+}
+
+#preview-modal.visible {
+    /* Final state: on-screen */
+    transform: translateX(0);
+}
+
+#preview-content-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.preview-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
+#back-to-editor-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+#back-to-editor-button:hover {
+    background-color: rgba(100, 255, 218, 0.1);
+}
+
+.arrow-icon {
+    font-size: 1.5em; /* Larger arrow */
+    line-height: 1;
+}
+
+#preview-display {
+    flex-grow: 1;
+    padding: 30px;
+    overflow-y: auto; /* Allow scrolling for long content */
+    background-color: #f7f7f7; /* Light background for preview to simulate web page */
+    color: #333333; /* Dark text for contrast */
+}
+
+/* Basic styling for preview content to make it readable */
+#preview-display h1, #preview-display h2, #preview-display h3 {
+    color: #1e1e1e;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+    margin-top: 25px;
+}
+#preview-display p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+#preview-display pre, #preview-display code {
+    background-color: #e0e0e0;
+    padding: 3px 5px;
+    border-radius: 3px;
+    font-family: monospace;
+    overflow-x: auto;
+}
+
+/* --- Animations --- */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInContent {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to HTML Compiler</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>MD to HTML Compiler</h1>
+
+        <div class="input-section">
+            <div class="input-panel markdown-panel">
+                <h2>Paste Markdown (.md)</h2>
+                <textarea id="markdown-input" placeholder="Start typing your Markdown here..."></textarea>
+                <div class="file-upload-container">
+                    <p class="upload-label">or Upload File:</p>
+                    <input type="file" id="file-upload" accept=".md">
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <button id="convert-button" title="Convert Markdown to HTML">Convert & Show HTML Code</button>
+            <button id="copy-html-outside-button" title="Copy the last converted HTML to clipboard">Copy HTML Code</button>
+            <button id="preview-button" title="Show a live rendering of the HTML">Show Live Preview</button>
+        </div>
+        
+        <div id="html-output-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" data-modal="html-output-modal">&times;</span>
+                <h2>Generated HTML Code</h2>
+                
+                <div class="html-output-container">
+                    <pre><code id="html-output-code"></code></pre>
+                </div>
+
+                <div class="modal-controls">
+                    <button id="copy-html-modal-button">Copy HTML Code</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="preview-modal" class="modal">
+            <div id="preview-content-wrapper">
+                <div class="preview-header">
+                    <button id="back-to-editor-button">
+                        <span class="arrow-icon">&larr;</span> Back to Editor
+                    </button>
+                </div>
+                <div id="preview-display">
+                    <p>Convert Markdown first to see the preview.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

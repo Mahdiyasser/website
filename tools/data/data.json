@@ -60,6 +60,16 @@
         "story": ""
     },
     {
+        "id": 12,
+        "name": "WhatsApp Link Generator",
+        "path": ".\/stuff\/whatsapp-link",
+        "image": "..\/img\/whatsapp-link-generator.png",
+        "tag": "New!",
+        "style": "card",
+        "description": "this tool allow you to make whatsapp links that open with a prefilled message to the number you add.",
+        "story": ""
+    },
+    {
         "id": 5,
         "name": "Weather Dashboard",
         "path": ".\/stuff\/weather",

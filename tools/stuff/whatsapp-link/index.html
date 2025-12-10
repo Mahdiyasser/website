@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Link Generator</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>WhatsApp Link</h1>
+            <button id="themeToggle" title="Toggle light/dark theme">
+                <span class="dark-icon">🌙</span>
+                <span class="light-icon">☀️</span>
+            </button>
+        </header>
+
+        <form id="whatsappForm">
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <div class="input-wrapper">
+                    <input id="phone" type="tel" name="phone">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Message</label>
+                <div class="textarea-wrapper">
+                    <textarea id="message" rows="5" placeholder="Type your message here..."></textarea>
+                    <button type="button" id="emojiTriggerBtn" title="Insert Emoji">
+                        😀
+                    </button>
+                </div>
+            </div>
+
+            <button type="button" id="encodeButton" class="btn-primary">Generate Link</button>
+        </form>
+    </div>
+
+    <div id="resultModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Link Generated</h2>
+                <span class="close-button">&times;</span>
+            </div>
+            <p class="modal-subtitle">Share this link to start a chat instantly.</p>
+            
+            <div class="url-container">
+                <div class="url-scroll-box">
+                    <p id="generatedUrl"></p>
+                </div>
+                <button id="copyButton" class="btn-icon" title="Copy to clipboard">
+                    📋
+                </button>
+            </div>
+            <p class="copy-status" id="copyStatus"></p>
+        </div>
+    </div>
+    
+    <emoji-picker id="emojiPicker" class="dark"></emoji-picker>
+
+    <script src="script.js"></script>
+</body>
+</html>

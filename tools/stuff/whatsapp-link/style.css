@@ -1,0 +1,319 @@
+/* --- 1. THEME VARIABLES --- */
+:root {
+    /* Dark Mode (Default) */
+    --color-bg: #0d1117;
+    --color-card-bg: #161b22;
+    --color-text-main: #f0f6fc;
+    --color-text-muted: #8b949e;
+    --color-primary: #238636;
+    --color-primary-hover: #2ea043;
+    --color-border: #30363d;
+    --color-input-bg: #0d1117;
+    --color-highlight: #58a6ff;
+    
+    --shadow-card: 0 10px 40px -10px rgba(0,0,0,0.7);
+    --radius-main: 12px;
+    --radius-input: 8px;
+}
+
+[data-theme="light"] {
+    --color-bg: #f6f8fa;
+    --color-card-bg: #ffffff;
+    --color-text-main: #24292f;
+    --color-text-muted: #57606a;
+    --color-primary: #1f883d;
+    --color-primary-hover: #1a7f37;
+    --color-border: #d0d7de;
+    --color-input-bg: #ffffff;
+    --color-highlight: #0969da;
+    
+    --shadow-card: 0 8px 24px rgba(140, 149, 159, 0.2);
+}
+
+/* --- 2. GLOBAL RESET & BASE --- */
+* { box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    /* Removed min-height centering to allow natural flow like original, but kept flex */
+    min-height: 100vh;
+    align-items: flex-start; 
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.container {
+    width: 100%;
+    /* RESTORED WIDTH HERE */
+    max-width: 800px; 
+    background: var(--color-card-bg);
+    padding: 2rem;
+    border-radius: var(--radius-main);
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    margin-top: 50px; /* Match original top margin */
+    height: fit-content;
+    position: relative;
+}
+
+/* --- 3. HEADER & TOGGLE --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 700;
+}
+
+#themeToggle {
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+#themeToggle:hover { background: var(--color-border); }
+
+.dark-icon, .light-icon { display: none; font-size: 1.2rem; }
+[data-theme="dark"] .dark-icon { display: block; }
+[data-theme="light"] .light-icon { display: block; }
+
+/* --- 4. FORM ELEMENTS --- */
+.form-group { margin-bottom: 1.5rem; }
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+/* Common Input Styles */
+input[type="tel"], textarea {
+    width: 100%;
+    padding: 12px;
+    background: var(--color-input-bg);
+    color: var(--color-text-main);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input[type="tel"]:focus, textarea:focus {
+    border-color: var(--color-highlight);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+}
+
+/* Textarea Wrapper for Emoji Button */
+.textarea-wrapper { position: relative; }
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+    padding-bottom: 40px; /* Space for emoji button */
+}
+
+#emojiTriggerBtn {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.2s;
+    padding: 0;
+}
+#emojiTriggerBtn:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+/* --- 5. INTL TEL INPUT OVERRIDES (Dark Mode Fix) --- */
+.iti { width: 100%; }
+
+.iti__country-list {
+    background-color: var(--color-card-bg) !important;
+    border: 1px solid var(--color-border) !important;
+    color: var(--color-text-main) !important;
+    z-index: 105 !important;
+}
+
+.iti__country {
+    padding: 10px 10px !important;
+    border-bottom: 1px solid rgba(139, 148, 158, 0.1);
+}
+
+.iti__country.iti__highlight {
+    background-color: var(--color-border) !important;
+    color: var(--color-text-main) !important;
+}
+
+.iti__dial-code { color: var(--color-text-muted) !important; }
+.iti__country-name { color: var(--color-text-main) !important; }
+.iti__divider { border-bottom-color: var(--color-border) !important; }
+
+
+/* --- 6. PRIMARY BUTTON --- */
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-input);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover { background-color: var(--color-primary-hover); }
+.btn-primary:active { transform: translateY(1px); }
+
+
+/* --- 7. MODAL --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.modal-content {
+    background-color: var(--color-card-bg);
+    margin: 10% auto;
+    width: 90%;
+    max-width: 500px;
+    padding: 2rem;
+    border-radius: var(--radius-main);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.modal-header h2 { margin: 0; font-size: 1.4rem; }
+
+.modal-subtitle {
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+}
+
+.close-button {
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--color-text-muted);
+}
+.close-button:hover { color: var(--color-text-main); }
+
+.url-container {
+    display: flex;
+    align-items: center;
+    background: var(--color-input-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-input);
+    padding: 8px;
+    gap: 8px;
+}
+
+.url-scroll-box {
+    flex-grow: 1;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 8px;
+    scrollbar-width: thin; 
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.url-scroll-box::-webkit-scrollbar { height: 6px; }
+.url-scroll-box::-webkit-scrollbar-thumb { 
+    background-color: var(--color-border); 
+    border-radius: 4px; 
+}
+
+#generatedUrl {
+    margin: 0;
+    font-family: monospace;
+    font-size: 0.95rem;
+    color: var(--color-highlight);
+}
+
+.btn-icon {
+    background: var(--color-border);
+    border: none;
+    border-radius: 6px;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+.btn-icon:hover { background: var(--color-text-muted); color: white; }
+
+#copyStatus {
+    text-align: center;
+    height: 20px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+/* --- 8. EMOJI PICKER --- */
+emoji-picker {
+    position: fixed; 
+    z-index: 2000;
+    display: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 8px;
+    /* Safety constraint for mobile so it never exceeds screen width */
+    max-width: 95vw; 
+    --background: var(--color-card-bg);
+    --border-color: var(--color-border);
+    --input-border-color: var(--color-border);
+    --input-font-color: var(--color-text-main);
+}

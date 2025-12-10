@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vetrom URL Shortner</title>
+    <style>
+        html, body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden; /* removes scrollbars on the main page */
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<!--cloudflare worker tracking only session IDs no user data-->
+<script>
+(function() {
+  // --- Generate or read a unique session ID (session cookie) ---
+  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+  if (!sessionID) {
+    sessionID = crypto.randomUUID();
+    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+  }
+
+  // --- Set these per page/tool ---
+  const type = 'tool';   // 'page' or 'tool'
+  const name = 'short-url'; // unique page/tool name
+
+  // --- Send data to Worker ---
+  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sessionID, type, name })
+  }).catch(err => {
+    console.error('Tracking failed:', err);
+  });
+})();
+</script>
+<!--worker end-->
+
+    <iframe src="https://s.vetrom.site"></iframe>
+</body>
+</html>
+

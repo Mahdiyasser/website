@@ -20,6 +20,16 @@
         "story": ""
     },
     {
+        "id": 11,
+        "name": "URL Shortener",
+        "path": ".\/stuff\/short-url",
+        "image": "..\/img\/url-shortener.png",
+        "tag": "New!",
+        "style": "card",
+        "description": "This is a custom tool that allow you to make any url be short so it looks clean and easy to memorize.",
+        "story": ""
+    },
+    {
         "id": 2,
         "name": "Text Encrypter",
         "path": ".\/stuff\/enigma",

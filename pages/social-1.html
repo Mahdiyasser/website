@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahdi Yasser | VetroM - Social Links</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* SCROLLBAR HIDING RULE (AS REQUESTED in original file) */
+        ::-webkit-scrollbar{display:none} 
+
+        /* --- EXTRACTED CSS STYLING FOR SOCIALS PAGE --- */
+
+        /* Base Styling & Rich Color Palette */
+        :root {
+            --color-dark: #0A0A1F; /* Deep Dark Blue/Black */
+            --color-accent-gold: #FFD700; /* Rich Gold */
+            --color-text-light: #F0F0F0;
+            --color-text-faded: #AAAAAA;
+            --color-shadow: rgba(255, 215, 0, 0.2);
+            --logo-size-base: 120px; /* Base size for top logos */
+        }
+
+        /* Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--color-dark);
+            color: var(--color-text-light);
+            line-height: 1.6;
+            min-height: 100vh;
+            margin-top: -5%;
+        }
+        
+        /* Full Screen Section Styling (Adapted for a single, scrolling page) */
+        .stage-section {
+            width: 100vw;
+            min-height: 100vh; /* Use min-height to allow content to push it */
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Start content from the top */
+            align-items: center;
+            text-align: center;
+            overflow-y: auto; /* Allow scrolling for content overflow */
+        }
+
+        .stage-content {
+            width: 100%;
+            max-width: 1100px; /* Set max-width based on largest social-link-container size */
+            padding-top: 50px; /* Extra padding for the top */
+        }
+        
+        /* Blur Content setup */
+        .blur-content > * {
+            transition: filter 0.3s ease;
+        }
+        .blur-content.is-blurred > * {
+            filter: blur(5px);
+        }
+        
+        /* Exclude top logos from blur effect */
+        .blur-content.is-blurred .top-logos {
+            filter: none;
+        }
+
+
+        /* Typography & Richness */
+        .project-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            color: var(--color-accent-gold);
+            letter-spacing: 5px;
+            margin-bottom: 20px;
+        }
+
+        .main-heading {
+            font-family: 'Playfair Display', serif;
+            font-size: 3em; /* Adjusted to the size used in stage 6 */
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            color: var(--color-text-light);
+        }
+
+        .main-heading span {
+            color: var(--color-accent-gold);
+        }
+
+        .stage-text {
+            font-size: 1.2em;
+            color: var(--color-text-faded);
+            margin-bottom: 40px;
+        }
+        
+        /* Buttons & Navigation (Included for the Go Back button) */
+        .nav-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--color-dark);
+            color: var(--color-accent-gold);
+            text-decoration: none;
+            font-weight: 600;
+            letter-spacing: 1px;
+            border: 2px solid var(--color-accent-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px var(--color-shadow);
+            margin: 10px;
+        }
+
+        .nav-button:hover {
+            background-color: var(--color-accent-gold);
+            color: var(--color-dark);
+            box-shadow: 0 0 25px var(--color-shadow);
+        }
+
+        /* --- STAGE 6 (SOCIALS) SPECIFIC STYLES --- */
+        .top-logos {
+            display: flex;
+            justify-content: center;
+            gap: 50px; 
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 50; 
+        }
+        
+        .logo-item {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .top-logos img {
+            width: var(--logo-size-base);
+            height: var(--logo-size-base);
+            border-radius: 50%;
+            border: 3px solid var(--color-accent-gold);
+            box-shadow: 0 0 15px var(--color-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Hover Effect: Golden Aura and Magnification */
+        .top-logos img:hover {
+            transform: scale(1.1); 
+            /* Golden Aura Effect */
+            box-shadow: 0 0 0 8px rgba(255, 215, 0, 0.4), 
+                        0 0 20px rgba(255, 215, 0, 0.8),
+                        0 0 35px var(--color-shadow);
+        }
+        
+        .logo-text {
+            position: absolute;
+            bottom: -30px;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--color-accent-gold);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none; 
+            white-space: nowrap; 
+        }
+        
+        .logo-item:hover .logo-text {
+            opacity: 1;
+        }
+
+        .social-link-container {
+            display: grid;
+            grid-template-columns: 1fr; 
+            gap: 15px;
+            width: 100%;
+            max-width: 500px; 
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--color-text-faded);
+            text-align: left;
+            text-decoration: none;
+            color: var(--color-text-light);
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.05);
+            height: 100%; 
+        }
+
+        .social-link:hover {
+            border-color: var(--color-accent-gold);
+            background-color: rgba(255, 215, 0, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--color-shadow);
+        }
+
+        .social-link img {
+            width: 40px; 
+            height: 40px;
+            margin-right: 15px;
+            border-radius: 50%;
+            object-fit: contain;
+            border: 2px solid var(--color-accent-gold); 
+            flex-shrink: 0; 
+        }
+
+        .link-text {
+            flex-grow: 1;
+        }
+
+        .link-text strong {
+            display: block;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--color-accent-gold);
+        }
+
+        .link-text small {
+            color: var(--color-text-faded);
+            font-size: 0.85em;
+            word-break: break-all; 
+        }
+        
+        /* PC/Desktop Layout: Two columns for X/Y stacking and WIDER links (Specific to .social-link-container) */
+        @media (min-width: 768px) {
+            .social-link-container {
+                grid-template-columns: repeat(2, 1fr); 
+                max-width: 800px; 
+            }
+        }
+
+        /* Large Desktop Layout: Three columns for maximum X/Y stacking and wider links (Specific to .social-link-container) */
+        @media (min-width: 1200px) {
+            .social-link-container {
+                grid-template-columns: repeat(3, 1fr); 
+                max-width: 1100px; 
+            }
+        }
+
+        /* Mobile Adjustments (General, affecting all stages) */
+        @media (max-width: 600px) {
+            .stage-section {
+                padding: 20px;
+            }
+            .main-heading {
+                font-size: 2.5em;
+            }
+            .top-logos img {
+                width: 70px; /* Smaller on mobile */
+                height: 70px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <section id="socials-page" class="stage-section">
+        <div class="stage-content blur-content">
+            <div class="top-logos">
+                <div class="logo-item" onmouseover="blurBackground(true)" onmouseout="blurBackground(false)">
+                    <img src="https://mahdiyasser.site/favicon.ico" alt="Mahdi Yasser Logo" id="logo-mahdi">
+                    <span class="logo-text" id="text-mahdi">Mahdi Yasser</span>
+                </div>
+                <div class="logo-item" onmouseover="blurBackground(true)" onmouseout="blurBackground(false)">
+                    <img src="https://vetrom.mahdiyasser.site/favicon.png" alt="VetroM Logo" id="logo-vetrom">
+                    <span class="logo-text" id="text-vetrom">VetroM</span>
+                </div>
+            </div>
+            
+            <h1 class="project-title" style="margin-bottom: 0;">Social Links</h1>
+            <h2 class="main-heading">
+                Connect with <span>Mahdi Yasser</span>
+            </h2>
+            <p class="stage-text" style="margin-bottom: 20px;">
+                Explore the developer's work and the VetroM project across digital platforms.
+            </p>
+            
+            <div class="social-link-container">
+                <a href="https://vetrom.mahdiyasser.site" target="_blank" class="social-link">
+                    <img src="https://vetrom.mahdiyasser.site/favicon.png" alt="VetroM Logo">
+                    <span class="link-text">
+                        <strong>VetroM Project Site</strong>
+                        <small>Official VetroM Homepage</small>
+                    </span>
+                </a>
+                <a href="https://mahdiyasser.site" target="_blank" class="social-link">
+                    <img src="https://mahdiyasser.site/favicon.ico" alt="Mahdi Yasser Logo">
+                    <span class="link-text">
+                        <strong>Mahdi Yasser Personal Site</strong>
+                        <small>The Developer's Portfolio</small>
+                    </span>
+                </a>
+                <a href="https://github.com/Mahdiyasser" target="_blank" class="social-link">
+                    <img src="https://mahdiyasser.site/favicon.ico" alt="GitHub Logo (using Mahdi's)">
+                    <span class="link-text">
+                        <strong>GitHub Profile</strong>
+                        <small>Explore Projects and Codebase</small>
+                    </span>
+                </a>
+                 <a href="https://instagram/mahdiyasser1" target="_blank" class="social-link">
+                    <img src="https://mahdiyasser.site/favicon.ico" alt="Instagram Logo (using Mahdi's)">
+                    <span class="link-text">
+                        <strong>Instagram</strong>
+                        <small>Connect on Social Media</small>
+                    </span>
+                </a>
+                <a href="https://mahdiyasser.site/contact" target="_blank" class="social-link">
+                    <img src="https://mahdiyasser.site/favicon.ico" alt="Contact Icon">
+                    <span class="link-text">
+                        <strong>Contact Mahdi Directly</strong>
+                        <small>Personal Contact Page</small>
+                    </span>
+                </a>
+                <a href="https://vetrom.mahdiyasser.site/#contact" target="_blank" class="social-link">
+                    <img src="https://vetrom.mahdiyasser.site/favicon.png" alt="Contact Icon">
+                    <span class="link-text">
+                        <strong>VetroM Contact & Support</strong>
+                        <small>Project-Specific Enquiries</small>
+                    </span>
+                </a>
+            </div>
+            
+            <a href="https://mahdiyasser.site" target="_blank" class="nav-button" style="margin-top: 30px;">Visit Mahdi Yasser's Portfolio</a>
+        </div>
+    </section>
+    
+    <script>
+    // Hover Effect Logic - REQUIRED for the blur-content feature
+    function blurBackground(isHovering) {
+        const content = document.querySelector('.blur-content');
+        if (content) {
+            if (isHovering) {
+                content.classList.add('is-blurred');
+            } else {
+                content.classList.remove('is-blurred');
+            }
+        }
+    }
+    </script>
+
+</body>
+</html>

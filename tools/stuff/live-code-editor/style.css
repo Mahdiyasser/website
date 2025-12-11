@@ -17,6 +17,35 @@
     padding: 0;
 }
 
+/* Target the entire scrollbar */
+::-webkit-scrollbar {
+  width: 12px; /* Set a specific width for the vertical scrollbar */
+  height: 12px; /* Set a specific height for the horizontal scrollbar */
+}
+
+/* Track: The area on which the scrollbar rolls */
+::-webkit-scrollbar-track {
+  background: #1e1e1e; /* Dark, almost black background for the track */
+  border-radius: 10px; /* Slight rounding for the track corners */
+}
+
+/* Handle/Thumb: The draggable part of the scrollbar */
+::-webkit-scrollbar-thumb {
+  background: #505050; /* A dark gray for the thumb */
+  border-radius: 10px; /* Makes the thumb fully rounded */
+  border: 3px solid #1e1e1e; /* Creates a small gap/border around the thumb with the track color */
+}
+
+/* Handle on hover: For a subtle interactive effect */
+::-webkit-scrollbar-thumb:hover {
+  background: #707070; /* Lighten the thumb color on hover */
+}
+
+/* Corner: The bottom-right corner where vertical and horizontal scrollbars meet (optional) */
+::-webkit-scrollbar-corner {
+  background: #1e1e1e;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-primary);
@@ -78,6 +107,7 @@ body {
     flex: 1; /* Each panel takes equal width */
     border-right: 1px solid var(--editor-border);
     padding: 10px;
+    min-height: 0; /* Add this flexbox fix */
 }
 
 .editor-panel:last-child {
@@ -96,8 +126,18 @@ body {
     text-transform: uppercase;
 }
 
+/* --- CODE MIRROR SPECIFIC FIXES (Crucial for full height in flexbox) --- */
+.editor-panel .CodeMirror {
+    flex: 1; /* Make CodeMirror wrapper fill the remaining vertical space */
+    height: 100%; /* Ensure it fills the height of the flex item */
+    /* CodeMirror often uses its own internal scrolling, so we let it manage height */
+}
+
+/* Since CodeMirror hides the textarea, you can remove the textarea-specific styles for flex:1, 
+   but keeping the visual styles for consistency.
+   The CodeMirror wrapper now handles the vertical space instead of the textarea. */
 textarea {
-    flex: 1;
+    /* Removed flex: 1 and height: 100% since CodeMirror hides this */
     width: 100%;
     background-color: var(--bg-secondary);
     border: 1px solid var(--editor-border);

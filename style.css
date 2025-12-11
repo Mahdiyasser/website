@@ -494,3 +494,129 @@ h1 {
     }
 }
 
+
+/* Dontaion Banner */
+    /*
+     * 1. The main container is a flex container.
+     * 2. The default (mobile-first) is a vertical stack (flex-direction: column).
+     */
+    .donate-cta-container {
+        display: flex;
+        flex-direction: column; /* Default: Stack vertically for mobile */
+        align-items: center;
+        gap: 15px;
+        margin: 20px auto; /* Use auto for margin left/right to center it */
+        max-width: 90%; /* Limits maximum width on PC, good for responsive design */
+        border: 1px solid #dc3545;
+        padding: 10px 15px;
+        border-radius: 8px;
+        background-color: #fcebeb;
+    }
+
+    /* The link element inside the container */
+    .donate-link {
+        text-decoration: none;
+        display: flex;
+        flex-direction: column; /* Default: Stack vertically for mobile */
+        align-items: stretch;
+        gap: 15px;
+        width: 100%;
+        color: #212529;
+    }
+
+    /* Container for the logo image */
+    .logo-container {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* Center the image on mobile stack */
+        padding-bottom: 5px; /* Add slight separation */
+    }
+
+    /* The image itself */
+    .logo-image {
+        width: 100%; /* Take full width of its container */
+        max-width: 150px; /* But don't exceed 150px */
+        height: auto;
+        display: block;
+        border-radius: 4px;
+    }
+
+    /* Container for the text and button */
+    .text-and-button-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 0; /* No fixed minimum height needed */
+        padding: 0;
+    }
+
+    .text-content {
+        text-align: center; /* Center text on mobile stack */
+    }
+
+    .text-content h3 {
+        color: #dc3545;
+        margin: 0;
+        font-size: 1.4em;
+    }
+
+    .text-content p {
+        font-size: 1.0em;
+        margin: 5px 0 0 0;
+        color: #212529;
+    }
+
+    .button-area {
+        text-align: center; /* Center the button on mobile stack */
+        margin-top: 15px; /* Add margin above button */
+    }
+
+    .donate-button {
+        background-color: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        display: inline-block;
+        cursor: pointer;
+        transition: background-color 0.3s; /* Nice touch for user experience */
+    }
+
+    .donate-button:hover {
+        background-color: #bb2d3b; /* Darker red on hover */
+    }
+
+    /* --- MEDIA QUERY for PC/Desktop (Screens wider than 600px) --- */
+    @media (min-width: 600px) {
+        /* On PC, change the link back to a horizontal row */
+        .donate-link {
+            flex-direction: row;
+            align-items: center; /* Vertically align items in the row */
+        }
+
+        /* Set the logo to a fixed width on PC */
+        .logo-container {
+            width: 150px; /* Fix the width to fit the image */
+            justify-content: flex-start; /* Align logo to the start */
+            padding: 0;
+        }
+
+        /* Ensure the image takes up the container width */
+        .logo-image {
+            width: 100%;
+            max-width: 150px;
+        }
+
+        /* Adjust text alignment for PC */
+        .text-content {
+            text-align: left; /* Align text to the left */
+        }
+
+        /* Adjust button area alignment for PC */
+        .button-area {
+            text-align: right; /* Align button to the right */
+            margin-top: 10px;
+        }
+    }

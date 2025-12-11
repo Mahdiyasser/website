@@ -10,6 +10,16 @@
         "story": ""
     },
     {
+        "id": 14,
+        "name": "Live Code Editor",
+        "path": ".\/stuff\/live-code-editor",
+        "image": "..\/img\/live-code-editor.png",
+        "tag": "New!",
+        "style": "card",
+        "description": "This is a light and fast live code editor with preview of your code it have html, css and js",
+        "story": ""
+    },
+    {
         "id": 11,
         "name": "URL Shortener",
         "path": ".\/stuff\/short-url",

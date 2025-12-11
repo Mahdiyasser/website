@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Code Editor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="controls-bar">
+        <div class="checkbox-group">
+            <input type="checkbox" id="check-html" checked>
+            <label for="check-html">HTML</label>
+            
+            <input type="checkbox" id="check-css">
+            <label for="check-css">CSS</label>
+            
+            <input type="checkbox" id="check-js">
+            <label for="check-js">JavaScript</label>
+            
+            </div>
+        <button id="view-button">View Live Output</button>
+    </header>
+
+    <main class="editor-container">
+        <section id="editor-html" class="editor-panel">
+            <label for="html-code">HTML</label>
+            <textarea id="html-code" placeholder=""></textarea>
+        </section>
+
+        <section id="editor-css" class="editor-panel hidden">
+            <label for="css-code">CSS</label>
+            <textarea id="css-code" placeholder="/* Enter your CSS code here */"></textarea>
+        </section>
+
+        <section id="editor-js" class="editor-panel hidden">
+            <label for="js-code">JavaScript</label>
+            <textarea id="js-code" placeholder="// Enter your JavaScript code here"></textarea>
+        </section>
+
+        </main>
+
+    <div id="preview-overlay" class="preview-overlay hidden">
+        <button id="close-preview" class="close-button" aria-label="Close Preview">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        </button>
+        <iframe id="live-preview" class="live-preview"></iframe>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

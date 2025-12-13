@@ -34,16 +34,16 @@
 /* ---------------------------------------------------------------------- */
 
 body.light-theme {
-    --bg-primary: #f8f8f8;       
-    --bg-content: rgba(255, 255, 255, 0.85); /* Reduced opacity for better background visibility */
-    --accent-neon: #1a56ff;      
-    --text-primary: #333333;     
-    --text-secondary: #4d4d4d;   
-    --grid-line: rgba(26, 86, 255, 0.15); 
-    --glow-shadow: 0 0 10px rgba(26, 86, 255, 0.4); 
-    --box-shadow-card: 0 0 10px rgba(0, 0, 0, 0.1);
-    --filter-pfp: invert(0);    
-    --filter-social: invert(0); 
+    --bg-primary: #2c2f33;          /* Dark gray primary background */
+    --bg-content: rgba(47, 50, 56, 0.9); /* Slightly different dark gray content background */
+    --accent-neon: #7289da;         /* Discord-style blue/purple accent */
+    --text-primary: #f0f0f0;        /* Soft white/light gray text */
+    --text-secondary: #b9bbbe;      /* Lighter gray secondary text */
+    --grid-line: rgba(114, 137, 218, 0.2); /* Subtle grid line */
+    --glow-shadow: 0 0 10px rgba(114, 137, 218, 0.5); /* Glow shadow */
+    --box-shadow-card: 0 0 10px rgba(0, 0, 0, 0.4); /* Dark shadow for cards */
+    --filter-pfp: invert(0);
+    --filter-social: invert(0);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -620,3 +620,61 @@ h1 {
             margin-top: 10px;
         }
     }
+
+/* --- Optimized Fast Links for Mobile --- */
+.fast-links {
+    display: grid;
+    /* 3 columns for desktop */
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm); /* Tightened gap for mobile efficiency */
+    width: 100%;
+    margin-bottom: var(--spacing-sm);
+}
+
+.fast-btn {
+    font-family: var(--font-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0.8rem 0.5rem; /* Reduced padding for smaller buttons */
+    text-decoration: none;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem; /* Slightly smaller font to prevent text wrapping */
+    
+    border: 1px solid var(--accent-neon);
+    background-color: var(--bg-content);
+    color: var(--accent-neon);
+    border-radius: var(--border-radius-card);
+    box-shadow: var(--box-shadow-card);
+    
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fast-btn:hover {
+    background-color: var(--accent-neon);
+    color: var(--bg-primary);
+    box-shadow: var(--glow-shadow);
+}
+
+/* Specific styling for Status Page */
+.fast-btn.status-btn {
+    border-style: dashed;
+    border-width: 2px;
+}
+
+/* Mobile Overrides (below 850px) */
+@media (max-width: 850px) {
+    .fast-links {
+        /* Force exactly 2 columns */
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    /* Make the 3rd button (Status Page) span both columns to keep it tidy */
+    .fast-links .fast-btn:nth-child(3) {
+        grid-column: span 2;
+    }
+}

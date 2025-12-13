@@ -33,14 +33,16 @@ a {
 
 /* LIGHT MODE VARIABLES */
 body.light-theme {
-    --bg-primary: #d0d0d0;
-    --bg-content: rgba(230, 230, 230, 0.95);
-    --accent-neon: #007bff;
-    --text-primary: #333333;
-    --text-secondary: #4d4d4d;
-    --grid-line: rgba(0, 123, 255, 0.2); 
-    --glow-shadow: 0 0 10px rgba(0, 123, 255, 0.3); 
-    --box-shadow-card: 0 0 10px rgba(0, 0, 0, 0.1);
+    --bg-primary: #2c2f33;          /* Dark gray primary background */
+    --bg-content: rgba(47, 50, 56, 0.9); /* Slightly different dark gray content background */
+    --accent-neon: #7289da;         /* Discord-style blue/purple accent */
+    --text-primary: #f0f0f0;        /* Soft white/light gray text */
+    --text-secondary: #b9bbbe;      /* Lighter gray secondary text */
+    --grid-line: rgba(114, 137, 218, 0.2); /* Subtle grid line */
+    --glow-shadow: 0 0 10px rgba(114, 137, 218, 0.5); /* Glow shadow */
+    --box-shadow-card: 0 0 10px rgba(0, 0, 0, 0.4); /* Dark shadow for cards */
+    --filter-pfp: invert(0);
+    --filter-social: invert(0);
 }
 
 /* ---------------------------------------------------------------------- */

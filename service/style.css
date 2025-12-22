@@ -337,7 +337,7 @@ body.dark .modal-close {
         max-width: 400px;
         height: 80vh;
         max-height: 90vh;
-        padding: 1rem;
+        padding: 4px;
         border-radius: 12px;
     }
 

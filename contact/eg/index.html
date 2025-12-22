@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html lang="ar">
-
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- Primary Meta Tags -->
     <title>اتواصل معايا | مهدي ياسر</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="../../favicon.ico"> 
-    <link rel="apple-touch-icon" href="../../favicon.ico"> 
-    <link rel="shortcut icon" href="../../favicon.ico" />
-    <link rel="icon" href="../../favicon.ico" />
+    
+    <link rel="icon" type="image/png" href="../favicon.ico">
+    <link rel="apple-touch-icon" href="../favicon.ico">
+    <link rel="shortcut icon" href="../favicon.ico">
+
     <style>
-        /* Reset & base */
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #141414;
+            --accent: #ffffff;
+            --text-main: #e5e5e5;
+            --text-muted: #a1a1aa;
+            --border: #27272a;
+            --input-bg: #1c1c1c;
+        }
+
+        /* Reset & Base */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,124 +29,177 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            background-color: var(--bg-color);
+            color: var(--text-main);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            direction: rtl; /* Arabic support */
-            text-align: right;
+            padding: 20px;
+        }
+
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { display: none; }
+
+        .contact-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 480px;
+            padding: 3rem 2.5rem;
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             position: relative;
         }
 
-        ::-webkit-scrollbar {
-        display: none;
+        .header-section {
+            margin-bottom: 2.5rem;
+            text-align: right;
         }
 
-        /* Container */
-        .contact-container {
-            background: #fff;
-            padding: 2.5rem 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 550px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        .header-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
         }
 
-        /* Heading */
-        .contact-container h1 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: #333;
+        .header-section p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
-        /* Form */
+        .lang-toggle-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem; /* Positioned on the left for RTL */
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .lang-toggle-btn:hover {
+            border-color: var(--text-muted);
+            color: var(--text-main);
+            background: rgba(255,255,255,0.05);
+        }
+
         form {
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
         }
 
         label {
             font-size: 0.9rem;
-            color: #555;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-right: 4px;
         }
 
-        input,
-        textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+        input, textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: #fff;
             font-size: 1rem;
+            transition: all 0.2s ease;
+            text-align: right;
+        }
+
+        input:focus, textarea:focus {
             outline: none;
-            transition: all 0.3s ease;
+            border-color: var(--text-muted);
+            background: #222;
         }
 
-        input:focus,
-        textarea:focus {
-            border-color: #2575fc;
-            box-shadow: 0 0 6px rgba(37, 117, 252, 0.4);
+        input::placeholder, textarea::placeholder {
+            color: #4b4b4b;
         }
 
-        button {
-            padding: 0.8rem;
+        button[type="submit"] {
+            margin-top: 1rem;
+            background: var(--accent);
+            color: #000;
             border: none;
-            border-radius: 8px;
-            background: #2575fc;
-            color: white;
-            font-size: 1rem;
-            font-weight: 600;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: transform 0.2s, opacity 0.2s;
         }
 
-        button:hover {
-            background: #6a11cb;
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
         }
 
-        @media (max-width: 500px) {
-            .contact-container {
-                padding: 2rem 1rem;
+        @media (max-width: 480px) {
+            .contact-card {
+                padding: 2rem 1.2rem;
+                border: none;
+                background: transparent;
+                box-shadow: none;
             }
+            .lang-toggle-btn { top: 1rem; left: 1rem; }
         }
-        /* Make placeholders RTL */
-input::placeholder,
-textarea::placeholder {
-    direction: rtl;
-    text-align: right;
-}
-
     </style>
 </head>
-
 <body>
 
-    <div class="contact-container">
-<button id="switchlang" class="lang-toggle-btn">En</button>
-<script>
-document.getElementById('switchlang').addEventListener('click', () => {
-    window.location.href = '../index.html';
-});
-</script>
-        <h1>اتواصل معايا</h1>
+    <div class="contact-card">
+        <button id="switchlang" class="lang-toggle-btn">En</button>
+        
+        <div class="header-section">
+            <h1>اتواصل معايا</h1>
+            <p>عندك فكرة مشروع؟ خلينا نبدأ ننفذها.</p>
+        </div>
+
         <form action="https://formspree.io/f/xpwkwwkn" method="POST">
-            <label for="name">الاسم:</label>
-            <input type="text" id="name" name="name" placeholder="اكتب اسمك" required>
+            <div class="input-group">
+                <label for="name">الاسم بالكامل</label>
+                <input type="text" id="name" name="name" placeholder="اكتب اسمك هنا" required>
+            </div>
 
-            <label for="email">الإيميل:</label>
-            <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+            <div class="input-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+            </div>
 
-            <label for="phone">رقم التليفون:</label>
-            <input type="tel" id="phone" name="phone" placeholder="مش ضروري بس هيكون احسن">
+            <div class="input-group">
+                <label for="phone">رقم الموبايل (اختياري)</label>
+                <input type="tel" id="phone" name="phone" placeholder="01xxxxxxxxx">
+            </div>
 
-            <label for="message">رسالتك:</label>
-            <textarea id="message" name="message" rows="5" placeholder="اكتب رسالتك هنا" required></textarea>
+            <div class="input-group">
+                <label for="message">رسالتك</label>
+                <textarea id="message" name="message" rows="4" placeholder="احكيلي أكتر عن اللي محتاجه..." required></textarea>
+            </div>
 
-            <button type="submit">ابعت</button>
+            <button type="submit">إرسال الرسالة</button>
         </form>
     </div>
+
+    <script>
+        // Language Switcher
+        document.getElementById('switchlang').addEventListener('click', () => {
+            window.location.href = '../index.html';
+        });
+
+        // Optional: Keep your tracking script here if needed
+    </script>
 </body>
-
 </html>
-

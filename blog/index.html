@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mahdi’s Blog | Mahdi Yasser</title>
+    <title>The Mahdi Yasser Blog</title>
 
     <meta name="title" content="Mahdi’s Blog | Mahdi Yasser">
     <meta name="description"
@@ -33,57 +32,656 @@
     }
     </script>
 
-    <link rel="icon" type="image/png" href="../favicon.ico"> 
-    <link rel="apple-touch-icon" href="../favicon.ico"> 
-    <link rel="shortcut icon" href="../favicon.ico" />
-    <link rel="icon" href="../favicon.ico" />
+    <link rel="icon" type="image/png" href="./favicon.ico"> 
+    <link rel="apple-touch-icon" href="./favicon.ico"> 
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="icon" href="./favicon.ico" />
 
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
+
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    
+    
+    <style>
+        /* CSS Variables for Colors and Dark Mode */
+        :root {
+            --primary-color: #3b82f6; /* Blue 500 */
+            --primary-hover: #2563eb; /* Blue 600 */
+            --danger-color: #ef4444; /* Red 500 */
+            --danger-hover: #dc2626; /* Red 600 */
+            --secondary-color: #6b7280; /* Gray 500 */
+            --bg-light: #f3f4f6; /* Gray 100 */
+            
+            /* Theme Variables (Light Mode Default) */
+            --bg-default: var(--bg-light);
+            --bg-paper: #ffffff;
+            --text-default: #1f2937; /* Gray 800 */
+            --text-secondary: var(--secondary-color);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        html.dark:root {
+            --bg-default: #111827; /* Gray 900 */
+            --bg-paper: #1f2937; /* Gray 800 */
+            --bg-light-dark: #374151; /* Custom Gray 700 for lighter dark elements */
+            --text-default: #f3f4f6; /* Gray 100 */
+            --text-secondary: #9ca3af; /* Gray 400 */
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Base and Utility Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background-color: var(--bg-default);
+            color: var(--text-default);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        /* The main content container should not take full width, but everything inside should be flexible */
+        .container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        /* --- Header Styles --- */
+        .header-main {
+            background-color: var(--bg-paper);
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-main .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        /* Group logo and mobile visual together on the left */
+        .header-left-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.25rem; /* Mobile font size */
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        /* Mobile Visual Element (Visible on mobile/tablet, hidden on desktop) */
+        .hero-visual-mobile {
+            display: flex; /* Visible by default (mobile-first) */
+            align-items: center;
+            /* Added margin-right to separate the visual from the logo text */
+            margin-right: 0.75rem; 
+        }
+        
+        .hero-visual-mobile .hero-placeholder {
+            width: 2.5rem; /* Adjusted for tighter mobile fit */
+            height: 2.5rem; /* Adjusted for tighter mobile fit */
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--bg-light);
+        }
+        html.dark .hero-visual-mobile .hero-placeholder {
+            background-color: var(--bg-light-dark);
+        }
+        .hero-visual-mobile svg {
+            width: 1.1rem;
+            height: 1.1rem;
+            color: var(--primary-color);
+        }
+        /* END Mobile Visual */
+
+        .theme-toggle {
+            padding: 0.5rem;
+            border-radius: 9999px;
+            background-color: var(--bg-light);
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        html.dark .theme-toggle {
+            background-color: var(--bg-paper);
+        }
+
+        .theme-toggle:hover {
+            background-color: #d1d5db; /* Gray 300 */
+        }
+
+        html.dark .theme-toggle:hover {
+            background-color: #4b5563; /* Gray 600 */
+        }
+
+        .theme-toggle svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+        #sun-icon { color: #f59e0b; }
+        #moon-icon { color: #9ca3af; }
+
+        /* Main Content Padding */
+        .main-content {
+            padding-top: 2rem;
+            padding-bottom: 3rem;
+        }
+
+        /* --- Hero Section (Mobile Full Width + Styling) --- */
+        .hero-section {
+            /* Remove padding from the parent .container on mobile to achieve full width */
+            margin-left: -1rem;
+            margin-right: -1rem;
+            
+            background-color: var(--bg-paper);
+            box-shadow: var(--shadow-xl);
+            padding: 2rem 1rem; /* Adjust horizontal padding for mobile */
+            margin-bottom: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 0; /* Remove rounded corners for full-width effect on mobile */
+        }
+
+        .hero-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column; 
+        }
+
+        .hero-content {
+            width: 100%;
+        }
+        
+        /* Desktop Hero Visual (hidden on mobile/tablet) */
+        .hero-visual-desktop {
+            display: none; 
+        }
+
+        /* Large Placeholder Styling (only used for desktop sizing) */
+        .hero-placeholder-large {
+            width: 12rem;
+            height: 12rem;
+            background-color: var(--bg-light);
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid rgba(59, 130, 246, 0.5);
+        }
+        html.dark .hero-placeholder-large {
+            background-color: var(--bg-light-dark);
+        }
+        .hero-placeholder-large svg {
+            width: 5rem;
+            height: 5rem;
+            color: var(--primary-color);
+        }
+        /* END Placeholder styling */
+
+        .hero-content .subtitle {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Adjusted H2 size for mobile organization */
+        .hero-content h2 {
+            font-size: 1.875rem; /* Smaller font size for mobile */
+            font-weight: 800;
+            line-height: 1.3;
+            margin-bottom: 1rem;
+            color: var(--text-default);
+        }
+
+        .hero-content h2 span {
+            color: var(--primary-color);
+        }
+
+        .hero-content p {
+            font-size: 1rem; /* Slightly reduced body text size */
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-content .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            color: white;
+            background-color: var(--primary-color);
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+
+        .hero-content .cta-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Navigation Grid Section */
+        .nav-grid-section h3 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-default);
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr); /* Mobile default: 1 column */
+            gap: 1.5rem;
+        }
+
+        /* Navigation Card Styling (rest of the content remains the same) */
+        .nav-card {
+            display: block;
+            background-color: var(--bg-paper);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease-in-out;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            text-decoration: none;
+        }
+
+        html.dark .nav-card {
+            border-color: #374151;
+        }
+
+        .nav-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+        }
+
+        .nav-card-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 9999px;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .nav-card-icon svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .nav-card h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-default);
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-card:hover h4 {
+            color: var(--primary-color);
+        }
+
+        .nav-card p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            margin-top: 3rem;
+            text-align: center;
+            background-color: rgba(59, 130, 246, 0.1);
+            padding: 2rem;
+            border-radius: 0.75rem;
+        }
+
+        html.dark .cta-section {
+            background-color: var(--bg-light-dark);
+        }
+
+        .cta-section h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-default);
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-section .cta-danger-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 2rem;
+            border: 1px solid transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            color: white;
+            background-color: var(--danger-color);
+            transition: background-color 0.2s;
+            box-shadow: var(--shadow-lg);
+            text-decoration: none;
+        }
+
+        .cta-section .cta-contact-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 2rem;
+            border: 1px solid transparent;
+            font-size: 1rem;
+            margin-top: 10px;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            color: white;
+            background-color: #3b82f6;
+            transition: background-color 0.2s;
+            box-shadow: var(--shadow-lg);
+            text-decoration: none;
+        }
+
+        .cta-section .cta-danger-button:hover .cta-contact-button:hover {
+            background-color: var(--danger-hover);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Footer */
+        .footer-main {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-top: 1px solid #d1d5db;
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        html.dark .footer-main {
+            border-top-color: #374151;
+        }
+
+        /* --- Media Queries for Responsiveness --- */
+
+        /* Tablets (sm and md breakpoints) */
+        @media (min-width: 640px) {
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+            
+            /* Re-apply desktop margins/padding to hero section for tablets */
+            .hero-section {
+                padding: 3rem;
+                margin-left: 0;
+                margin-right: 0;
+                border-radius: 0.75rem; /* Bring back rounded corners */
+            }
+
+            .nav-grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 columns for tablets */
+            }
+            
+            /* Hero H2 size slightly larger on tablets */
+             .hero-content h2 {
+                font-size: 2rem; 
+            }
+        .cta-section .cta-contact-button {
+        margin-top: 10px;
+        }
+
+        }
+
+        /* Desktops (lg breakpoint) */
+        @media (min-width: 1024px) {
+            .container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+            
+            /* Adjust logo size back up for desktops */
+            .logo {
+                font-size: 1.5rem; 
+            }
+            
+            /* Restore desktop H2 size */
+             .hero-content h2 {
+                font-size: 2.25rem; 
+            }
+
+            /* Hide the mobile visual when we hit desktop size */
+            .hero-visual-mobile {
+                display: none;
+            }
+
+            /* Show the main visual on desktop */
+            .hero-visual-desktop {
+                display: flex;
+                width: 33.333333%; /* 1/3 width */
+                margin-top: 0;
+                padding-left: 2.5rem;
+                justify-content: flex-end; /* Align to the right */
+            }
+
+            /* Hero Section Layout for Desktop: Set hero-wrapper to use row direction */
+            .hero-wrapper {
+                flex-direction: row; 
+                align-items: center;
+            }
+            
+            .hero-content {
+                width: 66.666667%; /* 2/3 width */
+            }
+            
+            /* Grid Layout for Desktop */
+            .nav-grid {
+                grid-template-columns: repeat(4, 1fr); /* 4 columns for desktop */
+            }
+        }
+    </style>
 </head>
 
-<body>
+<body class="body-base">
 
-<!--cloudflare worker tracking only session IDs no user data-->
-<script>
-(function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
-  }
-
-  // --- Set these per page/tool ---
-  const type = 'page';   // 'page' or 'tool'
-  const name = 'blog'; // unique page/tool name
-
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
-})();
-</script>
-<!--worker end-->
-
-    <div class="container">
-
-        <header class="main-header">
-            <h1 class="logo">🧠 Mahdi’s Blog</h1>
-        </header>
-
-        <div class="feed posts-list" id="feed">
+    <!-- Header & Navigation -->
+    <header class="header-main">
+        <div class="container">
+            <!-- Group the visual and logo on the left -->
+            <div class="header-left-group">
+                <!-- Mobile Visual Element (Visible on mobile/tablet, hidden on desktop) -->
+                <div class="hero-visual-mobile">
+                    <div class="hero-placeholder">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m-7 13v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5h12m0 0a2 2 0 002-2V9a2 2 0 00-2-2h-8m0 0z"></path></svg>
+                    </div>
+                </div>
+                <h1 class="logo">The Mahdi Yasser Blog</h1>
             </div>
+            
+            <!-- Dark Mode Toggle -->
+            <button id="theme-toggle" class="theme-toggle">
+                <!-- Icon: Sun (Light Mode) or Moon (Dark Mode) - Using inline SVG for simplicity -->
+                <svg id="sun-icon" class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <svg id="moon-icon" class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            </button>
+        </div>
+    </header>
 
-        <footer>
-            <p>&copy; 2025 Mahdi's Blog</p>
-        </footer>
-        
+    <main class="container main-content">
+
+        <!-- Hero Section: Intro & Welcome -->
+        <section class="hero-section">
+            <div class="hero-wrapper">
+                <div class="hero-content">
+                    <span class="subtitle">Welcome to the Blog</span>
+                    <h2>
+                        Your Hub for <span class="text-primary">Ideas</span> and Insights.
+                    </h2>
+                    <p>
+                        The Mahdi Yasser Blog is a platform where i share knowledge, stories, and expertise. Dive into the diverse collections and discover the next great idea!
+                    </p>
+                    <a href="./public-posts" class="cta-button">
+                        View Latest Posts
+                    </a>
+                </div>
+                <!-- Original Hero Visual (Hidden on mobile/tablet, shown on desktop) -->
+                <div class="hero-visual-desktop">
+                    <div class="hero-placeholder-large">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m-7 13v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5h12m0 0a2 2 0 002-2V9a2 2 0 00-2-2h-8m0 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navigation Grid Section -->
+        <section class="nav-grid-section">
+            <h3>Explore the Content</h3>
+            <div class="nav-grid">
+
+                <!-- Card 1: Authors Profile -->
+                <a href="./authors-profile" class="nav-card">
+                    <div class="nav-card-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                    <h4>Author Profiles</h4>
+                    <p>Meet the experts and dedicated authors behind the platform.</p>
+                </a>
+
+                <!-- Card 2: Authors Posts -->
+                <a href="./authors-posts" class="nav-card">
+                    <div class="nav-card-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2M7 7h10"></path></svg>
+                    </div>
+                    <h4>Authors Posts</h4>
+                    <p>A curated collection of posts written only by the official authors.</p>
+                </a>
+
+                <!-- Card 3: Public Posts -->
+                <a href="./public-posts" class="nav-card">
+                    <div class="nav-card-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    </div>
+                    <h4>All Public Content</h4>
+                    <p>View all posts.</p>
+                </a>
+                
+                <!-- Card 4: Archive -->
+                <a href="./archive" class="nav-card">
+                    <div class="nav-card-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                    </div>
+                    <h4>Post Archive</h4>
+                    <p>Browse older content, moved here after 1 month of public exposure.</p>
+                </a>
+            </div>
+        </section>
+
+        <!-- CMS Call-to-Action / Footer Link -->
+        <section class="cta-section">
+            <h3>Want to try the experience?</h3>
+            <p>
+                Go to the Contributor Area where you will find tools that will make you feel like a <i>Author</i> and more.
+            </p>
+            <a href="./contributor-area/" class="cta-danger-button">
+                Access Contributor Area
+            </a>
+
+        </section>
+
+    </main>
+
+<footer style="
+    margin-top: 50px;
+    padding: 30px 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+">
+    <div style="max-width: 1300px; margin: 0 auto;">
+        <p style="margin: 5px 0;">&copy; 2025 The Mahdi Yasser Blog. All rights reserved.</p>
+        <p style="margin: 5px 0;">A modern blog experience built by <a href="/" style="color: var(--primary-color);">Mahdi Yasser</a>. <br>
+ <a href="/blog/pages/terms-privacy-conditions" style="color: var(--primary-color);">Privacy Policy and Terms and Conditions</a></p>
     </div>
-</body>
+</footer>
 
+    <!-- JavaScript for Theme Toggle -->
+    <script>
+        const htmlElement = document.documentElement;
+        const toggleButton = document.getElementById('theme-toggle');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        /**
+         * Applies the selected theme based on localStorage or system preference.
+         */
+        function applyTheme() {
+            const isDarkMode = localStorage.getItem('theme') === 'dark' || 
+                                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            if (isDarkMode) {
+                htmlElement.classList.add('dark');
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            } else {
+                htmlElement.classList.remove('dark');
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            }
+        }
+
+        /**
+         * Toggles between light and dark mode.
+         */
+        function toggleTheme() {
+            if (htmlElement.classList.contains('dark')) {
+                // Currently dark, switch to light
+                localStorage.setItem('theme', 'light');
+            } else {
+                // Currently light, switch to dark
+                localStorage.setItem('theme', 'dark');
+            }
+            applyTheme(); // Re-apply theme after toggle
+        }
+
+        // Initial application of the theme when the page loads
+        document.addEventListener('DOMContentLoaded', applyTheme);
+
+        // Add event listener to the toggle button
+        toggleButton.addEventListener('click', toggleTheme);
+
+    </script>
+</body>
 </html>

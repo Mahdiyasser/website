@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahdi Yasser Blog | Contributor Area</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+    
+    <style>
+        /* CSS Variables for Colors and Dark Mode (Copied from index.html) */
+        :root {
+            --primary-color: #3b82f6; /* Blue 500 */
+            --primary-hover: #2563eb; /* Blue 600 */
+            --danger-color: #ef4444; /* Red 500 */
+            --danger-hover: #dc2626; /* Red 600 */
+            --secondary-color: #6b7280; /* Gray 500 */
+            --bg-light: #f3f4f6; /* Gray 100 */
+            
+            /* Theme Variables (Light Mode Default) */
+            --bg-default: var(--bg-light);
+            --bg-paper: #ffffff;
+            --text-default: #1f2937; /* Gray 800 */
+            --text-secondary: var(--secondary-color);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --border-color: #d1d5db;
+        }
+
+        html.dark:root {
+            --bg-default: #111827; /* Gray 900 */
+            --bg-paper: #1f2937; /* Gray 800 */
+            --bg-light-dark: #374151; /* Custom Gray 700 for lighter dark elements */
+            --text-default: #f3f4f6; /* Gray 100 */
+            --text-secondary: #9ca3af; /* Gray 400 */
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+            --border-color: #374151;
+        }
+
+::-webkit-scrollbar {
+        display: none;
+    }
+
+
+        /* Base and Utility Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background-color: var(--bg-default);
+            color: var(--text-default);
+            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        /* Main Content Padding - INCREASED TOP PADDING TO REPLACE HEADER SPACE */
+        .main-content {
+            padding-top: 1rem; /* Increased from 2rem */
+            padding-bottom: 1rem;
+        }
+
+        /* CTA Button (Copied from index.html for the 'Back to Home' link) */
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 110px;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            color: white;
+            background-color: var(--primary-color);
+            transition: background-color 0.2s;
+            text-decoration: none;
+        }
+        .cta-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* --- Custom Styles for User Area (CMS) --- */
+        .user-area-section {
+            background-color: var(--bg-paper);
+            box-shadow: var(--shadow-xl);
+            padding: 2rem 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0; 
+            text-align: center;
+        }
+
+        .user-area-section h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-default);
+            margin-bottom: 1rem;
+        }
+
+        .user-area-section p {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .user-area-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr); 
+            gap: 1.5rem;
+            max-width: 600px; 
+            margin: 0 auto;
+        }
+
+        .user-area-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            transition: all 0.3s ease-in-out;
+            border: 2px solid var(--primary-color);
+            text-decoration: none;
+            background-color: rgba(59, 130, 246, 0.1); 
+        }
+
+        html.dark .user-area-card {
+             background-color: var(--bg-light-dark); 
+             border-color: var(--primary-color);
+        }
+
+        .user-area-card:hover {
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-4px);
+            background-color: rgba(59, 130, 246, 0.2);
+        }
+          html.dark .user-area-card:hover {
+             background-color: #374151; 
+        }
+
+        .user-area-card-icon {
+            width: 4rem;
+            height: 4rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .user-area-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-default);
+            margin-bottom: 0.5rem;
+        }
+
+        .user-area-card p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-bottom: 0;
+        }
+        
+        /* --- Modal Styling --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: var(--bg-paper);
+            color: var(--text-default);
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-xl);
+            transform: translateY(-50px);
+            transition: transform 0.3s ease-in-out;
+            position: relative;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-content h3 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .modal-content ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-content ul li {
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            color: var(--text-default);
+            line-height: 1.4;
+        }
+        
+        .modal-content ul li::before {
+            content: "→";
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .close-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            transition: background-color 0.2s;
+        }
+        
+        .close-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Footer Styles */
+        .footer-main {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Media Queries */
+        @media (min-width: 640px) {
+            .container {
+                padding-left: 1.5rem;
+                padding-right: 1.5rem;
+            }
+            .user-area-section {
+                padding: 3rem;
+                border-radius: 0.75rem; 
+            }
+            .user-area-grid {
+                grid-template-columns: repeat(2, 1fr);
+                max-width: 800px;
+            }
+            .modal-content {
+                width: auto;
+            }
+        }
+        @media (min-width: 1024px) {
+            .container {
+                padding-left: 2rem;
+                padding-right: 2rem;
+            }
+            .user-area-section h2 {
+                font-size: 2.5rem; 
+            }
+        }
+    </style>
+</head>
+
+<body class="body-base">
+    
+    <div id="welcomeModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Welcome to the Contributor Area!</h3>
+            <p>Here are your next steps to start having fun:</p>
+            <ul>
+                <li>Post Sandbox: Use this to draft a new article and see how it feel posting to The Mahdi Yasser Blog.</li>
+                <li>Extra Tools: Check the status page, Enigma tool and Secure Hash Generator tool and more.</li>
+            </ul>
+            <button id="closeModal" class="close-button">Got it, Let's Get Started</button>
+        </div>
+    </div>
+    
+    <main class="container main-content">
+
+        <section class="user-area-section">
+            <h2>Contributor Area</h2>
+            <p>
+                Welcome back! Use the options below to submit new articles or check the status of your existing contributions, or access other tools.
+            </p>
+
+            <div class="user-area-grid">
+                
+                <a href="./sandbox" class="user-area-card">
+                    <svg class="user-area-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <h3>Post Sandox</h3>
+                    <p>Go train or prepare your post request or just have fun in the sandbox page.</p>
+                </a>
+                
+                <a href="./extra-tools" class="user-area-card">
+                    <svg class="user-area-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m-6 4h6M4 21h16a2 2 0 002-2V5a2 2 0 00-2-2H4a2 2 0 00-2 2v14a2 2 0 002 2zM12 3v18"></path></svg>
+                    <h3>Extra Tools</h3>
+                    <p>Explore new tools and more all made by Mahdi Yasser.</p>
+                </a>
+            </div>
+
+        <section style="text-align: center; margin-top: 2vh;">
+            <a href="../" class="cta-button" style="background-color: #f63b3b;">
+                    Go Back
+            </a>
+        </section>
+
+        </section>
+        
+        <hr style="border-color: var(--border-color); margin: 2rem auto;">
+
+    </main>
+
+<footer style="
+    margin-top: 50px;
+    padding: 30px 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+">
+    <div style="max-width: 1300px; margin: 0 auto;">
+        <p style="margin: 5px 0;">&copy; 2025 The Mahdi Yasser Blog. All rights reserved.</p>
+        <p style="margin: 5px 0;">A modern blog experience built by <a href="/" style="color: var(--primary-color);">Mahdi Yasser</a>. <br>
+ <a href="/blog/pages/terms-privacy-conditions" style="color: var(--primary-color);">Privacy Policy and Terms and Conditions</a></p>
+    </div>
+</footer>
+
+    <script>
+        const htmlElement = document.documentElement;
+        // Removed references to theme-toggle since the button is not present
+        
+        const modal = document.getElementById('welcomeModal');
+        const closeModalButton = document.getElementById('closeModal');
+        const hasVisitedKey = 'nexus-cms-visited';
+
+
+        // --- Theme Toggle Functions ---
+        function applyTheme() {
+            const isDarkMode = localStorage.getItem('theme') === 'dark' || 
+                                (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            
+            if (isDarkMode) {
+                htmlElement.classList.add('dark');
+            } else {
+                htmlElement.classList.remove('dark');
+            }
+        }
+
+        // --- Modal Functions ---
+        function showModal() {
+            // Check if the user has visited before
+            if (!localStorage.getItem(hasVisitedKey)) {
+                modal.classList.add('active');
+            }
+        }
+        
+        function hideModal() {
+            modal.classList.remove('active');
+            // Set a flag so the modal doesn't show again
+            localStorage.setItem(hasVisitedKey, 'true');
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme(); // Initial theme application
+            showModal(); // Check and show modal
+        });
+        
+        closeModalButton.addEventListener('click', hideModal);
+        
+        // Hide modal if user clicks outside (on the overlay)
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+
+    </script>
+</body>
+</html>

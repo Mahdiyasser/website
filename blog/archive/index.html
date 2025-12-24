@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahdi Yasser Blog | Archive</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-loaded">
+
+    <div id="main-view" class="container">
+        <header class="header">
+            <div class="header-top">
+             <h1>The Mahdi Yasser Blog Archive</h1>
+                <button id="theme-toggle" class="icon-button" aria-label="Toggle dark mode" style="display:none;">
+                    <svg id="sun-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem; color: #f59e0b; display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg id="moon-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 1.5rem; height: 1.5rem; color: #9ca3af; display: none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+            </div>
+            
+            <div class="controls">
+                <div class="input-group">
+                    <input type="text" id="search-input" placeholder="Search posts by title, content, or author..." class="input-control">
+                </div>
+                <div class="input-group" style="flex-grow: 0;">
+                    <select id="month-filter" class="input-control select-control">
+                        <option value="all">All Posts</option>
+                    </select>
+                </div>
+                </div>
+        </header>
+
+        <main id="posts-container" class="posts-grid">
+            </main>
+    </div>
+
+    <div id="post-detail-page">
+        <div class="detail-header">
+            <button class="back-btn" onclick="closePostDetail()">
+                <span class="icon">&#x276E;</span> 
+                <span class="text"></span>
+            </button>
+        </div>
+        <div class="detail-content-wrapper">
+            <div id="post-detail-content">
+                </div>
+        </div>
+    </div>
+    
+    <div id="lightbox-modal" style="display: none;">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <div id="lightbox-content">
+            </div>
+        <a class="lightbox-nav" id="lightbox-prev" onclick="lightboxNav(-1)">&#10094;</a>
+        <a class="lightbox-nav" id="lightbox-next" onclick="lightboxNav(1)">&#10095;</a>
+    </div>
+
+<footer style="
+    margin-top: 50px;
+    padding: 30px 0;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+">
+    <div style="max-width: 1300px; margin: 0 auto;">
+        <p style="margin: 5px 0;">&copy; 2025 The Mahdi Yasser Blog. All rights reserved.</p>
+        <p style="margin: 5px 0;">A modern blog experience built by <a href="/" style="color: var(--primary-color);">Mahdi Yasser</a>. <br>
+ <a href="/blog/pages/terms-privacy-conditions" style="color: var(--primary-color);">Privacy Policy and Terms and Conditions</a></p>
+    </div>
+</footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

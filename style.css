@@ -16,6 +16,7 @@
     --box-shadow-card: 0 0 15px rgba(0, 255, 200, 0.2);
     --filter-pfp: invert(0);    
     --filter-social: invert(1); 
+    --text-underline: black;
 
     /* Typography - USING LOCAL FONTS */
     --font-primary: 'Consolas', 'Courier New', monospace; 
@@ -44,6 +45,7 @@ body.light-theme {
     --box-shadow-card: 0 0 10px rgba(0, 0, 0, 0.4); /* Dark shadow for cards */
     --filter-pfp: invert(0);
     --filter-social: invert(0);
+    --text-underline: white;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -55,6 +57,23 @@ body.light-theme {
     margin: 0;
     padding: 0;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Width and Track */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--accent-neon);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 body {

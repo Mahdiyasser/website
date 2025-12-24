@@ -1,0 +1,32 @@
+[
+    {
+        "id": 3,
+        "name": "The Status Page",
+        "path": ".\/tools\/status",
+        "image": "..\/img\/the-status-page.png",
+        "tag": "Status Page",
+        "style": "card",
+        "description": "This is the status page of Mahdi Yasser's websites and services including but not limited to The Mahdi Yasser Blog",
+        "story": "go visit my website at https:\/\/mahdiyasser.site"
+    },
+    {
+        "id": 1,
+        "name": "Text Encrypter",
+        "path": ".\/tools\/enigma",
+        "image": "..\/img\/EGMA.png",
+        "tag": "Tool",
+        "style": "card",
+        "description": "A tool to encrypt and decrypt text",
+        "story": "go visit my website at https:\/\/mahdiyasser.site"
+    },
+    {
+        "id": 2,
+        "name": "Hash Genrator",
+        "path": ".\/tools\/hash",
+        "image": "..\/img\/hash.png",
+        "tag": "Tool",
+        "style": "card",
+        "description": "Generate cryptographic hash values (SHA-256) for input data.",
+        "story": "go visit my website at https:\/\/mahdiyasser.site"
+    }
+]

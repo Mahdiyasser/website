@@ -1,10 +1,20 @@
 [
     {
+        "id": 15,
+        "name": "Icon Picker",
+        "path": ".\/stuff\/icon-picker",
+        "image": "..\/img\/icon-picker.png",
+        "tag": "New!",
+        "style": "card",
+        "description": "This is a icon picker and explorer it uses FontsAweasome for all the icons and its used in html files and if you know what FontsAweasome is then you know how to use it.",
+        "story": ""
+    },
+    {
         "id": 13,
         "name": "MARKDOWN >>> HTML",
         "path": ".\/stuff\/md-html",
         "image": "..\/img\/markdown-html.png",
-        "tag": "New!",
+        "tag": "",
         "style": "card",
         "description": "This tool allow you to convert .md file to .html files with live preview and copy",
         "story": ""
@@ -14,7 +24,7 @@
         "name": "Live Code Editor",
         "path": ".\/stuff\/live-code-editor",
         "image": "..\/img\/live-code-editor.png",
-        "tag": "New!",
+        "tag": "",
         "style": "card",
         "description": "This is a light and fast live code editor with preview of your code it have html, css and js",
         "story": ""
@@ -24,7 +34,7 @@
         "name": "URL Shortener",
         "path": ".\/stuff\/short-url",
         "image": "..\/img\/url-shortener.png",
-        "tag": "New!",
+        "tag": "",
         "style": "card",
         "description": "This is a custom tool that allow you to make any url be short so it looks clean and easy to memorize.",
         "story": ""
@@ -34,7 +44,7 @@
         "name": "WhatsApp Link Generator",
         "path": ".\/stuff\/whatsapp-link",
         "image": "..\/img\/whatsapp-link-generator.png",
-        "tag": "New!",
+        "tag": "",
         "style": "card",
         "description": "this tool allow you to make whatsapp links that open with a prefilled message to the number you add.",
         "story": ""

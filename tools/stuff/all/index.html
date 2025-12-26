@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Picker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./7.1.0/css/all.min.css"  crossorigin="anonymous">
+</head>
+<body>
+
+<header>
+    <h1>Icon Library</h1>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search icons by name or keywords...">
+    </div>
+    
+    <div class="filter-bar">
+        <div class="filter-group">
+            <label>Style:</label>
+            <select id="styleFilter">
+                <option value="all">All Styles</option>
+                <option value="solid">Solid</option>
+                <option value="brands">Brands</option>
+                <option value="regular">Regular</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Category:</label>
+            <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                </select>
+                <button id="viewToggle" class="toggle-btn">Switch to Section View</button>
+        </div>
+    </div>
+    <div id="counter">Total Icons: 0</div>
+</header>
+
+    <main id="iconContainer"></main>
+
+    <div id="toast" class="toast">Copied to clipboard!</div>
+    <script src="categories.js"></script>
+    <script src="icons.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

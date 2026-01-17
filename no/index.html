@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Say No</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card-bg: #121212;
+            --accent: #ffffff;
+            --secondary: #888888;
+            --danger: #ff4444;
+        }
+
+        /* Custom Webkit Scrollbar */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--accent);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            /* Prevents bounce scrolling on some mobile browsers */
+            overflow: hidden; 
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .reason-card {
+            background: var(--card-bg);
+            padding: 40px 24px;
+            border-radius: 32px;
+            border: 1px solid #222;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow-y: auto; /* Uses the styled scrollbar if content is long */
+        }
+
+        .label {
+            position: absolute;
+            top: 24px;
+            left: 0;
+            right: 0;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        #reason-text {
+            font-size: 1.6rem;
+            font-weight: 700;
+            line-height: 1.4;
+            color: var(--accent);
+            margin: 20px 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            height: 64px; /* Larger tap target for mobile */
+            border-radius: 18px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s active, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        #gen-btn {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        #copy-btn {
+            background: #1a1a1a;
+            color: var(--accent);
+            border: 1px solid #333;
+        }
+
+        .loading #reason-text {
+            opacity: 0.3;
+        }
+
+        /* Subtle haptic-like animation */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        .new-content {
+            animation: pulse 0.3s ease-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <div class="reason-card" id="card">
+            <span class="label">Declination Reason</span>
+            <div id="reason-text">Tap below to decline politely.</div>
+        </div>
+
+        <div class="button-group">
+            <button id="gen-btn">Get New Excuse</button>
+            <button id="copy-btn">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        const reasonText = document.getElementById('reason-text');
+        const card = document.getElementById('card');
+        const genBtn = document.getElementById('gen-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const url = 'https://naas.isalman.dev/no';
+
+        async function fetchReason() {
+            card.classList.add('loading');
+            genBtn.disabled = true;
+            genBtn.textContent = 'Loading...';
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                reasonText.textContent = data.reason;
+                
+                // Trigger animation
+                card.classList.remove('new-content');
+                void card.offsetWidth; 
+                card.classList.add('new-content');
+
+            } catch (error) {
+                reasonText.textContent = "Request denied. Even the API says no.";
+            } finally {
+                card.classList.remove('loading');
+                genBtn.disabled = false;
+                genBtn.textContent = 'Get New Excuse';
+            }
+        }
+
+        function copyToClipboard() {
+            const text = reasonText.textContent;
+            if (text.includes('Tap below')) return;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 1500);
+            });
+        }
+
+        genBtn.addEventListener('click', fetchReason);
+        copyBtn.addEventListener('click', copyToClipboard);
+
+        // Allow clicking the card itself to refresh
+        card.addEventListener('click', () => {
+            if (!genBtn.disabled) fetchReason();
+        });
+    </script>
+</body>
+</html>

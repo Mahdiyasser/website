@@ -1,5 +1,15 @@
 [
     {
+        "id": 16,
+        "name": "Circle Cropper",
+        "path": ".\/stuff\/circle-image-crop",
+        "image": "..\/img\/circle-cropper.png",
+        "tag": "New!",
+        "style": "card",
+        "description": "this tool allow you to upload a image and make it be a circle",
+        "story": ""
+    },
+    {
         "id": 15,
         "name": "Icon Picker",
         "path": ".\/stuff\/icon-picker",

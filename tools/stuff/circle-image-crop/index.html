@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High-Res Circle Cropper</title>
+    <style>
+        :root { --primary: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #10b981; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 24px; width: 95vw; max-width: 450px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        
+        #stage { 
+            position: relative; width: 100%; aspect-ratio: 1/1; background: #000; 
+            border-radius: 12px; overflow: hidden; display: none; cursor: move; touch-action: none;
+        }
+        #preview-img { position: absolute; transform-origin: center; pointer-events: none; visibility: hidden; }
+        
+        .mask { position: absolute; inset: 0; background: rgba(0,0,0,0.7); pointer-events: none; -webkit-mask: radial-gradient(circle 140px, transparent 99%, #000 100%); mask: radial-gradient(circle 140px, transparent 99%, #000 100%); z-index: 10; }
+        .border { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 280px; border: 2px solid var(--primary); border-radius: 50%; pointer-events: none; z-index: 11; }
+
+        #upload-area { border: 2px dashed #475569; padding: 60px 20px; border-radius: 20px; cursor: pointer; }
+        .controls { display: none; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .slider-box { display: flex; align-items: center; gap: 12px; background: #0f172a; padding: 12px; border-radius: 12px; }
+        input[type="range"] { flex: 1; accent-color: var(--primary); }
+        
+        button { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        
+        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: #1e293b; padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; }
+        .row { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 12px; margin: 8px 0; border-radius: 10px; }
+        input[type="text"] { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <div id="upload-area" onclick="document.getElementById('file-input').click()">
+            <h2>Upload Image</h2>
+            <p>Tap to choose photo</p>
+        </div>
+        <input type="file" id="file-input" hidden accept="image/*">
+
+        <div id="stage">
+            <img id="preview-img">
+            <div class="mask"></div>
+            <div class="border"></div>
+        </div>
+
+        <div class="controls" id="ui-controls">
+            <div class="slider-box">
+                <span style="font-size: 12px;">Zoom</span>
+                <input type="range" id="zoom" min="0.01" max="5" step="0.001" value="1">
+            </div>
+            <button onclick="showModal()">Make & Download</button>
+            <button onclick="resetTool()" style="background:transparent; color:#94a3b8; font-size: 13px;">Clear & Change</button>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content">
+            <h3 style="margin:0 0 15px 0">Download Results</h3>
+            <input type="text" id="filename" value="my-circle-image">
+            <div id="options"></div>
+            <button onclick="downloadAll()" style="width:100%; margin-top:10px;">Download All</button>
+            <button onclick="closeModal()" style="background:transparent; width:100%; margin-top:10px; color:#94a3b8;">Cancel</button>
+        </div>
+    </div>
+
+    <canvas id="out-canvas" style="display:none;"></canvas>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const stage = document.getElementById('stage');
+        const img = document.getElementById('preview-img');
+        const zoom = document.getElementById('zoom');
+        const controls = document.getElementById('ui-controls');
+        
+        let x = 0, y = 0, scale = 1, isDragging = false, startX, startY;
+
+        fileInput.onchange = (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = (re) => {
+                img.src = re.target.result;
+                img.onload = () => {
+                    document.getElementById('upload-area').style.display = 'none';
+                    stage.style.display = 'block';
+                    controls.style.display = 'flex';
+                    img.style.visibility = 'visible';
+                    
+                    x = stage.clientWidth / 2;
+                    y = stage.clientHeight / 2;
+                    
+                    // Autofit: make sure the shortest side fills the 280px circle
+                    const stageCircleSize = 280;
+                    const ratio = img.naturalWidth / img.naturalHeight;
+                    if (ratio > 1) { // Landscape
+                        scale = stageCircleSize / (stage.clientHeight * (img.naturalHeight / img.naturalWidth));
+                    } else { // Portrait
+                        scale = stageCircleSize / stage.clientWidth;
+                    }
+                    
+                    zoom.value = scale;
+                    render();
+                };
+            };
+            reader.readAsDataURL(file);
+        };
+
+        function resetTool() {
+            fileInput.value = ""; img.src = "";
+            stage.style.display = 'none'; controls.style.display = 'none';
+            document.getElementById('upload-area').style.display = 'block';
+        }
+
+        function render() {
+            img.style.left = `${x}px`;
+            img.style.top = `${y}px`;
+            img.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        // Mouse Wheel Zoom
+        stage.onwheel = (e) => {
+            e.preventDefault();
+            scale *= (e.deltaY > 0 ? 0.95 : 1.05);
+            zoom.value = scale;
+            render();
+        };
+
+        zoom.oninput = () => { scale = parseFloat(zoom.value); render(); };
+        
+        // Panning
+        const dStart = (e) => {
+            isDragging = true;
+            const ev = e.touches ? e.touches[0] : e;
+            startX = ev.clientX - x; startY = ev.clientY - y;
+        };
+        const dMove = (e) => {
+            if(!isDragging) return;
+            const ev = e.touches ? e.touches[0] : e;
+            x = ev.clientX - startX; y = ev.clientY - startY;
+            render();
+        };
+        const dEnd = () => isDragging = false;
+
+        stage.addEventListener('mousedown', dStart);
+        stage.addEventListener('touchstart', dStart);
+        window.addEventListener('mousemove', dMove);
+        window.addEventListener('touchmove', dMove);
+        window.addEventListener('mouseup', dEnd);
+        window.addEventListener('touchend', dEnd);
+
+        // --- THE FIXED EXPORT ENGINE ---
+        const canvas = document.getElementById('out-canvas');
+        function getBlob(type) {
+            const exportSize = 2000; // Force High Quality
+            canvas.width = exportSize;
+            canvas.height = exportSize;
+            const ctx = canvas.getContext('2d');
+            
+            if(type === 'jpeg') { ctx.fillStyle = 'white'; ctx.fillRect(0,0,exportSize,exportSize); }
+            
+            // 1. Create the Circle Clip
+            ctx.beginPath();
+            ctx.arc(exportSize/2, exportSize/2, exportSize/2, 0, Math.PI*2);
+            ctx.clip();
+
+            // 2. Math for exact cropping
+            // We need to find how many natural pixels are inside the 280px screen circle
+            const circleRadiusOnScreen = 140; 
+            const naturalPixelsPerScreenPixel = img.naturalWidth / (img.width * scale);
+            
+            // The diameter of the crop in natural image pixels
+            const cropWidthInNaturalPixels = (circleRadiusOnScreen * 2) * (img.naturalWidth / (img.width * scale));
+
+            // Calculate where the center of the screen circle is relative to the image center
+            const dx = (stage.clientWidth / 2 - x) * (img.naturalWidth / (img.width * scale));
+            const dy = (stage.clientHeight / 2 - y) * (img.naturalHeight / (img.height * scale));
+
+            // Source coordinates on the original image
+            const sx = (img.naturalWidth / 2) + dx - (cropWidthInNaturalPixels / 2);
+            const sy = (img.naturalHeight / 2) + dy - (cropWidthInNaturalPixels / 2);
+
+            ctx.drawImage(
+                img, 
+                sx, sy, cropWidthInNaturalPixels, cropWidthInNaturalPixels, // Source
+                0, 0, exportSize, exportSize // Destination
+            );
+
+            return canvas.toDataURL(type === 'jpeg' ? 'image/jpeg' : 'image/png');
+        }
+
+        function showModal() {
+            const container = document.getElementById('options');
+            container.innerHTML = '';
+            ['png', 'jpeg', 'ico'].forEach(t => {
+                const data = getBlob(t);
+                const kb = Math.round((data.length * 3/4) / 1024);
+                container.innerHTML += `
+                    <div class="row">
+                        <div style="text-align:left">
+                            <strong>${t === 'jpeg' ? 'JPG' : t.toUpperCase()}</strong>
+                            <div style="font-size:10px; color:#94a3b8">${kb} KB</div>
+                        </div>
+                        <button onclick="downloadOne('${t}')" style="padding:6px 12px; font-size:12px; background:var(--accent)">Save</button>
+                    </div>`;
+            });
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        
+        function downloadOne(t) {
+            const a = document.createElement('a');
+            a.download = `${document.getElementById('filename').value || 'crop'}.${t === 'jpeg' ? 'jpg' : t}`;
+            a.href = getBlob(t);
+            a.click();
+        }
+
+        function downloadAll() {
+            ['png', 'jpeg', 'ico'].forEach((t, i) => setTimeout(() => downloadOne(t), i * 500));
+        }
+    </script>
+</body>
+</html>

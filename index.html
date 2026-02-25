@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,226 +49,362 @@
 
     <script src="script.js" defer></script>
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+
    </head>
 
+<body class="dark-theme">
 
-<body>
-
-<!--cloudflare worker tracking only session IDs no user data-->
+<!-- Cloudflare worker tracking -->
 <script>
 (function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
-  }
-
-  // --- Set these per page/tool ---
-  const type = 'page';   // 'page' or 'tool'
-  const name = 'root'; // unique page/tool name
-
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
+    let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+    if (!sessionID) {
+        sessionID = crypto.randomUUID();
+        document.cookie = `sessionID=${sessionID}; path=/`;
+    }
+    fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionID, type: 'page', name: 'root' })
+    }).catch(() => {});
 })();
 </script>
-<!--worker end-->
 
-<div class="d1">
-        
-        <div class="header-card">
-<button id="theme-toggle" aria-label="Toggle light and dark themes">
-                <span id="toggle-icon">💡</span>
-            </button>
+<!-- Canvas background -->
+<canvas id="bg-canvas"></canvas>
 
-            <div class="pfp">
-                <img src="img/pfp.png" alt="Profile Picture">
+<!-- Cursor follower -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Theme toggle -->
+<button id="theme-toggle" aria-label="Toggle theme">
+    <i class="fa-solid fa-sun" id="toggle-icon-light"></i>
+    <i class="fa-solid fa-moon" id="toggle-icon-dark"></i>
+</button>
+
+<!-- Main wrapper -->
+<main id="main-wrapper">
+
+    <!-- ======== HERO SECTION ======== -->
+    <section class="hero-section" id="hero">
+        <div class="hero-inner">
+            <div class="pfp-wrap">
+                <div class="pfp-ring"></div>
+                <div class="pfp-ring pfp-ring-2"></div>
+                <img src="img/pfp.png" alt="Mahdi Yasser" class="pfp-img" id="pfp-img">
+                <div class="pfp-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Online</span>
+                </div>
             </div>
-            
-            <h1>Mahdi Yasser</h1> 
-            
-            <div class="social-buttons">
-                <a href="https://github.com/Mahdiyasser" target="_blank" class="social-btn s1">
-                    <img src="img/g.png" alt="GitHub">
-                </a>
-                <a href="https://www.threads.com/@mahdiyasser1" target="_blank" class="social-btn s2">
-                    <img src="img/s.png" alt="Threads">
-                </a>
-                <a href="https://www.instagram.com/mahdiyasser1/" target="_blank" class="social-btn s3">
-                    <img src="img/ig.png" alt="Instagram">
-                </a>
-                <a href="https://www.tiktok.com/@_mahdiyasser_" target="_blank" class="social-btn s4">
-                    <img src="img/t.png" alt="TikTok">
-                </a>
-            </div>
 
-            <div class="description desc"> <p>Hey! iam mahdi a 16 years old highschooler iam into programing,servers,photography and tech in general, the
-                    servers here are all hosted by me and only me go explore to have some fun and enjoy!
+            <div class="hero-text">
+                <p class="hero-label"><i class="fa-solid fa-terminal"></i> &nbsp;Personal WebSite v11.0</p>
+                <h1 class="hero-name">
+                    <span class="name-word" data-delay="0">Mahdi</span>
+                    <span class="name-word accent" data-delay="100">Yasser</span>
+                </h1>
+                <p class="hero-tagline">
+                    <span id="typed-text"></span><span class="cursor-blink">_</span>
                 </p>
-            </div>
-        </div>
-<div class="fast-links">
-    <a href="./contact/" class="fast-btn">Contact Me</a>
-    <a href="https://status.mahdiyasser.site" class="fast-btn">Status Page</a>
-    <a href="./service/" class="fast-btn status-btn">Services I Offer</a>
-</div>
+                <p class="hero-bio">
+                    Hey! I'm Mahdi — a 16-year-old highschooler into programming, servers, photography & tech.
+                    All the servers here are hosted by me. Go explore &amp; have fun!
+                </p>
 
-        <div class="card-grid three-col">
-            <a href="https://files.mahdiyasser.site" target="_blank" class="link-card card1">
-                <img src="img/dc.png" alt="data-center">
-                <div class="overlay">My Data-Center</div>
-            </a>
-            <a href="https://media.mahdiyasser.site" target="_blank" class="link-card card2">
-                <img src="img/cm.png" alt="media-server">
-                <div class="overlay">My Cinema</div>
-            </a>
-            <a href="https://web.mahdiyasser.site" target="_blank" class="link-card card3">
-                <img src="img/webs.png" alt="web-server">
-                <div class="overlay">My Web server</div>
-            </a>
-        </div>
-
-        <div class="card-grid two-col">
-            <a href="/blog/" class="dir-card dir1">
-                <img src="img/blog.png" alt="blog">
-                <div class="overlay">My Blog</div>
-            </a>
-            <a href="/projects/" class="dir-card dir2">
-                <img src="img/prjcts.png" alt="projects">
-                <div class="overlay">My Projects</div>
-            </a>
-        </div>
-        <div class="card-grid two-col" id="new-buttons-section">
-            <a href="/tools" class="link-card card-new-1">
-                <img src="img/pg.png" alt="tools-extras">
-                <div class="overlay">Tools-and-Extras</div>
-            </a>
-            <a href="/random" class="link-card card-new-2">
-                <img src="img/randomzone.png" alt="random-zone">
-                <div class="overlay">The Random Zone</div>
-            </a>
-        </div>
-        
-    </div>
-
-<div class="footer" style="
-    margin-top: 50px;
-    padding: 30px 0;
-    width: 100%;
-    text-align: center;
-    border-top: 1px solid var(--grid-line);
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-    background-color: var(--accent-neon);
-">
-    <div style="max-width: 1300px; margin: 0 auto;">
-        <p style="margin: 5px 0;">&copy; 2025 Mahdi Yasser. All rights reserved.</p>
-        <p style="margin: 5px 0;">A modern experience built by <a href="/" style="color: var(--primary-color); text-decoration: none;">Mahdi Yasser</a>. <br>
- <a href="/pages/terms-privacy-conditions" style="color: var(--primary-color); text-decoration-color: var(--text-underline);">Privacy Policy and Terms and Conditions</a></p>
-    </div>
-</div>
-    <!--
-    <div class="donate-cta-container">
-        <a href="https://www.57357.org/en/donate" target="_blank" class="donate-link">
-            <div class="logo-container">
-                <img src="https://mir-s3-cdn-cf.behance.net/projects/404/4e8975209751117.Y3JvcCw4NTQsNjY4LDIxMSww.png" 
-                     alt="57357 Children's Cancer Hospital Logo" 
-                     class="logo-image">
-            </div>
-            <div class="text-and-button-container">
-                <div class="text-content">
-                    <h3>Support 57357 Children's Cancer Hospital</h3>
-                    <p>The world's largest free comprehensive care pediatric oncology hospital. Every donation helps save a child's life.</p>
-                </div>
-                <div class="button-area">
-                    <div class="donate-button">DONATE NOW</div>
+                <div class="social-links">
+                    <a href="https://github.com/Mahdiyasser" target="_blank" class="soc-btn" data-tooltip="GitHub">
+                        <i class="fa-brands fa-github"></i>
+                    </a>
+                    <a href="https://www.threads.com/@mahdiyasser1" target="_blank" class="soc-btn" data-tooltip="Threads">
+                        <i class="fa-brands fa-threads"></i>
+                    </a>
+                    <a href="https://www.instagram.com/mahdiyasser1/" target="_blank" class="soc-btn" data-tooltip="Instagram">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@_mahdiyasser_" target="_blank" class="soc-btn" data-tooltip="TikTok">
+                        <i class="fa-brands fa-tiktok"></i>
+                    </a>
                 </div>
             </div>
-        </a>
-    </div>
-    -->
+        </div>
 
-<footer id="timeline-footer">
-    <p class="timeline-header"><strong>Site History & Milestones</strong></p>
-    <div class="timeline-content">
-        
-        <div class="timeline-event">
-            <strong>2025-07-09</strong>
-            <p>Switched to Linux (Linux Changed My Entire Life).</p>
+        <div class="scroll-hint">
+            <i class="fa-solid fa-angles-down"></i>
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-07-XX</strong>
-            <p>Started setting up servers (Jellyfin, Filebrowser, Apache2, Mysql, and Node).</p>
+    </section>
+
+    <!-- ======== QUICK LINKS ======== -->
+    <section class="section quick-links-section reveal">
+        <div class="section-label"><i class="fa-solid fa-bolt"></i> Quick Access</div>
+        <div class="quick-links-grid">
+            <a href="./contact/" class="quick-btn">
+                <i class="fa-solid fa-envelope"></i>
+                <span>Contact Me</span>
+            </a>
+            <a href="https://status.mahdiyasser.site" class="quick-btn">
+                <i class="fa-solid fa-circle-nodes"></i>
+                <span>Status Page</span>
+            </a>
+            <a href="./service/" class="quick-btn featured">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+                <span>Services I Offer</span>
+            </a>
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-08-05</strong>
-            <p>Made my first online shop with a server that logs orders, a live view page, and a function to send them via WhatsApp.</p>
+    </section>
+
+    <!-- ======== SERVERS ======== -->
+    <section class="section reveal">
+        <div class="section-label"><i class="fa-solid fa-server"></i> My Servers</div>
+        <div class="cards-grid three-col">
+
+            <a href="https://files.mahdiyasser.site" target="_blank" class="img-card">
+                <div class="img-card-bg" style="background-image: url('img/dc.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-database"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Files</span>
+                        <h3>My Data-Center</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            </a>
+
+            <a href="https://media.mahdiyasser.site" target="_blank" class="img-card">
+                <div class="img-card-bg" style="background-image: url('img/cm.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-film"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Media</span>
+                        <h3>My Cinema</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            </a>
+
+            <a href="https://web.mahdiyasser.site" target="_blank" class="img-card">
+                <div class="img-card-bg" style="background-image: url('img/webs.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-globe"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Web</span>
+                        <h3>My Web Server</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+            </a>
+
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-09-31</strong>
-            <p>Purchased my first domain, which I use for my main website.</p>
+    </section>
+
+    <!-- ======== CONTENT ======== -->
+    <section class="section reveal">
+        <div class="section-label"><i class="fa-solid fa-folder-open"></i> Content</div>
+        <div class="cards-grid two-col">
+
+            <a href="/blog/" class="img-card tall">
+                <div class="img-card-bg" style="background-image: url('img/blog.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-pen-nib"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Writing</span>
+                        <h3>My Blog</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
+            <a href="/projects/" class="img-card tall">
+                <div class="img-card-bg" style="background-image: url('img/prjcts.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-code-branch"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Dev</span>
+                        <h3>My Projects</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-02</strong>
-            <p>Started working on my website from scratch; it initially looked meh.</p>
+    </section>
+
+    <!-- ======== EXTRAS ======== -->
+    <section class="section reveal">
+        <div class="section-label"><i class="fa-solid fa-wand-magic-sparkles"></i> Extras</div>
+        <div class="cards-grid two-col">
+
+            <a href="/tools" class="img-card">
+                <div class="img-card-bg" style="background-image: url('img/pg.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-toolbox"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Utilities</span>
+                        <h3>Tools & Extras</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
+            <a href="/random" class="img-card">
+                <div class="img-card-bg" style="background-image: url('img/randomzone.png')"></div>
+                <div class="img-card-body">
+                    <div class="img-card-icon"><i class="fa-solid fa-shuffle"></i></div>
+                    <div class="img-card-info">
+                        <span class="img-card-tag">Fun</span>
+                        <h3>The Random Zone</h3>
+                    </div>
+                </div>
+                <div class="img-card-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            </a>
+
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-05</strong>
-            <p>Started working on the blog. The problem was manually creating HTML files, adding images, and updating the JSON file for each post.</p>
+    </section>
+
+    <!-- ======== TIMELINE ======== -->
+    <section class="section timeline-section reveal" id="timeline">
+        <div class="section-label"><i class="fa-solid fa-timeline"></i> Site History & Milestones</div>
+
+        <div class="timeline-track">
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-linux"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-07-09</span>
+                    <p>Switched to Linux — Linux Changed My Entire Life.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-server"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-07-XX</span>
+                    <p>Started setting up servers (Jellyfin, Filebrowser, Apache2, MySQL, Node).</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-cart-shopping"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-08-05</span>
+                    <p>Built my first online shop — server logs orders, live view, and WhatsApp notifications.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-globe"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-09-31</span>
+                    <p>Purchased my first domain — now powering this main site.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-code"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-02</span>
+                    <p>Started building this website from scratch. Initial version was rough.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-blog"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-05</span>
+                    <p>Started the blog — manually creating HTML files and JSON per post was painful.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-pen-ruler"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-07</span>
+                    <p>Started building a CMS for the blog to replace the impractical manual workflow.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-check-double"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-10</span>
+                    <p>CMS finished exactly as envisioned after 20+ hours of work over 3 days.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-folder-tree"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-10</span>
+                    <p>Started the projects section, envisioned as organized folders.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-wrench"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-11</span>
+                    <p>Adapted the blog CMS to power the projects section — took 2 days to perfect.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-palette"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-13</span>
+                    <p>Complete redesign of the website. Old version captured on Wayback Machine.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-brands fa-github"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-14</span>
+                    <p>Published release notes on GitHub — "V10.0 The Golden Build."</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-puzzle-piece"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-10-15</span>
+                    <p>Created an Add-Ons repo connected to the website repo for reusable components.</p>
+                </div>
+            </div>
+
+            <div class="tl-item reveal-tl">
+                <div class="tl-dot"><i class="fa-solid fa-flag"></i></div>
+                <div class="tl-card">
+                    <span class="tl-date">2025-11-12</span>
+                    <p>Added this timeline. The journey since switching to Linux could fill a whole new site.</p>
+                </div>
+            </div>
+
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-07</strong>
-            <p>Started working on a CMS for the blog because I didn't like the impractical way of posting.</p>
+    </section>
+
+    <!-- ======== FOOTER ======== -->
+    <footer class="site-footer reveal">
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <span class="footer-name">Mahdi Yasser</span>
+                <span class="footer-dot">·</span>
+                <span class="footer-year">2026</span>
+            </div>
+            <p class="footer-sub">Built solo & hosted with github. &nbsp;
+                <a href="/pages/terms-privacy-conditions">Privacy Policy & Terms</a>
+            </p>
         </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-10</strong>
-            <p>I made the CMS exactly how I wanted it after at least 20 hours of work over 3 days.</p>
-        </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-10</strong>
-            <p>Started working on the projects section, which was envisioned as organized folders.</p>
-        </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-11</strong>
-            <p>Started editing the blog's CMS to work with the projects section. I spent 2 days making it look exactly like the blog's CMS.</p>
-        </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-13</strong>
-            <p>The final design: I completely redesigned the website (old version captured via Wayback Machine).</p>
-        </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-14</strong>
-            <p>Wrote the release notes for the website on GitHub; the release is "V10.0 The Golden Build."</p>
-        </div>
-        
-        <div class="timeline-event">
-            <strong>2025-10-15</strong>
-            <p>Made an "Add-Ons" repo connected to the website repo, containing everything I create that can be used with the website.</p>
-        </div>
-        
-        <div class="timeline-event">
-            <strong>2025-11-12</strong>
-            <p>Made this edit to the website. This timeline is not complete because my journey since switching to Linux would require a whole new website.</p>
-        </div>
-        
-    </div>
-</footer>
+    </footer>
+
+</main>
+
 </body>
 </html>

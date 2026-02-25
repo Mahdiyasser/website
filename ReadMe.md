@@ -1,8 +1,8 @@
-# 👋 Welcome to Mahdi’s Website
+# 👋 Welcome to Mahdi's Website
 
-🗓️ **Date:** 2025-10-14 09:55  
+🗓️ **Date:** 2026-02-25  
 🌐 **Live Site:** https://mahdiyasser.site  
-🧱 **Version:** V10.0 — *“The Golden Build”*  
+🧱 **Version:** V11.0 — *"The Prime Build"*  
 📦 **Status:** FANTASTIC  
 
 ---
@@ -11,16 +11,11 @@
 
 1. Quick Links  
 2. What Is My Website  
-3. Content Management Systems  
-4. Front-End Overview  
-5. Blog System (Front-End)  
-6. Projects Section (Front-End) 
-7. How To Customize  
-8. Development Stats  
-9. Repositories  
-10. CMS Previews  
-11. Technical Notes  
-12. Final Thoughts  
+3. What's New in V11.0  
+4. Development Stats  
+5. Repositories  
+6. Technical Notes  
+7. Final Thoughts  
 
 ---
 
@@ -35,143 +30,42 @@
 
 ## 🧠 What Is My Website
 
-My website is a **mix of a personal portfolio, blog, and project hub**, built fully from scratch using **PHP, HTML, CSS, and JavaScript** — no WordPress, no frameworks, no builder tools.
-
-Each part (Blog + Projects) is **modular**, meaning you can copy them as standalone sites and they’ll still work perfectly with some paths editing.
-
-To access the CMS:
-
-https://your-domain/cms
-
-From there, you can pick:
-- 📰 Blog CMS  
-- 🚀 Projects CMS  
+My website is a **personal portfolio, blog, and project hub**, built fully from scratch using **PHP, HTML, CSS, and JavaScript** — no WordPress, no frameworks, no builder tools.
 
 ---
 
-## ⚙️ Content Management Systems (CMS)
+## ✨ What's New in V11.0 — "The Prime Build"
 
-### 📰 Blog CMS
-A lightweight CMS built for **easy content creation** with zero coding required.
+V11.0 is a **complete front-end remake** of the homepage. The core structure, content, and CMS are untouched — what changed is everything you actually see and interact with. The visual layer was torn down and rebuilt from zero with a new design language, new interactions, and zero compromises.
 
-**Form Fields:**
-1. Title  
-2. Date  
-3. Time  
-4. Bio  
-5. Content  
-6. Thumbnail  
-7. Images  
+Unlike V10.0, this version was **not built with templates in mind**. No hand-holding, no compatibility considerations, no "fork-friendly" structure. This version is purely for me, built exactly how I want it.
 
-You can edit, delete, or preview posts easily.  
-All posts automatically appear on the main blog page as cards.
+### 🎨 New Design System
 
----
+| Element | V10.0 | V11.0 |
+|---------|-------|-------|
+| **Aesthetic** | Cyber Grid / Neon Green | Dark Editorial / Amber Gold |
+| **Fonts** | Consolas + Arial (system fonts) | Syne (display) + JetBrains Mono (accent) |
+| **Icons** | Custom `.png` image files | Font Awesome 6 (icon font) |
+| **Accent Color** | `#00ffc8` Neon Teal | `#f0a500` Amber Gold |
+| **Light Mode** | Discord-style dark gray | Warm cream / sand tones |
+| **Backdrop Filter** | Used | Completely removed |
+| **Background** | Static `.png` image | Animated canvas particle network |
+| **Layout** | Grid-based sections | Full-page sectioned layout with hero |
 
-### 🚀 Projects CMS
-Functions like the Blog CMS, but with **project folders and organization tools** built in.
+### ⚡ New Interactive Features
 
-**Project Post Form:**
-1. Choose existing project
-2. Title  
-3. Date  
-4. Time  
-5. Bio  
-6. Content  
-7. Thumbnail  
-8. Images  
-
-**Project Creation Form:**
-1. Title  
-2. Date  
-3. Time  
-4. Bio  
-5. Thumbnail  
-
-**Extras:**
-- Edit or delete projects  
-- Move posts between projects  
-- Same clean UI as Blog CMS for consistency  
-
----
-
-## 🖥️ Front-End Overview
-
-Visit the live site → https://mahdiyasser.site  
-
-### Homepage Layout:
-1. Personal picture (PFP)  
-2. 4 social media icons  
-3. Long bio / description  
-4. 3 external server cards  
-5. 2 directory cards → Blog & Projects  
-6. Footer with site timeline / milestones  
-
-To customize → edit `index.html` (bio, links, images, footer).  
-
----
-
-## 🗞️ Blog System (Front-End)
-
-Blog posts appear dynamically as cards.  
-Each post entry is structured like this:
-
-
-```json
-{
-  "title": "<post-title>",
-  "date": "<yyyy-mm-dd>",
-  "thumbnail": "<thumbnail-path>",
-  "file": "<post-link>",
-  "desc": "<post-bio>"
-}
-```
-
-✅ CMS-managed  
-✅ Includes “Read Post” buttons  
-
----
-
-## 🧩 Projects Section
-
-Projects display in card format just like the blog, but with a project-based filter system.
-
-**Project Entry Example:**
-
-```json
-{
-  "title": "<project-title>",
-  "date": "<yyyy-mm-dd>",
-  "thumbnail": "<project-thumbnail>",
-  "file": "<project-link>",
-  "desc": "<project-bio>"
-}
-```
-
-**Project Post Example:**
-```json
-{
-  "tag": "1st-project",
-  "title": "1st-post",
-  "date": "2025-10-14 03:31",
-  "thumbnail": "/projects/assets/1st-project/images/1st-post/thumbnail.jpg",
-  "file": "/projects/assets/1st-project/posts/1st-post.html",
-  "desc": "test test test test test test test",
-  "location": "Hosh Issa, Beheira, Egypt"
-}
-```
-
-📍 The *location* field only shows inside posts (keeps layout clean).  
-
----
-
-## 🧰 How To Customize
-
-1. Open `index.html`  
-2. Edit metadata. images, links, bio, and footer  
-3. Don’t modify JS/CSS unless you know what you’re doing  
-4. Inside `/blog` or `/projects`, only edit index.html body and footer  
-5. Keep the `/assets/` folder untouched — it’s path-critical for the CMS  
+- **Custom Cursor** — A dot + smooth-following ring that expands on hover
+- **Animated Canvas Background** — Particle network that connects nearby nodes; adapts to light/dark theme colors
+- **Typed Text Effect** — Hero tagline cycles through 5 phrases with a realistic typing and deleting animation
+- **3D Card Tilt** — Image cards tilt in perspective following the mouse position
+- **Staggered Scroll Reveal** — Sections fade and slide in as you scroll; timeline items stagger one by one
+- **Animated Hero Name** — Each word of the name slides up on page load with a delay
+- **PFP Orbit Rings** — Two rotating rings orbit the profile picture
+- **PFP Easter Egg** — Clicking the profile picture emits emoji reactions that float upward
+- **Social Button Tooltips** — Labels appear above social icons on hover
+- **Online Status Badge** — Pulsing green dot on the profile picture
+- **Scroll Hint Arrow** — Bouncing arrow at the bottom of the hero section
 
 ---
 
@@ -179,43 +73,11 @@ Projects display in card format just like the blog, but with a project-based fil
 
 | Metric | Detail |
 |--------|--------|
-| Duration | 2025-10-01 → 2025-10-14 |
-| Work Per Day | ~6 hours |
-| Total Time | ≈ 84+ hours |
-
----
-
-## 📦 Repositories
-
-### 🧩 Template Repo  
-https://github.com/Mahdiyasser/website-template  
-Same structure as the main site, but stripped of posts and projects — lightweight and easy to customize.  
-
-### 🔧 Add-ons Repo  
-https://github.com/Mahdiyasser/website-DLCs  
-Includes plug-and-play add-ons.  
-
-Each add-on comes with:  
-- README.md  
-- Folder containing files    
-
-Example Add-on → **Dashboard**  
-Live Demo: https://mahdiyasser.site/dashboard  
-
-Don’t want it? Just delete `/dashboard` after cloning.  
-
----
-
-## 🖼️ CMS Previews
-
-🖥️ CMS can be accessed locally or through **any real web hosting service** — it runs on **any web server**, not just Apache or Nginx.
-
-- Blog CMS
-- ![Blog CMS Screenshot 1](https://mahdiyasser.site/img/cms1.png)
-- ![Blog CMS Screenshot 2](https://mahdiyasser.site/img/cms2.png)
-- Projects CMS
-- ![Projects CMS Screenshot 1](https://mahdiyasser.site/img/cms3.png) 
-- ![Projects CMS Screenshot 2](https://mahdiyasser.site/img/cms4.png) 
+| V10.0 Duration | 2025-10-01 → 2025-10-14 |
+| V10.0 Work Per Day | ~6 hours |
+| V10.0 Total Time | ≈ 84+ hours |
+| V11.0 Remake | 2026-02-25 |
+| V11.0 Scope | Front-end only (homepage) |
 
 ---
 
@@ -223,26 +85,17 @@ Don’t want it? Just delete `/dashboard` after cloning.
 
 - Both CMS are PHP-based (≈900–1400 lines each).  
 - Compatible with **any real hosting platform or web server** (Apache, Nginx, LiteSpeed, etc).  
-- Fully modular — every section can be moved or reused independently with paths editing.  
-- Optimized for performance, readability, and low latency.  
+- Fully modular — every section can be moved or reused independently.  
+- No `backdrop-filter` used anywhere.  
+- Font Awesome 6 via CDN. Google Fonts (Syne + JetBrains Mono) via `@import`.  
+- Canvas particle system and cursor tracker run on `requestAnimationFrame`.  
 
 ---
 
 ## 🎯 Final Thoughts
 
-This project represents **two weeks of hard, detailed work** .  
-No frameworks. No templates. Just raw logic, precision, and creativity.  
+V10.0 was the foundation. V11.0 is the refinement.  
+Same engine. Completely new exterior.
 
-It’s designed to be:
-- 💡 Simple  
-- ⚙️ Modular  
-- ⚡ Lightweight  
-- 🧱 Reliable on any host  
-
-Fork it. Remix it. Make it yours —  
-just **don’t break the paths** 😉  
-
----
-
-**Made with 💻, ☕, and 84 hours of pure grind.**  
-© 2025 [Mahdi Yasser](https://mahdiyasser.site)
+**Made with 💻, ☕, and way too many late nights.**  
+© 2025–2026 [Mahdi Yasser](https://mahdiyasser.site)

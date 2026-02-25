@@ -60,16 +60,6 @@
         "story": ""
     },
     {
-        "id": 1,
-        "name": "Website's Dashboard",
-        "path": ".\/stuff\/dashboard",
-        "image": "..\/img\/DB.png",
-        "tag": "",
-        "style": "card",
-        "description": "Access the main administrative or analytical dashboard for the website.",
-        "story": ""
-    },
-    {
         "id": 2,
         "name": "Text Encrypter",
         "path": ".\/stuff\/enigma",
@@ -147,26 +137,6 @@
         "tag": "",
         "style": "card",
         "description": "See my wikipedia sandbox page.",
-        "story": ""
-    },
-    {
-        "id": 9,
-        "name": "The Secret Keeper",
-        "path": "https:\/\/keeper.mahdiyasser.site",
-        "image": "..\/img\/the-secret-keeper.png",
-        "tag": "Security Vault",
-        "style": "card",
-        "description": "this is a high security tool that uses localstorage to store all your data securely on your own device",
-        "story": ""
-    },
-    {
-        "id": 0,
-        "name": "Subscribe to My Updates",
-        "path": "https:\/\/subscribe-mahdiyasser.alsmmak.site\/",
-        "image": "..\/img\/subscribe-to-my-updates.png",
-        "tag": "Newsletter",
-        "style": "newsletter_card",
-        "description": "Subscribe to receive news and updates via my newsletter.",
         "story": ""
     }
 ]

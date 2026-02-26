@@ -1,1 +1,11 @@
-[]
+[
+    {
+        "tag": "Test-Project",
+        "title": "Test-Post",
+        "date": "2026-02-26 02:29",
+        "thumbnail": "\/projects\/assets\/test-project\/images\/test-post\/thumbnail.jpeg",
+        "file": "\/projects\/assets\/test-project\/posts\/test-post.html",
+        "desc": "This post is a test post to view how the posts look",
+        "location": "Hosh issa,Behira,Egypt"
+    }
+]

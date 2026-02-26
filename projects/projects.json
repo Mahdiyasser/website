@@ -1,1 +1,8 @@
-[]
+[
+    {
+        "name": "Test-Project",
+        "bio": "This project is just a test to view how the projects look",
+        "thumbnail": "\/projects\/assets\/test-project\/images\/test-project-thumbnail.jpg",
+        "slug": "test-project"
+    }
+]

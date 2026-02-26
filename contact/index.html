@@ -4,34 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Primary Meta Tags -->
     <title>Contact Me | Mahdi Yasser</title>
     <meta name="title" content="Contact Me | Mahdi Yasser">
     <meta name="description" content="Get in touch with Mahdi Yasser — reach out for projects, or tech collaborations.">
     <meta name="author" content="Mahdi Yasser">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mahiyasser.site/contact.html">
+    <meta property="og:url" content="https://mahdiyasser.site/contact/">
     <meta property="og:title" content="Contact Me | Mahdi Yasser">
     <meta property="og:description" content="Get in touch with Mahdi Yasser — reach out for projects, or tech collaborations.">
     <meta property="og:image" content="https://mahdiyasser.site/img/pfp.png">
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://mahiyasser.site/contact.html">
-    <meta property="twitter:title" content="Contact Me | Mahdi Yasser">
-    <meta property="twitter:description" content="Get in touch with Mahdi Yasser — reach out for projects, or tech collaborations.">
-    <meta property="twitter:image" content="https://mahdiyasser.site/img/pfp.png">
-
-    <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Person",
       "name": "Mahdi Yasser",
-      "url": "https://mahiyasser.site/",
+      "url": "https://mahdiyasser.site/",
       "logo": "https://mahdiyasser.site/favicon.ico",
       "description": "Contact Mahdi Yasser.",
       "sameAs": [
@@ -43,215 +33,467 @@
     }
     </script>
 
-    <!-- Favicon -->
     <link rel="icon" type="image/png" href="../favicon.ico">
     <link rel="apple-touch-icon" href="../favicon.ico">
     <link rel="shortcut icon" href="../favicon.ico">
 
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+
     <style>
+        /* ---- DESIGN TOKENS ---- */
         :root {
-            --bg-color: #0a0a0a;
-            --card-bg: #141414;
-            --accent: #ffffff;
-            --text-main: #e5e5e5;
-            --text-muted: #a1a1aa;
-            --border: #27272a;
-            --input-bg: #1c1c1c;
+            --bg:           #0c0c0f;
+            --bg-card:      #13131a;
+            --bg-card-alt:  #1a1a24;
+            --accent:       #f0a500;
+            --accent-dim:   rgba(240, 165, 0, 0.15);
+            --accent-glow:  0 0 18px rgba(240, 165, 0, 0.35);
+            --text:         #e8e8f0;
+            --text-muted:   #7070a0;
+            --border:       rgba(255, 255, 255, 0.07);
+            --border-hover: rgba(240, 165, 0, 0.45);
+            --ff-display:   'Syne', sans-serif;
+            --ff-mono:      'JetBrains Mono', monospace;
+            --r:            10px;
+            --r-lg:         16px;
+            --ease:         cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        body.light-theme {
+            --bg:           #f0ede8;
+            --bg-card:      #faf8f5;
+            --bg-card-alt:  #ece9e2;
+            --accent:       #c47a00;
+            --accent-dim:   rgba(196, 122, 0, 0.12);
+            --accent-glow:  0 0 18px rgba(196, 122, 0, 0.25);
+            --text:         #1a1a2e;
+            --text-muted:   #888870;
+            --border:       rgba(0, 0, 0, 0.09);
+            --border-hover: rgba(196, 122, 0, 0.5);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        /* ---- RESET ---- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
 
+        /* ---- BASE ---- */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: var(--ff-display);
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem;
+            transition: background 0.4s var(--ease), color 0.4s var(--ease);
+            cursor: none;
+            overflow-x: hidden;
         }
 
-        /* Hide Scrollbar */
-        ::-webkit-scrollbar { display: none; }
+        /* ---- CANVAS ---- */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.35;
+        }
+        body.light-theme #bg-canvas { opacity: 0.12; }
 
+        /* ---- CURSOR ---- */
+        #cursor-dot {
+            position: fixed;
+            width: 6px; height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+        #cursor-ring {
+            position: fixed;
+            width: 32px; height: 32px;
+            border: 1.5px solid var(--accent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transform: translate(-50%, -50%);
+            transition: width 0.2s var(--ease), height 0.2s var(--ease), opacity 0.2s;
+            opacity: 0.6;
+        }
+        #cursor-ring.hovered { width: 52px; height: 52px; opacity: 0.9; }
+        @media (hover: none) { #cursor-dot, #cursor-ring { display: none; } body { cursor: auto; } }
+
+        /* ---- THEME TOGGLE ---- */
+        #theme-toggle {
+            position: fixed;
+            top: 1.25rem; right: 1.25rem;
+            z-index: 1000;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            border: 1.5px solid var(--border-hover);
+            background: var(--bg-card);
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.3s var(--ease);
+            box-shadow: var(--accent-glow);
+        }
+        #theme-toggle:hover { transform: rotate(20deg) scale(1.1); }
+        .dark-theme  #toggle-icon-dark  { display: none; }
+        .dark-theme  #toggle-icon-light { display: block; }
+        .light-theme #toggle-icon-light { display: none; }
+        .light-theme #toggle-icon-dark  { display: block; }
+
+        /* ---- LANG TOGGLE ---- */
+        #lang-toggle {
+            position: fixed;
+            top: 1.25rem; left: 1.25rem;
+            z-index: 1000;
+            padding: 0.5rem 1rem;
+            border-radius: var(--r);
+            border: 1.5px solid var(--border-hover);
+            background: var(--bg-card);
+            color: var(--accent);
+            font-family: var(--ff-mono);
+            font-size: 0.75rem;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            transition: all 0.25s var(--ease);
+        }
+        #lang-toggle:hover { background: var(--accent-dim); transform: translateY(-2px); }
+
+        /* ---- CARD ---- */
         .contact-card {
-            background: var(--card-bg);
+            position: relative;
+            z-index: 1;
             width: 100%;
             max-width: 480px;
-            padding: 3rem 2.5rem;
-            border-radius: 24px;
-            border: 1px solid var(--border);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            position: relative;
+            background: var(--bg-card);
+            border: 1px solid var(--border-hover);
+            border-radius: 20px;
+            padding: 2.75rem 2.5rem;
+            box-shadow: 0 0 40px rgba(240, 165, 0, 0.08), 0 24px 48px rgba(0,0,0,0.5);
+        }
+        body.light-theme .contact-card {
+            box-shadow: 0 0 40px rgba(196, 122, 0, 0.06), 0 24px 48px rgba(0,0,0,0.1);
         }
 
-        .header-section {
-            margin-bottom: 2.5rem;
-        }
-
-        .header-section h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.5rem;
-        }
-
-        .header-section p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .lang-toggle-btn {
-            position: absolute;
-            top: 2rem;
-            right: 2rem;
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .lang-toggle-btn:hover {
-            border-color: var(--text-muted);
-            color: var(--text-main);
-        }
-
-        form {
+        /* ---- HEADER ---- */
+        .card-label {
+            font-family: var(--ff-mono);
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
             display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
+            align-items: center;
             gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border);
         }
+        .card-header { margin-bottom: 2rem; }
+        .card-header h1 {
+            font-family: var(--ff-display);
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 0.4rem;
+        }
+        .card-header p {
+            font-family: var(--ff-mono);
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* ---- FORM ---- */
+        form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+        .input-group { display: flex; flex-direction: column; gap: 0.45rem; }
 
         label {
-            font-size: 0.85rem;
-            font-weight: 500;
+            font-family: var(--ff-mono);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
             color: var(--text-muted);
-            margin-left: 4px;
         }
 
         input, textarea {
-            background: var(--input-bg);
+            background: var(--bg-card-alt, #1a1a24);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px 16px;
-            color: #fff;
-            font-size: 1rem;
-            transition: all 0.2s ease;
+            border-radius: var(--r);
+            padding: 0.8rem 1rem;
+            color: var(--text);
+            font-family: var(--ff-display);
+            font-size: 0.95rem;
+            transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+            width: 100%;
         }
+        body.light-theme input,
+        body.light-theme textarea { background: var(--bg-card-alt); }
 
         input:focus, textarea:focus {
             outline: none;
-            border-color: var(--text-muted);
-            background: #222;
+            border-color: var(--border-hover);
+            background: var(--bg-card-alt);
+            box-shadow: 0 0 0 3px var(--accent-dim);
         }
+        input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0.5; }
+        textarea { resize: vertical; min-height: 110px; }
 
-        input::placeholder {
-            color: #4b4b4b;
-        }
-
+        /* ---- SUBMIT ---- */
         button[type="submit"] {
-            margin-top: 1rem;
+            margin-top: 0.5rem;
             background: var(--accent);
-            color: #000;
+            color: var(--bg);
             border: none;
-            padding: 14px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1rem;
+            padding: 0.9rem 1.6rem;
+            border-radius: var(--r);
+            font-family: var(--ff-display);
+            font-size: 0.95rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
+            transition: all 0.25s var(--ease);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
         }
-
         button[type="submit"]:hover {
             transform: translateY(-2px);
-            opacity: 0.9;
+            box-shadow: var(--accent-glow);
+            filter: brightness(1.1);
+        }
+        button[type="submit"]:active { transform: translateY(0); }
+
+        /* ---- SUCCESS STATE ---- */
+        .success-msg {
+            display: none;
+            text-align: center;
+            padding: 1.5rem 0 0.5rem;
+        }
+        .success-msg .check {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .success-msg h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+        .success-msg p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-family: var(--ff-mono);
         }
 
-        button[type="submit"]:active {
-            transform: translateY(0);
-        }
-
-        @media (max-width: 480px) {
-            .contact-card {
-                padding: 2rem 1.5rem;
-                border: none;
-                background: transparent;
-                box-shadow: none;
-            }
+        @media (max-width: 500px) {
+            .contact-card { padding: 2rem 1.25rem; }
+            #theme-toggle { top: 0.75rem; right: 0.75rem; }
+            #lang-toggle  { top: 0.75rem; left: 0.75rem; }
         }
     </style>
 </head>
-<body>
+<body class="dark-theme">
 
-    <div class="contact-card">
-        <button id="switchlang" class="lang-toggle-btn">عربي</button>
-        
-        <div class="header-section">
-            <h1>Get in touch</h1>
-            <p>Have a project in mind? Let's build it.</p>
-        </div>
+<canvas id="bg-canvas"></canvas>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
-        <form action="https://formspree.io/f/xpwkwwkn" method="POST">
-            <div class="input-group">
-                <label for="name">Full Name</label>
-                <input type="text" id="name" name="name" placeholder="John Doe" required>
-            </div>
+<button id="theme-toggle" aria-label="Toggle theme">
+    <i class="fa-solid fa-sun"  id="toggle-icon-light"></i>
+    <i class="fa-solid fa-moon" id="toggle-icon-dark"></i>
+</button>
+<button id="lang-toggle" onclick="window.location.href='./eg/index.html'">عربي</button>
 
-            <div class="input-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="hello@example.com" required>
-            </div>
-
-            <div class="input-group">
-                <label for="phone">Phone (Optional)</label>
-                <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000">
-            </div>
-
-            <div class="input-group">
-                <label for="message">Your Message</label>
-                <textarea id="message" name="message" rows="4" placeholder="Tell me about your project..." required></textarea>
-            </div>
-
-            <button type="submit">Send Message</button>
-        </form>
+<div class="contact-card">
+    <div class="card-label">
+        <i class="fa-solid fa-envelope"></i> Contact
+    </div>
+    <div class="card-header">
+        <h1>Get in touch</h1>
+        <p>Have a project in mind? Let's build it.</p>
     </div>
 
-    <script>
-        // Language Switcher
-        document.getElementById('switchlang').addEventListener('click', () => {
-            window.location.href = './eg/index.html';
-        });
+    <form id="contact-form" action="https://formspree.io/f/xpwkwwkn" method="POST">
+        <div class="input-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="John Doe" required>
+        </div>
+        <div class="input-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="hello@example.com" required>
+        </div>
+        <div class="input-group">
+            <label for="phone">Phone <span style="color:var(--text-muted);font-size:0.65rem">(optional)</span></label>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (555) 000-0000">
+        </div>
+        <div class="input-group">
+            <label for="message">Your Message</label>
+            <textarea id="message" name="message" rows="4" placeholder="Tell me about your project..." required></textarea>
+        </div>
+        <button type="submit">
+            <i class="fa-solid fa-paper-plane"></i> Send Message
+        </button>
+    </form>
 
-        // Your existing tracking script
-        (function() {
-          let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-          if (!sessionID) {
-            sessionID = crypto.randomUUID();
-            document.cookie = `sessionID=${sessionID}; path=/`;
-          }
-          const type = 'page';
-          const name = 'contact';
-          fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionID, type, name })
-          }).catch(err => console.error('Tracking failed:', err));
-        })();
-    </script>
+    <div class="success-msg" id="success-msg">
+        <div class="check">✦</div>
+        <h2>Message sent!</h2>
+        <p>I'll get back to you as soon as possible.</p>
+    </div>
+</div>
+
+<script>
+/* ---- THEME ---- */
+(function() {
+    const body = document.body;
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        const next = body.classList.contains('light-theme') ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem('theme', next);
+    });
+    function applyTheme(t) {
+        body.classList.remove('dark-theme', 'light-theme');
+        body.classList.add(t + '-theme');
+    }
+})();
+
+/* ---- CURSOR ---- */
+(function() {
+    const dot = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+    });
+    (function loop() {
+        rx += (mx - rx) * 0.14; ry += (my - ry) * 0.14;
+        ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+        requestAnimationFrame(loop);
+    })();
+    document.querySelectorAll('a, button, input, textarea').forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
+    });
+})();
+
+/* ---- CANVAS PARTICLES ---- */
+(function() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+    function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', () => { resize(); init(); });
+    function init() {
+        particles = [];
+        const count = Math.floor((W * H) / 14000);
+        for (let i = 0; i < count; i++) {
+            particles.push({ x: Math.random()*W, y: Math.random()*H,
+                vx: (Math.random()-0.5)*0.3, vy: (Math.random()-0.5)*0.3,
+                r: Math.random()*1.2+0.3, a: Math.random() });
+        }
+    }
+    init();
+    function color() { return document.body.classList.contains('light-theme') ? '196,122,0' : '240,165,0'; }
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const c = color();
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(${c},${0.3+p.a*0.4})`; ctx.fill();
+        });
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i+1; j < particles.length; j++) {
+                const dx = particles[i].x-particles[j].x, dy = particles[i].y-particles[j].y;
+                const d = Math.sqrt(dx*dx+dy*dy);
+                if (d < 120) {
+                    ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(${c},${(1-d/120)*0.12})`; ctx.lineWidth = 0.8; ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
+
+/* ---- FORM AJAX SUBMIT ---- */
+(function() {
+    const form = document.getElementById('contact-form');
+    const successMsg = document.getElementById('success-msg');
+    form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Sending...';
+        try {
+            const res = await fetch(form.action, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: { 'Accept': 'application/json' }
+            });
+            if (res.ok) {
+                form.style.display = 'none';
+                successMsg.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Message';
+                alert('Something went wrong. Please try again.');
+            }
+        } catch {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Message';
+            alert('Something went wrong. Please try again.');
+        }
+    });
+})();
+
+/* ---- IFRAME DETECTION ---- */
+(function() {
+    if (window.self !== window.top) {
+        // Hide fixed UI elements not needed inside an iframe
+        ['theme-toggle', 'lang-toggle', 'cursor-dot', 'cursor-ring'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+        document.body.style.cursor = 'auto';
+    }
+})();
+
+/* ---- TRACKING ---- */
+(function() {
+    let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+    if (!sessionID) { sessionID = crypto.randomUUID(); document.cookie = `sessionID=${sessionID}; path=/`; }
+    fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionID, type: 'page', name: 'contact' })
+    }).catch(() => {});
+})();
+</script>
 </body>
 </html>

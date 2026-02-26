@@ -1,7 +1,8 @@
 /* =========================================================
    MAHDI YASSER — SERVICES PAGE (EG / AR)
    Aesthetic: Dark Editorial / Terminal-Luxe
-   Fonts: Syne + JetBrains Mono + Arabic system fonts
+   RTL: direction:rtl on body handles all flow reversal.
+        DO NOT use flex-direction:row-reverse — it cancels RTL.
    ========================================================= */
 
 /* ---- DESIGN TOKENS ---- */
@@ -108,7 +109,7 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     body { cursor: auto; }
 }
 
-/* ---- THEME TOGGLE (RTL: top-left) ---- */
+/* ---- THEME TOGGLE — physical left corner ---- */
 #theme-toggle {
     position: fixed;
     top: 1.25rem;
@@ -135,7 +136,7 @@ body.light-theme #bg-canvas { opacity: 0.12; }
 .light-theme #toggle-icon-light { display: none; }
 .light-theme #toggle-icon-dark  { display: block; }
 
-/* ---- LANG TOGGLE (RTL: top-right) ---- */
+/* ---- LANG TOGGLE — physical right corner ---- */
 #lang-toggle {
     position: fixed;
     top: 1.25rem;
@@ -177,7 +178,9 @@ body.light-theme #bg-canvas { opacity: 0.12; }
 }
 .reveal.visible { opacity: 1; transform: translateY(0); }
 
-/* ---- SECTION LABEL ---- */
+/* ---- SECTION LABEL ----
+   direction:rtl + flex row: first child (icon) sits on the RIGHT.
+   No row-reverse needed. */
 .section-label {
     font-family: var(--ff-mono);
     font-size: 0.72rem;
@@ -186,7 +189,6 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     color: var(--accent);
     display: flex;
     align-items: center;
-    flex-direction: row-reverse;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
     padding-bottom: 0.6rem;
@@ -258,16 +260,16 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     gap: 0.6rem 2rem;
     margin-bottom: 1.75rem;
 }
+/* ::before + RTL flex row = bullet on the RIGHT (inline-start) */
 .featured-card ul li {
     font-size: 0.95rem;
     color: var(--text-muted);
     display: flex;
     align-items: flex-start;
-    flex-direction: row-reverse;
     gap: 0.5rem;
 }
-.featured-card ul li::after {
-    content: '←';
+.featured-card ul li::before {
+    content: '›';
     color: var(--accent);
     font-family: var(--ff-mono);
     flex-shrink: 0;
@@ -296,10 +298,10 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     transform: translateY(-4px);
     box-shadow: var(--accent-glow);
 }
+/* card-header: icon first in HTML → RTL places it on the RIGHT */
 .card-header {
     display: flex;
     align-items: center;
-    flex-direction: row-reverse;
     gap: 0.75rem;
 }
 .card-icon {
@@ -331,24 +333,26 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     gap: 0.45rem;
     flex: 1;
 }
+/* ::before + RTL flex row = bullet on the RIGHT */
 .service-card ul li {
     font-size: 0.88rem;
     color: var(--text-muted);
     display: flex;
     align-items: flex-start;
-    flex-direction: row-reverse;
     gap: 0.5rem;
     line-height: 1.5;
 }
-.service-card ul li::after {
-    content: '‹';
+.service-card ul li::before {
+    content: '›';
     color: var(--accent);
     font-family: var(--ff-mono);
     flex-shrink: 0;
     margin-top: 0.05em;
 }
+/* Numbered list — native RTL numbering */
 .service-card ol {
-    padding-right: 1.2rem;
+    list-style: decimal;
+    padding-right: 1.4rem;
     padding-left: 0;
     display: flex;
     flex-direction: column;
@@ -359,8 +363,8 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     font-size: 0.83rem;
     color: var(--text-muted);
     line-height: 1.5;
+    display: list-item;
 }
-.service-card ol li::after { display: none; }
 
 /* ---- STANDALONE GRID ---- */
 .standalone-grid {
@@ -393,11 +397,11 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     line-height: 1.6;
     display: flex;
     align-items: flex-start;
-    flex-direction: row-reverse;
     gap: 0.4rem;
 }
-.standalone-card p::after {
-    content: '‹';
+/* ::before + RTL flex row = bullet on the RIGHT */
+.standalone-card p::before {
+    content: '›';
     color: var(--accent);
     font-family: var(--ff-mono);
     flex-shrink: 0;
@@ -460,7 +464,11 @@ body.light-theme #bg-canvas { opacity: 0.12; }
 }
 .contact-section h2 { font-size: 1.8rem; font-weight: 800; }
 .contact-section p { color: var(--text-muted); font-size: 0.95rem; }
-.contact-section .section-label { border: none; margin-bottom: 0.5rem; justify-content: center; }
+.contact-section .section-label {
+    border: none;
+    margin-bottom: 0.5rem;
+    justify-content: center;
+}
 
 /* ---- MODAL ---- */
 .modal-bg {
@@ -484,10 +492,11 @@ body.light-theme #bg-canvas { opacity: 0.12; }
     position: relative;
     box-shadow: var(--accent-glow);
 }
+/* In RTL the close/dismiss button sits at the inline-end = physical LEFT */
 .modal-close {
     position: absolute;
     top: 0.6rem;
-    left: 0.9rem; /* RTL: close on left */
+    left: 0.9rem;
     right: unset;
     font-size: 1.6rem;
     line-height: 1;

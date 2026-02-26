@@ -37,10 +37,18 @@
     <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="icon" href="../favicon.ico" />
     
-    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body class="dark-theme">
 
 <!--cloudflare worker tracking only session IDs no user data-->
 <script>
@@ -68,27 +76,66 @@
 </script>
 <!--worker end-->
 
-    <button id="theme-toggle" aria-label="Toggle light and dark themes">
-        <span id="toggle-icon">💡</span>
-    </button>
-    
-    
-    <div class="d1">
-        
-        <div id="project-cards-container" class="card-grid">
-            </div>
+<!-- Canvas background -->
+<canvas id="bg-canvas"></canvas>
 
-    </div>
+<!-- Custom cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
-    
-    <div id="storyModalOverlay" class="modal-overlay">
-        <div class="story-modal">
-            <button class="close-button" id="closeStoryModal">&times;</button>
-            <h3 id="modalProjectName"></h3>
-            <div id="modalStoryContent"></div>
+<!-- Theme toggle -->
+<button id="theme-toggle" aria-label="Toggle theme">
+    <i class="fa-solid fa-sun" id="toggle-icon-light"></i>
+    <i class="fa-solid fa-moon" id="toggle-icon-dark"></i>
+</button>
+
+<!-- Page wrapper -->
+<div id="page-wrapper">
+
+    <!-- Page header -->
+    <header class="page-header reveal">
+        <a href="/" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
+        <div class="page-header-text">
+            <p class="page-label"><i class="fa-solid fa-toolbox"></i> &nbsp;Collection</p>
+            <h1 class="page-title">Tools <span class="accent">&</span> Extras</h1>
+            <p class="page-sub">A set of web tools, dashboards, and experiments — built by me and hosted by github.</p>
         </div>
-    </div>
+    </header>
 
-    <script src="script.js"></script>
+    <!-- Cards -->
+    <main class="reveal" style="transition-delay: 0.12s;">
+        <div id="project-cards-container" class="card-grid"></div>
+        <div id="loading-state" class="loading-state">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span>Loading tools…</span>
+        </div>
+        <div id="error-state" class="error-state" style="display:none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Failed to load tools. Check console for details.</span>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="page-footer reveal" style="transition-delay: 0.2s;">
+        <span>© 2025–2026 <a href="/">Mahdi Yasser</a></span>
+    </footer>
+
+</div>
+
+<!-- Story Modal -->
+<div id="storyModalOverlay" class="modal-overlay">
+    <div class="story-modal">
+        <button class="close-button" id="closeStoryModal">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <h3 id="modalProjectName"></h3>
+        <div id="modalStoryContent"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>

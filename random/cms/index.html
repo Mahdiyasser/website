@@ -3,120 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projects CMS</title>
+    <title>Random Zone CMS — Mahdi Yasser</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="cms.css">
 </head>
-<body class="dark-theme"> <!-- Set default theme class -->
+<body class="dark-theme">
 
-    <div class="container">
-        <header>
-            <div class="header-controls">
-                <!-- Theme Toggle Button -->
-                <button id="theme-toggle-btn" class="action-btn secondary-btn theme-toggle" title="Toggle Dark/Light Mode">
-                    <!-- Moon icon for Dark Mode, Sun icon for Light Mode (will be updated by JS) -->
-                    <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em; height:1.2em;">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0 1 12 15.75c-2.427 0-4.718-.584-6.752-1.55a9.088 9.088 0 0 0 6.75-8.548 9.088 9.088 0 0 1 6.75 8.548ZM14.99 1.58A8.25 8.25 0 0 0 12 0c-3.14 0-5.918 1.488-7.79 3.704a.75.75 0 0 0 .543 1.258c.458-.088.923-.135 1.393-.135 2.164 0 4.195.748 5.8 2.06A8.25 8.25 0 0 0 14.99 1.58Z" />
+    <!-- ============================================================
+         HEADER
+         ============================================================ -->
+    <header class="cms-header">
+        <div class="cms-header-inner">
+            <div class="cms-brand">
+                <div class="cms-brand-icon">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div class="cms-brand-text">
+                    <span class="cms-brand-name">Projects CMS (Cards)</span>
+                    <span class="cms-brand-sub">Mahdi Yasser · v11.0</span>
+                </div>
+            </div>
+
+            <div class="cms-header-actions">
+                <!-- Add New Project (shortcut in header on mobile) -->
+                <button id="header-add-btn" class="btn btn-primary" title="Add New Project">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Project</span>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="theme-toggle-btn" class="btn btn-ghost btn-theme" title="Toggle theme">
+                    <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5" stroke="currentColor" style="width:1.15em;height:1.15em;">
+                        <!-- filled by JS -->
                     </svg>
                 </button>
             </div>
+        </div>
+    </header>
 
-            <h1>Projects Content Management</h1>
-            <p></p>
-        </header>
+    <!-- ============================================================
+         MAIN
+         ============================================================ -->
+    <main class="cms-main">
 
-        <!-- New Item Button -->
-        <button id="show-create-modal-btn" class="action-btn primary-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="width:1.2em; height:1.2em; vertical-align:middle; margin-right: 5px;">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
-            Add New Project
-        </button>
-
-        <!-- Project List Section -->
-        <section class="project-list-section">
-            <h2>Current Projects</h2>
-            <div id="project-list" class="project-list">
-                <!-- Project items will be injected here by cms.js -->
-                <p class="loading-message">Loading content...</p>
+        <!-- Stats bar -->
+        <div class="cms-stats reveal" id="stats-bar">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-cubes"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-total">—</span>
+                    <span class="stat-label">Total Projects</span>
+                </div>
             </div>
-        </section>
-    </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-tag"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-tags">—</span>
+                    <span class="stat-label">Unique Tags</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa-solid fa-image"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="stat-images">—</span>
+                    <span class="stat-label">With Images</span>
+                </div>
+            </div>
+        </div>
 
-    <!-- Modal for Create/Update Operations -->
-    <div id="project-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <h3 id="modal-title">Create New Project</h3>
+        <!-- Section + Toolbar -->
+        <div class="section-label reveal" style="transition-delay:.08s">
+            <i class="fa-solid fa-list-ul"></i>
+            Current Projects
+        </div>
+
+        <div class="cms-toolbar reveal" style="transition-delay:.12s">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" class="search-input" placeholder="    Search projects…">
+            </div>
+            <button id="show-create-modal-btn" class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i>
+                <span>New Project</span>
+            </button>
+        </div>
+
+        <!-- Project List -->
+        <div id="project-list" class="project-list reveal" style="transition-delay:.16s">
+            <div class="loading-state">
+                <div class="spinner"></div>
+                Loading projects…
+            </div>
+        </div>
+
+    </main>
+
+
+    <!-- ============================================================
+         CREATE / EDIT MODAL
+         ============================================================ -->
+    <div id="project-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-h3">
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon">
+                        <i class="fa-solid fa-pen-to-square" id="modal-icon"></i>
+                    </div>
+                    <div>
+                        <h3 id="modal-h3">Create Project</h3>
+                        <p id="modal-subtitle">Fill in the project details below</p>
+                    </div>
+                </div>
+                <button class="modal-close close-btn" aria-label="Close modal">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-divider"></div>
+
             <form id="project-form" enctype="multipart/form-data">
-                <input type="hidden" id="project-id" name="id">
-                <!-- HIDDEN FIELD: Used to override method for updates with files -->
-                <input type="hidden" id="form-method" name="_method" value="POST"> 
-                <!-- Hidden field for image path, only updated internally by JS/PHP -->
+                <input type="hidden" id="project-id"      name="id">
+                <input type="hidden" id="form-method"     name="_method" value="POST">
                 <input type="hidden" id="image-path-hidden" name="image_path_hidden">
 
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
+                <div class="modal-body">
 
-                <label for="path">Path (Internal Link):</label>
-                <input type="text" id="path" name="path" required>
-                
-                <hr>
-                
-                <!-- Image Management Section -->
-                <div id="current-image-container" style="display: none;">
-                    <label>Current Image (16:9 Ratio):</label>
-                    <div class="image-preview-wrapper">
-                        <img id="image-preview" src="" alt="Current project image" class="image-preview">
+                    <!-- Core info -->
+                    <div class="form-section">
+                        <div class="form-section-label">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Project Info
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name">Project Name *</label>
+                                <input type="text" id="name" name="name" placeholder="My Awesome Project" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="path">Internal Path *</label>
+                                <input type="text" id="path" name="path" placeholder="/projects/my-project" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row two-col">
+                            <div class="form-group">
+                                <label for="tag">Tag</label>
+                                <input type="text" id="tag" name="tag" placeholder="Web, Photography…">
+                            </div>
+                            <div class="form-group">
+                                <label for="style">Style</label>
+                                <input type="text" id="style" name="style" placeholder="dark, minimal…">
+                            </div>
+                        </div>
                     </div>
-                    <div class="image-actions">
-                        <label>
-                            <input type="checkbox" id="delete-image" name="delete_image" value="true"> 
-                            Check to **Delete** Current Image
-                        </label>
+
+                    <!-- Image -->
+                    <div class="form-section">
+                        <div class="form-section-label">
+                            <i class="fa-solid fa-image"></i>
+                            Thumbnail Image
+                        </div>
+
+                        <!-- Current image preview (only in edit mode) -->
+                        <div class="img-preview-box" id="current-image-container">
+                            <div class="img-preview-ratio">
+                                <img id="image-preview" src="" alt="Current thumbnail">
+                            </div>
+                            <div class="img-preview-actions">
+                                <label>
+                                    <input type="checkbox" id="delete-image" name="delete_image" value="true">
+                                    Delete current image
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="image-file">Upload Image</label>
+                            <input type="file" id="image-file" name="image_file" accept=".png,.jpg,.jpeg,.webp,.gif">
+                            <span class="upload-hint">
+                                Saved as <code style="font-size:.75em;color:var(--accent)">[project-name].png</code> · 16:9 recommended
+                            </span>
+                        </div>
                     </div>
-                    <p class="upload-note">Upload a new file below to replace the current image. It will be saved as `[Project Name].png`.</p>
+
+                    <!-- Text content -->
+                    <div class="form-section">
+                        <div class="form-section-label">
+                            <i class="fa-solid fa-align-left"></i>
+                            Content
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="description">Short Description</label>
+                                <textarea id="description" name="description" rows="2" placeholder="One-liner summary of the project…"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="story">Story / Full Write-up</label>
+                                <textarea id="story" name="story" rows="5" placeholder="Longer narrative, background, how it was built…"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /.modal-body -->
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary close-btn">Cancel</button>
+                    <button type="submit" id="modal-submit-btn" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                        Save Project
+                    </button>
                 </div>
-                
-                <label for="image-file">Image Upload (.png, .jpg, etc.):</label>
-                <input type="file" id="image-file" name="image_file" accept=".png, .jpg, .jpeg">
-                <p class="upload-note">The uploaded file will be converted and saved as a **PNG** file.</p>
 
-                <hr>
-
-                <div class="inline-fields">
-                    <div>
-                        <label for="tag">Tag:</label>
-                        <input type="text" id="tag" name="tag">
-                    </div>
-                    <div>
-                        <label for="style">Style:</label>
-                        <input type="text" id="style" name="style">
-                    </div>
-                </div>
-
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" rows="3"></textarea>
-
-                <label for="story">Story:</label>
-                <textarea id="story" name="story" rows="5"></textarea>
-
-                <button type="submit" id="modal-submit-btn" class="action-btn primary-btn">Save Project</button>
             </form>
         </div>
     </div>
 
-    <!-- Confirmation Modal for Delete/Reorder -->
-    <div id="confirm-modal" class="modal">
-        <div class="modal-content small-modal">
-            <span class="close-btn">&times;</span>
-            <h3 id="confirm-title">Confirm Action</h3>
-            <p id="confirm-message">Are you sure you want to perform this action?</p>
-            <div class="confirm-actions">
-                <button id="confirm-cancel-btn" class="action-btn secondary-btn">Cancel</button>
-                <button id="confirm-action-btn" class="action-btn danger-btn">Confirm</button>
+
+    <!-- ============================================================
+         CONFIRM DELETE MODAL
+         ============================================================ -->
+    <div id="confirm-modal" class="modal" role="dialog" aria-modal="true">
+        <div class="modal-box small">
+
+            <div class="modal-header">
+                <div class="modal-title">
+                    <div class="modal-title-icon" style="background:var(--danger-dim);border-color:rgba(224,82,96,.3);">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:var(--danger)"></i>
+                    </div>
+                    <div>
+                        <h3 id="confirm-title">Confirm Deletion</h3>
+                        <p>This action cannot be undone</p>
+                    </div>
+                </div>
+                <button class="modal-close close-btn" aria-label="Close">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="modal-divider"></div>
+
+            <div class="confirm-body">
+                <p id="confirm-message">Are you sure you want to delete this project?</p>
+            </div>
+
+            <div class="modal-footer">
+                <button id="confirm-cancel-btn" class="btn btn-secondary">
+                    <i class="fa-solid fa-xmark"></i>
+                    Cancel
+                </button>
+                <button id="confirm-action-btn" class="btn btn-danger">
+                    <i class="fa-solid fa-trash"></i>
+                    Delete
+                </button>
             </div>
         </div>
     </div>
+
+
+    <!-- ============================================================
+         TOAST CONTAINER
+         ============================================================ -->
+    <div class="toast-wrap" id="toast-wrap"></div>
+
 
     <script src="cms.js"></script>
 </body>

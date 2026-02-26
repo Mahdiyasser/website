@@ -6,7 +6,7 @@
 $data_file_path = '../data/data.json';
 // Directory where images are stored (relative to cms.php). 
 // e.g., if cms.php is in /cms and images are in /images, use '../images/'
-$image_dir = '../images/'; 
+$image_dir = '../img/'; 
 // ====================================================================
 
 // Set headers for JSON response and cross-origin requests (if needed)

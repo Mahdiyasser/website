@@ -19,6 +19,21 @@ $baseUrl = '/projects'; // 🔥 Main prefix for all absolute URLs
 $message = '';
 $errors = [];
 
+/* ---- AJAX helpers ---- */
+function isAjaxReq(){
+    return !empty($_POST['_ajax']) || (($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest');
+}
+function ajaxOk($msg, $extra = []){
+    header('Content-Type: application/json');
+    echo json_encode(array_merge(['ok'=>true,'message'=>$msg], $extra));
+    exit;
+}
+function ajaxFail($errs){
+    header('Content-Type: application/json');
+    echo json_encode(['ok'=>false,'errors'=> (array)$errs]);
+    exit;
+}
+
 // UTIL: slugify title
 function slugify($text){
     $text = mb_strtolower(trim($text), 'UTF-8');
@@ -89,6 +104,8 @@ function getImagesForSlug($projectBaseDir, $tagSlug, $postSlug, $baseUrl){
         $files = array_values(array_filter(glob($dir . '/*'), 'is_file'));
         sort($files);
         foreach($files as $f){
+            // Skip the dedicated thumbnail file — it's handled separately
+            if(preg_match('/^thumbnail\./i', basename($f))) continue;
             $web = str_replace('\\','/', $f);
             $pos = strpos($web, '/assets/' . $tagSlug . '/images/' . $postSlug);
             if($pos !== false){
@@ -187,20 +204,96 @@ function buildImagesHTML($imagesList){
 }
 
 /**
- * If ?clear=1 was requested (manual Clear Form), clear saved session form_data and redirect.
+ * Build a post HTML file from the post.html template (placeholders: {{KEY}})
+ * Falls back to a minimal inline template if post.html is missing.
+ */
+function buildPostFromTemplate($tplPath, $vars){
+    if(file_exists($tplPath)){
+        $tpl = file_get_contents($tplPath);
+    } else {
+        // Minimal fallback so the CMS still works without post.html
+        $tpl = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{TITLE}}</title></head><body style="font-family:sans-serif;max-width:760px;margin:2rem auto;padding:0 1rem;background:#0c0c0f;color:#e8e8f0"><h1>{{TITLE}}</h1><p style="color:#7070a0">{{PROJECT_NAME}} &mdash; {{DATE}} {{TIME}} &mdash; {{LOCATION}}</p><blockquote style="border-left:3px solid #f0a500;padding:.5rem 1rem;color:#7070a0">{{BIO}}</blockquote><div>{{CONTENT}}</div><div>{{IMAGES}}</div></body></html>';
+    }
+    foreach($vars as $k => $v){
+        $tpl = str_replace('{{' . $k . '}}', $v, $tpl);
+    }
+    return $tpl;
+}
+
+/**
+ * If ?clear=1 was requested (JS clears form without reload), clear session and return JSON.
  */
 if(isset($_GET['clear']) && $_GET['clear'] == '1'){
     unset($_SESSION['form_data']);
-    header("Location: " . strtok($_SERVER['REQUEST_URI'], '?'));
+    header('Content-Type: application/json');
+    echo json_encode(['ok'=>true]);
     exit;
 }
 
 /**
- * Cancel edit: if ?cancel=1 present, we just redirect to base page (removes ?edit=slug)
+ * AJAX: return post data for edit mode (JS-driven, no page reload)
  */
-if(isset($_GET['cancel']) && $_GET['cancel'] == '1'){
-    header("Location: " . strtok($_SERVER['REQUEST_URI'], '?'));
-    exit;
+if(isset($_GET['action']) && $_GET['action'] === 'get_post' && isset($_GET['slug'])){
+    $slugEdit  = trim($_GET['slug']);
+    $tagEdit   = trim($_GET['tag'] ?? '');
+    $tagSlug   = slugify($tagEdit);
+    $idx       = findPostIndexBySlug($postsArr, $slugEdit);
+    if($idx === false){
+        ajaxFail(['Post not found: ' . $slugEdit]);
+    }
+    $p = $postsArr[$idx];
+    $tagEdit   = $p['tag'] ?? $tagEdit;
+    $tagSlug   = slugify($tagEdit);
+    $htmlPath  = $projectBaseDir . '/' . $tagSlug . '/posts/' . $slugEdit . '.html';
+    $bio = $p['desc'] ?? '';
+    $content = '';
+    if(file_exists($htmlPath)){
+        $html = file_get_contents($htmlPath);
+        if(preg_match('#<div class="bio">(.*?)</div>#is', $html, $m)){
+            $bio = strip_tags($m[1], '<br><br/>');
+            $bio = str_replace(['<br/>','<br>'], "\n", $bio);
+            $bio = trim($bio);
+        }
+        if(preg_match('#<div class="content">(.*?)</div>#is', $html, $m2)){
+            $content = trim($m2[1]);
+        }
+    }
+    $dateStr   = $p['date'] ?? '';
+    $dateParts = explode(' ', $dateStr);
+    $imgsList  = getImagesForSlug($projectBaseDir, $tagSlug, $slugEdit, $baseUrl);
+    ajaxOk('ok', [
+        'title'         => $p['title'] ?? '',
+        'tag'           => $tagEdit,
+        'tag_slug'      => $tagSlug,
+        'date'          => $dateParts[0] ?? '',
+        'time'          => $dateParts[1] ?? '',
+        'location'      => $p['location'] ?? '',
+        'bio'           => $bio,
+        'content'       => $content,
+        'thumbnail'     => $p['thumbnail'] ?? '',
+        'images_list'   => $imgsList,
+        'slug'          => $slugEdit,
+        'orig_tag_slug' => $tagSlug,
+    ]);
+}
+
+/**
+ * AJAX: return project data for edit mode (JS-driven, no page reload)
+ */
+if(isset($_GET['action']) && $_GET['action'] === 'get_project' && isset($_GET['slug'])){
+    $slugEdit = trim($_GET['slug']);
+    $idx      = findProjectIndexBySlug($projectsArr, $slugEdit);
+    if($idx === false){
+        ajaxFail(['Project not found: ' . $slugEdit]);
+    }
+    $p = $projectsArr[$idx];
+    $thumb = getProjectThumbnailPath($projectBaseDir, $slugEdit, $baseUrl);
+    ajaxOk('ok', [
+        'name'      => $p['name'] ?? '',
+        'bio'       => $p['bio'] ?? '',
+        'thumbnail' => $thumb,
+        'slug'      => $slugEdit,
+    ]);
 }
 
 // === PROJECT MANAGEMENT HANDLER (NEW) ===
@@ -287,6 +380,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['project_action'])){
 
         if(count($errors) === 0){
             file_put_contents($projectsJsonFile, json_encode($projectsArr, JSON_PRETTY_PRINT));
+            if(isAjaxReq()) ajaxOk($message, ['slug'=>$tagSlug]);
             header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message) . "&edit_project=" . urlencode($tagSlug));
             exit;
         }
@@ -326,6 +420,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['project_action'])){
                 array_splice($projectsArr, $idx, 1);
                 file_put_contents($projectsJsonFile, json_encode($projectsArr, JSON_PRETTY_PRINT));
                 $message = "🗑️ Project '$origProjectName' deleted successfully!";
+                if(isAjaxReq()) ajaxOk($message, ['deleted_slug'=>$tagSlug]);
                 header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message));
                 exit;
             }
@@ -364,6 +459,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_post']) && !emp
         }
 
         $message = "🗑️ Post '$slugToDelete' deleted successfully!";
+        if(isAjaxReq()) ajaxOk($message, ['deleted_slug' => $slugToDelete]);
         header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message));
         exit;
     }
@@ -584,209 +680,18 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && !isset($_POST['delete_post']) && !is
                     file_put_contents($postFilePath, $html);
                 } else {
                     // create fresh post html based on template
-                    // === START FUTURISTIC TEMPLATE INSERTION 1/2 (REPLACED) ===
-                    $postHTML = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{$displayTitle}</title>
-<style>
-/*
- * Post Page Styles - Futuristic Dark Theme
- */
-:root {
-    --bg-primary: #12121e; /* Deep Space Blue/Black */
-    --bg-secondary: #1a1a2b; /* Slightly lighter card background */
-    --text-color: #e0e0ff; /* Light, slightly blue text */
-    --text-secondary: #9aa8b5;
-    --accent-color-1: #00e5ff; /* Electric Blue (Primary) */
-    --accent-color-2: #ff00ff; /* Neon Magenta (Secondary Accent) */
-    --card-shadow: 0 8px 30px rgba(0, 229, 255, 0.15); /* Light blue glow shadow */
-    --border-color: #2c2c40;
-}
-body {
-    font-family: 'Space Mono', monospace, sans-serif; /* Techy font stack */
-    background: var(--bg-primary);
-    color: var(--text-color);
-    /* Changed padding to 0 to remove side margins on mobile */
-    padding: 0;
-    line-height: 1.6;
-    min-height: 100vh;
-    margin: 0; /* Ensures no default body margin */
-    box-sizing: border-box; /* Good practice for responsive design */
-}
-
-/* Updated: Increased border-radius for smoother main borders */
-.container {
-    max-width: 900px;
-    /* Adjusted margin-top/bottom and set margin-left/right to auto */
-    margin: 40px auto;
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 30px; /* Increased for smoother corners */
-    padding: 40px;
-    box-shadow: var(--card-shadow);
-    /* Ensures padding is included in the width */
-    box-sizing: border-box;
-}
-
-/* --- Title Size Adjustment & Rounded Tips --- */
-h1 {
-    color: var(--accent-color-1);
-    font-size: 2.0em;
-    font-weight: 700;
-    margin-bottom: 10px;
-    /* Adding a subtle curve to the bottom border line */
-    border-bottom: 2px solid var(--border-color);
-    border-radius: 0 0 4px 4px; /* Curved bottom tips */
-    padding-bottom: 15px;
-}
-/* --- Meta Data Size Adjustment --- */
-.meta {
-    font-size: 0.8em;
-    color: var(--text-secondary);
-    margin-bottom: 25px;
-    display: block;
-}
-
-/* --- Images Stacking (Desktop/Default) --- */
-.images {
-    display: grid;
-    /* 徴 CHANGE: Forced single column (vertical stack) on all screen sizes */
-    grid-template-columns: 1fr;
-    gap: 20px;
-    margin-top: 40px;
-}
-.images img {
-    width: 100%;
-    /* Increased image border radius slightly for a softer look */
-    border-radius: 14px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s, opacity 0.3s;
-    cursor: pointer;
-}
-.images img:hover {
-    transform: scale(1.02);
-    opacity: 1;
-    border-color: var(--accent-color-1);
-}
-
-/* New: Media query for mobile-specific styles */
-@media (max-width: 768px) {
-    body {
-        /* Adjusted vertical padding for mobile */
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .container {
-        /* Set to 100% width on smaller screens, removing the side margins */
-        max-width: 100%;
-        width: 100%;
-        margin: 0 auto; /* Remove margin on the sides */
-        border-radius: 0; /* Keep border-radius 0 for a seamless mobile look */
-        border-left: none; /* Remove side borders */
-        border-right: none;
-        padding: 20px 15px; /* Reduced padding for smaller screens */
-    }
-    h1 {
-        font-size: 1.6em; /* Slightly smaller heading for mobile view */
-    }
-    /* The .images grid-template-columns: 1fr; is already applied from the general style above. */
-    .images {
-        gap: 15px; /* Slightly reduced gap on mobile */
-    }
-    .images img {
-        /* Ensure images take full width of their container */
-        width: 100%;
-    }
-}
-
-
-.bio {
-    font-style: italic;
-    color: var(--text-secondary);
-    margin-bottom: 30px;
-    /* Added border-radius to the left border for a rounded tip */
-    border-left: 3px solid var(--accent-color-2); /* Neon magenta accent */
-    border-radius: 0 0 0 4px; /* subtle curve on the bottom left tip */
-    padding-left: 15px;
-    line-height: 1.4;
-}
-.content {
-    line-height: 1.8;
-    color: var(--text-color);
-    font-size: 1em;
-}
-
-footer {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-a.back {
-    color: var(--accent-color-1);
-    text-decoration: none;
-    font-weight: 600;
-    display: inline-block;
-    border-bottom: 1px dashed var(--accent-color-1);
-    transition: color 0.2s, border-bottom-color 0.2s;
-}
-a.back:hover {
-    color: var(--accent-color-2);
-    border-bottom-color: var(--accent-color-2);
-}
-/* Popup styles for image viewing */
-.popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:9999;}
-.popup.active{opacity:1;pointer-events:all;}
-.popup img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 0 25px rgba(0, 229, 255, 0.4);}
-.popup span{position:absolute;top:30px;right:40px;font-size:2rem;color:var(--accent-color-1);cursor:pointer;user-select:none;}
-/* New: Adjust popup close button for mobile */
-@media (max-width: 768px) {
-    .popup span {
-        top: 20px;
-        right: 20px;
-        font-size: 1.8rem;
-    }
-}
-</style>
-</head>
-<body>
-<div class="container">
-<h1>{$displayTitle}</h1>
-<div class="meta">
-🗓️ <span id="date">{$displayDate}</span> |
-⏰ <span id="time">{$displayTime}</span> |
-📍 <span id="location">{$displayLocation}</span>
-</div>
-<div class="bio">{$displayBio}</div>
-<div class="content">{$displayContent}</div>
-<div class="images">{$imagesHTML}</div>
-<footer><a href="javascript:history.back()" class="back">← Back to {$displayProjectName}</a></footer>
-</div>
-<div class="popup" id="popup"><span id="close">&times;</span><img src="" alt="popup image" id="popup-img"></div>
-<script>
-const popup=document.getElementById('popup');
-const popupImg=document.getElementById('popup-img');
-const close=document.getElementById('close');
-document.querySelectorAll('.images img').forEach(img=>{
- img.addEventListener('click',()=>{
-  popup.classList.add('active');
-  popupImg.src=img.src;
- });
-});
-close.addEventListener('click',()=>popup.classList.remove('active'));
-popup.addEventListener('click',e=>{if(e.target===popup)popup.classList.remove('active');});
-</script>
-</body>
-</html>
-HTML;
-                    // === END FUTURISTIC TEMPLATE INSERTION 1/2 (REPLACED) ===
+                    // === BUILD POST FROM TEMPLATE FILE ===
+                    $postHTML = buildPostFromTemplate(__DIR__ . '/post.html', [
+                        'TITLE'        => $displayTitle,
+                        'PROJECT_NAME' => $displayProjectName,
+                        'DATE'         => $displayDate,
+                        'TIME'         => $displayTime,
+                        'LOCATION'     => $displayLocation,
+                        'BIO'          => $displayBio,
+                        'CONTENT'      => $displayContent,
+                        'IMAGES'       => $imagesHTML,
+                    ]);
+                    // === END BUILD FROM TEMPLATE 1/2 ===
                     file_put_contents($postFilePath, $postHTML);
                 }
 
@@ -805,6 +710,7 @@ HTML;
                 file_put_contents($jsonFile, json_encode($postsArr, JSON_PRETTY_PRINT));
 
                 $message = "✏️ Post '" . ($newSlug) . "' updated successfully!";
+                if(isAjaxReq()) ajaxOk($message, ['slug'=>$newSlug,'tag'=>$tag,'editUrl'=>$_SERVER['PHP_SELF'].'?edit='.urlencode($newSlug).'&tag='.urlencode($tag)]);
                 header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message) . "&edit=" . urlencode($newSlug) . "&tag=" . urlencode($tag));
                 exit;
             }
@@ -882,7 +788,7 @@ HTML;
             }
 
             
-            $imagesHTML = buildImagesHTML($imagesToUse);
+            $imagesHTML = buildImagesHTML($uploadedImages);
 
             // Build post HTML
             $postFileName = $slug . '.html';
@@ -897,209 +803,18 @@ HTML;
             // ** New Footer Variables **
             $displayProjectName = htmlspecialchars($tag); // The Project Name
 
-            // === START FUTURISTIC TEMPLATE INSERTION 2/2 (REPLACED) ===
-            $postHTML = <<<HTML
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{$displayTitle}</title>
-<style>
-/*
- * Post Page Styles - Futuristic Dark Theme
- */
-:root {
-    --bg-primary: #12121e; /* Deep Space Blue/Black */
-    --bg-secondary: #1a1a2b; /* Slightly lighter card background */
-    --text-color: #e0e0ff; /* Light, slightly blue text */
-    --text-secondary: #9aa8b5;
-    --accent-color-1: #00e5ff; /* Electric Blue (Primary) */
-    --accent-color-2: #ff00ff; /* Neon Magenta (Secondary Accent) */
-    --card-shadow: 0 8px 30px rgba(0, 229, 255, 0.15); /* Light blue glow shadow */
-    --border-color: #2c2c40;
-}
-body {
-    font-family: 'Space Mono', monospace, sans-serif; /* Techy font stack */
-    background: var(--bg-primary);
-    color: var(--text-color);
-    /* Changed padding to 0 to remove side margins on mobile */
-    padding: 0;
-    line-height: 1.6;
-    min-height: 100vh;
-    margin: 0; /* Ensures no default body margin */
-    box-sizing: border-box; /* Good practice for responsive design */
-}
-
-/* Updated: Increased border-radius for smoother main borders */
-.container {
-    max-width: 900px;
-    /* Adjusted margin-top/bottom and set margin-left/right to auto */
-    margin: 40px auto;
-    background: var(--bg-secondary);
-    border: 2px solid var(--border-color);
-    border-radius: 30px; /* Increased for smoother corners */
-    padding: 40px;
-    box-shadow: var(--card-shadow);
-    /* Ensures padding is included in the width */
-    box-sizing: border-box;
-}
-
-/* --- Title Size Adjustment & Rounded Tips --- */
-h1 {
-    color: var(--accent-color-1);
-    font-size: 2.0em;
-    font-weight: 700;
-    margin-bottom: 10px;
-    /* Adding a subtle curve to the bottom border line */
-    border-bottom: 2px solid var(--border-color);
-    border-radius: 0 0 4px 4px; /* Curved bottom tips */
-    padding-bottom: 15px;
-}
-/* --- Meta Data Size Adjustment --- */
-.meta {
-    font-size: 0.8em;
-    color: var(--text-secondary);
-    margin-bottom: 25px;
-    display: block;
-}
-
-/* --- Images Stacking (Desktop/Default) --- */
-.images {
-    display: grid;
-    /* 徴 CHANGE: Forced single column (vertical stack) on all screen sizes */
-    grid-template-columns: 1fr;
-    gap: 20px;
-    margin-top: 40px;
-}
-.images img {
-    width: 100%;
-    /* Increased image border radius slightly for a softer look */
-    border-radius: 14px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s, opacity 0.3s;
-    cursor: pointer;
-}
-.images img:hover {
-    transform: scale(1.02);
-    opacity: 1;
-    border-color: var(--accent-color-1);
-}
-
-/* New: Media query for mobile-specific styles */
-@media (max-width: 768px) {
-    body {
-        /* Adjusted vertical padding for mobile */
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .container {
-        /* Set to 100% width on smaller screens, removing the side margins */
-        max-width: 100%;
-        width: 100%;
-        margin: 0 auto; /* Remove margin on the sides */
-        border-radius: 0; /* Keep border-radius 0 for a seamless mobile look */
-        border-left: none; /* Remove side borders */
-        border-right: none;
-        padding: 20px 15px; /* Reduced padding for smaller screens */
-    }
-    h1 {
-        font-size: 1.6em; /* Slightly smaller heading for mobile view */
-    }
-    /* The .images grid-template-columns: 1fr; is already applied from the general style above. */
-    .images {
-        gap: 15px; /* Slightly reduced gap on mobile */
-    }
-    .images img {
-        /* Ensure images take full width of their container */
-        width: 100%;
-    }
-}
-
-
-.bio {
-    font-style: italic;
-    color: var(--text-secondary);
-    margin-bottom: 30px;
-    /* Added border-radius to the left border for a rounded tip */
-    border-left: 3px solid var(--accent-color-2); /* Neon magenta accent */
-    border-radius: 0 0 0 4px; /* subtle curve on the bottom left tip */
-    padding-left: 15px;
-    line-height: 1.4;
-}
-.content {
-    line-height: 1.8;
-    color: var(--text-color);
-    font-size: 1em;
-}
-
-footer {
-    margin-top: 40px;
-    padding-top: 20px;
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-}
-a.back {
-    color: var(--accent-color-1);
-    text-decoration: none;
-    font-weight: 600;
-    display: inline-block;
-    border-bottom: 1px dashed var(--accent-color-1);
-    transition: color 0.2s, border-bottom-color 0.2s;
-}
-a.back:hover {
-    color: var(--accent-color-2);
-    border-bottom-color: var(--accent-color-2);
-}
-/* Popup styles for image viewing */
-.popup{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:9999;}
-.popup.active{opacity:1;pointer-events:all;}
-.popup img{max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 0 25px rgba(0, 229, 255, 0.4);}
-.popup span{position:absolute;top:30px;right:40px;font-size:2rem;color:var(--accent-color-1);cursor:pointer;user-select:none;}
-/* New: Adjust popup close button for mobile */
-@media (max-width: 768px) {
-    .popup span {
-        top: 20px;
-        right: 20px;
-        font-size: 1.8rem;
-    }
-}
-</style>
-</head>
-<body>
-<div class="container">
-<h1>{$displayTitle}</h1>
-<div class="meta">
-🗓️ <span id="date">{$displayDate}</span> |
-⏰ <span id="time">{$displayTime}</span> |
-📍 <span id="location">{$displayLocation}</span>
-</div>
-<div class="bio">{$displayBio}</div>
-<div class="content">{$displayContent}</div>
-<div class="images">{$imagesHTML}</div>
-<footer><a href="javascript:history.back()" class="back">← Back to {$displayProjectName}</a></footer>
-</div>
-<div class="popup" id="popup"><span id="close">&times;</span><img src="" alt="popup image" id="popup-img"></div>
-<script>
-const popup=document.getElementById('popup');
-const popupImg=document.getElementById('popup-img');
-const close=document.getElementById('close');
-document.querySelectorAll('.images img').forEach(img=>{
- img.addEventListener('click',()=>{
-  popup.classList.add('active');
-  popupImg.src=img.src;
- });
-});
-close.addEventListener('click',()=>popup.classList.remove('active'));
-popup.addEventListener('click',e=>{if(e.target===popup)popup.classList.remove('active');});
-</script>
-</body>
-</html>
-HTML;
-            // === END FUTURISTIC TEMPLATE INSERTION 2/2 (REPLACED) ===
+            // === BUILD POST FROM TEMPLATE FILE ===
+            $postHTML = buildPostFromTemplate(__DIR__ . '/post.html', [
+                'TITLE'        => $displayTitle,
+                'PROJECT_NAME' => $displayProjectName,
+                'DATE'         => $displayDate,
+                'TIME'         => $displayTime,
+                'LOCATION'     => $displayLocation,
+                'BIO'          => $displayBio,
+                'CONTENT'      => $displayContent,
+                'IMAGES'       => $imagesHTML,
+            ]);
+            // === END BUILD FROM TEMPLATE 2/2 ===
 
             if(file_put_contents($postFilePath, $postHTML)){
                 $postsArr[] = [
@@ -1113,6 +828,7 @@ HTML;
                 ];
                 file_put_contents($jsonFile, json_encode($postsArr, JSON_PRETTY_PRINT));
                 $message = "✅ Post created successfully: " . rtrim($baseUrl, '/') . "/assets/{$tagSlug}/posts/{$postFileName}";
+                if(isAjaxReq()) ajaxOk($message, ['created'=>true]);
                 header("Location: " . $_SERVER['PHP_SELF'] . "?msg=" . urlencode($message));
                 exit;
             } else {
@@ -1194,256 +910,468 @@ $currentTag = htmlspecialchars($editData['tag'] ?? ($formData['tag'] ?? ''));
 $currentTagSlug = slugify($currentTag);
 
 // Start HTML output
+if(isAjaxReq() && count($errors)>0) ajaxFail($errors);
 ?>
+
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CMS</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects CMS — Mahdi Yasser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <link rel="stylesheet" href="cms.css">
 </head>
 <body>
-<div class="container">
-<h1>Post Maker</h1>
-<?php
-if(count($errors)>0){
- echo '<div class="error"><b>Errors:</b><ul>';
- foreach($errors as $e) echo "<li>".htmlspecialchars($e)."</li>";
- echo '</ul></div>';
-}elseif($message!==''){
- echo '<div class="message">'.htmlspecialchars($message).'</div>';
-}
-?>
 
-<form method="POST" enctype="multipart/form-data" id="postForm">
-<?php if($editData): ?>
-<input type="hidden" name="edit_slug" value="<?php echo htmlspecialchars(pathinfo($editData['file'], PATHINFO_FILENAME)); ?>">
-<input type="hidden" name="orig_tag_slug" value="<?php echo htmlspecialchars($editData['orig_tag_slug'] ?? $currentTagSlug); ?>">
-<?php endif; ?>
+<div id="app">
 
-<label>Post Title</label>
-<input type="text" name="title" required placeholder="My crazy post title" value="<?php echo htmlspecialchars($editData['title'] ?? $formData['title']); ?>">
-
-<label>Tag / Project Name</label>
-<select name="tag_select" id="tag_select" onchange="document.getElementById('tag_new').value = this.value === 'new' ? '' : this.options[this.selectedIndex].text; document.getElementById('tag_new').style.display = this.value === 'new' ? 'block' : 'none';">
-    <option value="">-- Select Existing Project --</option>
-    <?php foreach($projectsList as $slug => $name): ?>
-        <option value="<?php echo htmlspecialchars($slug); ?>" <?php if($currentTagSlug === $slug) echo 'selected'; ?>>
-            <?php echo htmlspecialchars($name); ?>
-        </option>
-    <?php endforeach; ?>
-    <option value="new" <?php if($currentTag === '' || (!empty($currentTag) && !isset($projectsList[$currentTagSlug]))) echo 'selected'; ?>>-- New Project --</option>
-</select>
-<input type="text" name="tag_new" id="tag_new" placeholder="Type New Project Name"
-    value="<?php echo htmlspecialchars($currentTag); ?>"
-    style="margin-top: 5px; <?php if($currentTag === '' || !isset($projectsList[$currentTagSlug])) echo 'display:block;'; else echo 'display:none;'; ?>">
-<input type="hidden" name="tag_hidden" id="tag_hidden" value="<?php echo htmlspecialchars($currentTag); ?>">
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const select = document.getElementById('tag_select');
-        const textInput = document.getElementById('tag_new');
-
-        // Initial setup for the text input display
-        if (select.value && select.value !== 'new' && select.value !== '') {
-            textInput.style.display = 'none';
-        } else {
-            textInput.style.display = 'block';
-        }
-
-        document.getElementById('postForm').addEventListener('submit', function() {
-            const selectedSlug = select.value;
-            // Set tag_hidden to the value in the text box if 'New' or nothing is selected, otherwise use the selected project name.
-            if (selectedSlug === 'new' || selectedSlug === '') {
-                document.getElementById('tag_hidden').value = textInput.value;
-            } else {
-                document.getElementById('tag_hidden').value = select.options[select.selectedIndex].text;
-            }
-        });
-    });
-</script>
-
-<label>Date</label>
-<input type="date" name="date" value="<?php echo htmlspecialchars($editData['date'] ? explode(' ', $editData['date'])[0] : $formData['date']); ?>" required>
-
-<label>Time</label>
-<input type="time" name="time" value="<?php echo htmlspecialchars($editData['date'] ? (explode(' ', $editData['date'])[1] ?? $formData['time']) : $formData['time']); ?>" required>
-
-<label>Location</label>
-<input type="text" name="location" placeholder="Enter location (e.g. Hosh Issa, Beheira, Egypt)" required value="<?php echo htmlspecialchars($editData['location'] ?? $formData['location']); ?>">
-
-<label>Post Bio / Summary</label>
-<textarea name="bio" rows="2" placeholder="Short description or bio" required><?php echo htmlspecialchars($editData['desc'] ?? $formData['bio']); ?></textarea>
-
-<label>Post Content (raw HTML allowed)</label>
-<textarea name="content" rows="8" placeholder="Write full content here (HTML allowed)"><?php echo htmlspecialchars($editData['content'] ?? $formData['content']); ?></textarea>
-
-<?php if(isset($editData) && $editData !== null): ?>
-    <div>
-      <label>Thumbnail (existing)</label>
-      <?php if(!empty($editData['thumbnail'])): ?>
-        <img src="<?php echo htmlspecialchars($editData['thumbnail']); ?>" class="thumb-preview" alt="thumbnail">
-        <div>
-          <label><input type="checkbox" name="delete_thumbnail" value="1"> Delete current thumbnail</label>
-        </div>
-      <?php else: ?>
-        <small>No thumbnail yet.</small>
-      <?php endif; ?>
-    </div>
-
-    <div>
-      <label>Existing Images (click checkbox to delete)</label>
-      <div class="images-preview">
-      <?php
-        if(!empty($editData['images_list'])){
-            foreach($editData['images_list'] as $img){
-                $bn = basename(parse_url($img, PHP_URL_PATH));
-                echo '<div class="img-item">';
-                echo '<img src="'.htmlspecialchars($img).'" alt="img">';
-                echo '<label class="delete-check"><input type="checkbox" name="delete_images[]" value="'.htmlspecialchars($img).'"> Delete</label>';
-                echo '</div>';
-            }
-        } else {
-            echo '<small>No images folder or images for this post yet.</small>';
-        }
-      ?>
-      </div>
-    </div>
-<?php endif; ?>
-
-<label>Thumbnail (upload)</label>
-<input type="file" name="thumbnail" accept="image/*">
-
-<label>Other Images (multiple)</label>
-<input type="file" name="upload_images[]" accept="image/*" multiple>
-
-<label>Optional: image URLs (comma separated)</label>
-<input type="text" name="images" placeholder="/blog/assets/images/...jpg, https://..." value="<?php echo htmlspecialchars($formData['images'] ?? ''); ?>">
-
-<div style="margin-top:12px;">
-    <button type="submit"><?php echo $editData ? 'Update Post' : 'Create Post'; ?></button>
-    <button type="button" onclick="clearForm()">Clear Form</button>
-    <?php if($editData): ?>
-        <a class="smallbtn" href="<?php echo strtok($_SERVER['REQUEST_URI'], '?'); ?>?cancel=1">Cancel Edit</a>
-    <?php endif; ?>
-</div>
-</form>
-
-<hr>
-<h2>Existing Posts</h2>
-<?php
-// Reload for display in case the POST failed and postsArr was modified inside
-$postsArr = json_decode(file_get_contents($jsonFile), true);
-if(is_array($postsArr) && count($postsArr) > 0){
-    echo '<ul>';
-    foreach($postsArr as $p){
-        $slug = pathinfo($p['file'], PATHINFO_FILENAME);
-        $tag = htmlspecialchars($p['tag'] ?? 'Untagged');
-        $tagSlug = slugify($p['tag'] ?? 'Untagged');
-        $title = htmlspecialchars($p['title']);
-        echo '<li style="margin-bottom:6px;">';
-        echo "[$tag] $title ";
-        // Edit link
-        echo ' <a href="?edit='.$slug.'&tag='.urlencode($tag).'" style="background:#0099ff;color:#fff;padding:5px 10px;border-radius:4px;text-decoration:none;margin-left:8px;">Edit</a> ';
-        echo '<form method="POST" style="display:inline;margin-left:6px;" onsubmit="return confirm(\'Delete this post?\');">';
-        echo '<input type="hidden" name="delete_post" value="'.$slug.'">';
-        echo '<input type="hidden" name="delete_tag_slug" value="'.$tagSlug.'">';
-        echo '<button type="submit" class="danger">Delete</button>';
-        echo '</form></li>';
-    }
-    echo '</ul>';
-}else{
-    echo '<p>No posts yet.</p>';
-}
-?>
-
-<hr>
-<h2>Project Management</h2>
-
-<?php
-$projectEditData = null;
-if(isset($_GET['edit_project']) && $_GET['edit_project'] !== ''){
-    $slugEdit = $_GET['edit_project'];
-    $idx = findProjectIndexBySlug($projectsArr, $slugEdit);
-    if($idx !== false){
-        $p = $projectsArr[$idx];
-        $projectEditData = $p;
-        $projectEditData['thumbnail'] = getProjectThumbnailPath($projectBaseDir, $slugEdit, $baseUrl);
-    }
-}
-
-$pFormData = [
-    'name' => '',
-    'bio' => ''
-];
-if($projectEditData){
-    $pFormData['name'] = $projectEditData['name'];
-    $pFormData['bio'] = $projectEditData['bio'];
-}
-
-?>
-
-<form method="POST" enctype="multipart/form-data" id="projectForm">
-    <input type="hidden" name="project_action" value="save">
-
-    <label>Project Name</label>
-    <input type="text" name="project_name" required placeholder="My Amazing Project" value="<?php echo htmlspecialchars($pFormData['name']); ?>">
-
-    <label>Project Bio / Summary</label>
-    <textarea name="project_bio" rows="2" placeholder="Short description or bio" required><?php echo htmlspecialchars($pFormData['bio']); ?></textarea>
-
-    <?php if(isset($projectEditData) && $projectEditData !== null): ?>
-    <div>
-        <label>Thumbnail (existing)</label>
-        <?php if(!empty($projectEditData['thumbnail'])): ?>
-            <img src="<?php echo htmlspecialchars($projectEditData['thumbnail']); ?>" class="thumb-preview" alt="thumbnail">
-            <div>
-                <label><input type="checkbox" name="delete_thumbnail" value="1"> Delete current thumbnail</label>
+    <!-- ======================================================
+         SIDEBAR
+         ====================================================== -->
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="sidebar-logo">
+                <span class="sidebar-logo-text">CMS</span>
+                <span class="sidebar-logo-badge">v11</span>
             </div>
-        <?php else: ?>
-            <small>No thumbnail yet.</small>
+            <nav class="sidebar-nav">
+                <button class="snav-item active" data-tab="post-form">
+                    <i class="fa-solid fa-pen-nib"></i>
+                    <span><?php echo isset($_GET['edit']) ? 'Edit Post' : 'New Post'; ?></span>
+                </button>
+                <button class="snav-item" data-tab="posts-list">
+                    <i class="fa-solid fa-list"></i>
+                    <span>All Posts</span>
+                </button>
+                <button class="snav-item" data-tab="projects">
+                    <i class="fa-solid fa-folder-tree"></i>
+                    <span>Projects</span>
+                </button>
+            </nav>
+        </div>
+        <div class="sidebar-bottom">
+            <a href="/" class="sidebar-home-link">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to site</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ======================================================
+         MAIN CONTENT
+         ====================================================== -->
+    <main class="main">
+
+        <!-- FLASH MESSAGES -->
+        <?php if(count($errors) > 0): ?>
+        <div class="flash flash-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div>
+                <strong>Errors</strong>
+                <ul><?php foreach($errors as $e) echo '<li>'.htmlspecialchars($e).'</li>'; ?></ul>
+            </div>
+        </div>
+        <?php elseif($message !== ''): ?>
+        <div class="flash flash-success">
+            <i class="fa-solid fa-circle-check"></i>
+            <span><?php echo htmlspecialchars($message); ?></span>
+        </div>
         <?php endif; ?>
-    </div>
-    <?php endif; ?>
 
-    <label>Project Thumbnail</label>
-    <input type="file" name="project_thumbnail" accept="image/*">
+        <!-- ====================================================
+             TAB: POST FORM (new / edit)
+             ==================================================== -->
+        <section class="tab-panel active" id="tab-post-form">
 
-    <div style="margin-top:12px;">
-        <button type="submit"><?php echo $projectEditData ? 'Update Project' : 'Create Project'; ?></button>
-        <?php if($projectEditData): ?>
-            <a class="smallbtn" href="<?php echo strtok($_SERVER['REQUEST_URI'], '?'); ?>">Cancel Edit</a>
-        <?php endif; ?>
-    </div>
-</form>
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <p class="panel-label" id="post-form-label">
+                        <i class="fa-solid <?php echo $editData ? 'fa-pen' : 'fa-pen-nib'; ?>"></i>
+                        <?php echo $editData ? 'Editing Post' : 'Create Post'; ?>
+                    </p>
+                    <h2 class="panel-title" id="post-form-title">
+                        <?php echo $editData ? htmlspecialchars($editData['title']) : 'New Post'; ?>
+                    </h2>
+                </div>
+                <button type="button" id="cancel-edit-btn" class="btn btn-ghost btn-sm"
+                        onclick="cancelEditPost()"
+                        style="<?php echo $editData ? '' : 'display:none'; ?>">
+                    <i class="fa-solid fa-xmark"></i> Cancel Edit
+                </button>
+            </div>
 
-<h3>Current Projects</h3>
-<?php
-// Reload projects array in case project actions happened above
-$projectsArr = json_decode(file_get_contents($projectsJsonFile), true);
-if(is_array($projectsArr) && count($projectsArr) > 0){
-    echo '<ul>';
-    foreach($projectsArr as $p){
-        $tag = htmlspecialchars($p['name']);
-        $slug = slugify($p['name']);
-        $thumb = getProjectThumbnailPath($projectBaseDir, $slug, $baseUrl);
-        echo '<li style="margin-bottom:6px;">';
-        echo ($thumb ? '<img src="'.htmlspecialchars($thumb).'" style="max-width:30px;vertical-align:middle;margin-right:8px;"/> ' : '') . $tag;
-        // Edit link
-        echo ' <a href="?edit_project='.$slug.'" style="background:#0099ff;color:#fff;padding:5px 10px;border-radius:4px;text-decoration:none;margin-left:8px;">Edit</a> ';
-        echo '<form method="POST" style="display:inline;margin-left:6px;" onsubmit="return confirm(\'WARNING: Deleting a project will NOT delete its posts. You must delete all posts in this project first. Are you sure you want to delete the project structure?\');">';
-        echo '<input type="hidden" name="project_action" value="delete">';
-        echo '<input type="hidden" name="project_name" value="'.$tag.'">';
-        echo '<button type="submit" class="danger">Delete</button>';
-        echo '</form></li>';
-    }
-    echo '</ul>';
-}else{
-    echo '<p>No projects yet.</p>';
-}
-?>
+            <form method="POST" enctype="multipart/form-data" id="postForm">
+                <input type="hidden" name="_ajax" value="1">
+                <input type="hidden" name="edit_slug" id="edit_slug"
+                       value="<?php echo $editData ? htmlspecialchars(pathinfo($editData['file'], PATHINFO_FILENAME)) : ''; ?>">
+                <input type="hidden" name="orig_tag_slug" id="orig_tag_slug_hidden"
+                       value="<?php echo $editData ? htmlspecialchars($editData['orig_tag_slug'] ?? $currentTagSlug) : ''; ?>">
 
-<hr>
-<small>Enjoy Making Great Things</small>
+                <div class="form-card">
+                    <div class="form-card-title"><i class="fa-solid fa-circle-info"></i> Basic Info</div>
+
+                    <div class="form-field">
+                        <label for="f-title">Post Title</label>
+                        <input type="text" id="f-title" name="title" required
+                               placeholder="My amazing post title"
+                               value="<?php echo htmlspecialchars($editData['title'] ?? $formData['title']); ?>">
+                    </div>
+
+                    <div class="form-field">
+                        <label for="tag_select">Project</label>
+                        <select name="tag_select" id="tag_select"
+                                onchange="(function(s){ var ti=document.getElementById('tag_new'); ti.style.display=(s.value==='new'||s.value==='')?'block':'none'; if(s.value!=='new'&&s.value!=='') ti.value=''; })(this)">
+                            <option value="">— Select Existing Project —</option>
+                            <?php foreach($projectsList as $slug => $name): ?>
+                                <option value="<?php echo htmlspecialchars($slug); ?>" <?php if($currentTagSlug===$slug) echo 'selected'; ?>>
+                                    <?php echo htmlspecialchars($name); ?>
+                                </option>
+                            <?php endforeach; ?>
+                            <option value="new" <?php if($currentTag===''||(!empty($currentTag)&&!isset($projectsList[$currentTagSlug]))) echo 'selected'; ?>>— New Project —</option>
+                        </select>
+                        <input type="text" name="tag_new" id="tag_new"
+                               placeholder="Type new project name"
+                               value="<?php echo htmlspecialchars($currentTag); ?>"
+                               style="margin-top:8px;<?php if($currentTag===''||!isset($projectsList[$currentTagSlug])) echo 'display:block;'; else echo 'display:none;'; ?>">
+                        <input type="hidden" name="tag_hidden" id="tag_hidden" value="<?php echo htmlspecialchars($currentTag); ?>">
+                    </div>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded',function(){
+                        var sel=document.getElementById('tag_select');
+                        var ti=document.getElementById('tag_new');
+                        if(sel.value&&sel.value!=='new'&&sel.value!=='') ti.style.display='none';
+                        else ti.style.display='block';
+                        document.getElementById('postForm').addEventListener('submit',function(){
+                            var h=document.getElementById('tag_hidden');
+                            if(sel.value==='new'||sel.value==='') h.value=ti.value;
+                            else h.value=sel.options[sel.selectedIndex].text;
+                        });
+                    });
+                    </script>
+
+                    <div class="form-row-2">
+                        <div class="form-field">
+                            <label for="f-date">Date</label>
+                            <input type="date" id="f-date" name="date" required
+                                   value="<?php echo htmlspecialchars($editData['date'] ? explode(' ',$editData['date'])[0] : $formData['date']); ?>">
+                        </div>
+                        <div class="form-field">
+                            <label for="f-time">Time</label>
+                            <input type="time" id="f-time" name="time" required
+                                   value="<?php echo htmlspecialchars($editData['date'] ? (explode(' ',$editData['date'])[1]??$formData['time']) : $formData['time']); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="f-location">Location</label>
+                        <input type="text" id="f-location" name="location" required
+                               placeholder="e.g. Hosh Issa, Beheira, Egypt"
+                               value="<?php echo htmlspecialchars($editData['location']??$formData['location']); ?>">
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title"><i class="fa-solid fa-align-left"></i> Content</div>
+
+                    <div class="form-field">
+                        <label for="f-bio">Summary / Bio <span class="field-hint">Shown as the italic intro quote</span></label>
+                        <textarea id="f-bio" name="bio" rows="3" required
+                                  placeholder="Short summary displayed as the intro quote on the post"><?php echo htmlspecialchars($editData['desc']??$formData['bio']); ?></textarea>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="f-content">Post Content <span class="field-hint">HTML allowed</span></label>
+                        <textarea id="f-content" name="content" rows="10"
+                                  placeholder="Full post body — HTML tags are supported"><?php echo htmlspecialchars($editData['content']??$formData['content']); ?></textarea>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-title"><i class="fa-solid fa-images"></i> Media</div>
+
+                    <!-- JS populates this when loading an edit via AJAX; PHP pre-populates on server-side edit load -->
+                    <div id="edit-media-section">
+                    <?php if(isset($editData) && $editData !== null): ?>
+                        <div class="media-subsection">
+                            <p class="media-sub-label">Current Thumbnail</p>
+                            <?php if(!empty($editData['thumbnail'])): ?>
+                                <div class="thumb-wrap">
+                                    <img src="<?php echo htmlspecialchars($editData['thumbnail']); ?>" class="thumb-preview" alt="thumbnail">
+                                    <label class="delete-toggle">
+                                        <input type="checkbox" name="delete_thumbnail" value="1">
+                                        Delete this thumbnail
+                                    </label>
+                                </div>
+                            <?php else: ?>
+                                <p class="no-media-msg">No thumbnail set</p>
+                            <?php endif; ?>
+                        </div>
+
+                        <?php if(!empty($editData['images_list'])): ?>
+                        <div class="media-subsection">
+                            <p class="media-sub-label">Existing Images <span class="field-hint">Check to delete</span></p>
+                            <div class="images-preview">
+                                <?php foreach($editData['images_list'] as $img):?>
+                                    <div class="img-item">
+                                        <img src="<?php echo htmlspecialchars($img); ?>" alt="">
+                                        <label class="delete-check">
+                                            <input type="checkbox" name="delete_images[]" value="<?php echo htmlspecialchars($img); ?>">
+                                            Delete
+                                        </label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+                        <?php else: ?>
+                        <p class="no-media-msg">No images uploaded yet</p>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                    </div><!-- /#edit-media-section -->
+
+                    <div class="form-row-2">
+                        <div class="form-field">
+                            <label>Upload Thumbnail</label>
+                            <input type="file" name="thumbnail" accept="image/*">
+                        </div>
+                        <div class="form-field">
+                            <label>Upload Images <span class="field-hint">Multiple</span></label>
+                            <input type="file" name="upload_images[]" accept="image/*" multiple>
+                        </div>
+                    </div>
+
+                    <div class="form-field">
+                        <label>Image URLs <span class="field-hint">Optional, comma separated</span></label>
+                        <input type="text" name="images" placeholder="/projects/assets/...jpg, https://..."
+                               value="<?php echo htmlspecialchars($formData['images']??''); ?>">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" id="post-submit-btn" class="btn btn-primary">
+                        <i class="fa-solid <?php echo $editData ? 'fa-floppy-disk' : 'fa-plus'; ?>"></i>
+                        <?php echo $editData ? 'Update Post' : 'Create Post'; ?>
+                    </button>
+                    <button type="button" class="btn btn-ghost" onclick="clearForm()">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Clear Form
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- ====================================================
+             TAB: ALL POSTS
+             ==================================================== -->
+        <section class="tab-panel" id="tab-posts-list">
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <p class="panel-label"><i class="fa-solid fa-list"></i> Posts</p>
+                    <h2 class="panel-title">All Posts</h2>
+                </div>
+            </div>
+            <?php
+            $postsArrDisplay = json_decode(file_get_contents($jsonFile), true);
+            if(is_array($postsArrDisplay) && count($postsArrDisplay) > 0):
+                $grouped = [];
+                foreach($postsArrDisplay as $p){
+                    $t = $p['tag'] ?? 'Untagged';
+                    $grouped[$t][] = $p;
+                }
+                foreach($grouped as $gTag => $gposts):
+            ?>
+                <div class="posts-group">
+                    <div class="posts-group-label">
+                        <i class="fa-solid fa-folder"></i>
+                        <?php echo htmlspecialchars($gTag); ?>
+                        <span class="posts-group-count"><?php echo count($gposts); ?></span>
+                    </div>
+                    <div class="posts-table">
+                        <?php foreach($gposts as $p):
+                            $slug    = pathinfo($p['file'], PATHINFO_FILENAME);
+                            $ptag    = htmlspecialchars($p['tag']??'Untagged');
+                            $tslug   = slugify($p['tag']??'Untagged');
+                            $ptitle  = htmlspecialchars($p['title']);
+                            $pdate   = htmlspecialchars($p['date']??'');
+                        ?>
+                        <div class="post-row" id="post-<?php echo $slug; ?>">
+                            <div class="post-row-info">
+                                <?php if(!empty($p['thumbnail'])): ?>
+                                    <img src="<?php echo htmlspecialchars($p['thumbnail']); ?>" class="post-row-thumb" alt="">
+                                <?php else: ?>
+                                    <div class="post-row-thumb post-row-thumb-empty"><i class="fa-solid fa-image"></i></div>
+                                <?php endif; ?>
+                                <div class="post-row-text">
+                                    <span class="post-row-title"><?php echo $ptitle; ?></span>
+                                    <span class="post-row-date"><i class="fa-solid fa-calendar-days"></i> <?php echo $pdate; ?></span>
+                                </div>
+                            </div>
+                            <div class="post-row-actions">
+                                <button type="button" class="btn btn-sm btn-accent"
+                                        onclick="loadEditPost('<?php echo $slug; ?>', '<?php echo addslashes($ptag); ?>')">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </button>
+                                <form method="POST" style="display:inline;" class="delete-post-form" data-title="<?php echo addslashes($ptitle); ?>" data-row-id="post-<?php echo $slug; ?>">
+                                    <input type="hidden" name="_ajax" value="1">
+                                    <input type="hidden" name="delete_post" value="<?php echo $slug; ?>">
+                                    <input type="hidden" name="delete_tag_slug" value="<?php echo $tslug; ?>">
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php
+                endforeach;
+            else:
+                echo '<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No posts yet. Create your first one!</p></div>';
+            endif;
+            ?>
+        </section>
+
+        <!-- ====================================================
+             TAB: PROJECT MANAGEMENT
+             ==================================================== -->
+        <section class="tab-panel" id="tab-projects">
+            <?php
+            $projectEditData = null;
+            if(isset($_GET['edit_project']) && $_GET['edit_project'] !== ''){
+                $slugEdit = $_GET['edit_project'];
+                $idx = findProjectIndexBySlug($projectsArr, $slugEdit);
+                if($idx !== false){
+                    $p = $projectsArr[$idx];
+                    $projectEditData = $p;
+                    $projectEditData['thumbnail'] = getProjectThumbnailPath($projectBaseDir, $slugEdit, $baseUrl);
+                }
+            }
+            $pFormData = ['name'=>'','bio'=>''];
+            if($projectEditData){ $pFormData['name']=$projectEditData['name']; $pFormData['bio']=$projectEditData['bio']; }
+            ?>
+            <div class="panel-header">
+                <div class="panel-header-left">
+                    <p class="panel-label"><i class="fa-solid fa-folder-tree"></i> Projects</p>
+                    <h2 class="panel-title"><?php echo $projectEditData ? 'Edit Project' : 'Manage Projects'; ?></h2>
+                </div>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" id="projectForm">
+                <input type="hidden" name="_ajax" value="1">
+                <input type="hidden" name="project_action" value="save">
+                <input type="hidden" id="project_edit_slug" value="">
+                <div class="form-card">
+                    <div class="form-card-title" id="project-form-card-title">
+                        <i class="fa-solid <?php echo $projectEditData ? 'fa-pen' : 'fa-plus'; ?>"></i>
+                        <?php echo $projectEditData ? 'Edit: '.htmlspecialchars($projectEditData['name']) : 'Create New Project'; ?>
+                    </div>
+
+                    <div class="form-field">
+                        <label for="p-name">Project Name</label>
+                        <input type="text" id="p-name" name="project_name" required
+                               placeholder="My Amazing Project"
+                               value="<?php echo htmlspecialchars($pFormData['name']); ?>">
+                    </div>
+
+                    <div class="form-field">
+                        <label for="p-bio">Bio / Summary</label>
+                        <textarea id="p-bio" name="project_bio" rows="2" required
+                                  placeholder="Short description"><?php echo htmlspecialchars($pFormData['bio']); ?></textarea>
+                    </div>
+
+                    <!-- JS or server-side populates this for edit mode -->
+                    <div id="project-thumb-section">
+                    <?php if(isset($projectEditData) && $projectEditData !== null && !empty($projectEditData['thumbnail'])): ?>
+                        <div class="media-subsection">
+                            <p class="media-sub-label">Current Thumbnail</p>
+                            <div class="thumb-wrap">
+                                <img src="<?php echo htmlspecialchars($projectEditData['thumbnail']); ?>" class="thumb-preview" alt="">
+                                <label class="delete-toggle">
+                                    <input type="checkbox" name="delete_thumbnail" value="1">
+                                    Delete this thumbnail
+                                </label>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                    </div><!-- /#project-thumb-section -->
+
+                    <div class="form-field">
+                        <label>Project Thumbnail</label>
+                        <input type="file" name="project_thumbnail" accept="image/*">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" id="project-submit-btn" class="btn btn-primary">
+                            <i class="fa-solid <?php echo $projectEditData ? 'fa-floppy-disk' : 'fa-plus'; ?>"></i>
+                            <?php echo $projectEditData ? 'Update Project' : 'Create Project'; ?>
+                        </button>
+                        <button type="button" id="cancel-project-btn" class="btn btn-ghost"
+                                onclick="cancelEditProject()"
+                                style="<?php echo $projectEditData ? '' : 'display:none'; ?>">
+                            <i class="fa-solid fa-xmark"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <?php
+            $projectsArr = json_decode(file_get_contents($projectsJsonFile), true);
+            $postsCount  = json_decode(file_get_contents($jsonFile), true) ?? [];
+            if(is_array($projectsArr) && count($projectsArr) > 0):
+            ?>
+            <div class="projects-grid">
+                <?php foreach($projectsArr as $p):
+                    $ptag   = htmlspecialchars($p['name']);
+                    $pslug  = slugify($p['name']);
+                    $pthumb = getProjectThumbnailPath($projectBaseDir, $pslug, $baseUrl);
+                    $pcount = count(array_filter($postsCount, function($post) use ($ptag){ return ($post['tag']??'') === $ptag; }));
+                ?>
+                <div class="project-card-cms" id="proj-<?php echo $pslug; ?>">
+                    <?php if($pthumb): ?>
+                        <div class="project-card-cms-img">
+                            <img src="<?php echo htmlspecialchars($pthumb); ?>" alt="">
+                        </div>
+                    <?php else: ?>
+                        <div class="project-card-cms-img project-card-cms-img-empty">
+                            <i class="fa-solid fa-folder"></i>
+                        </div>
+                    <?php endif; ?>
+                    <div class="project-card-cms-body">
+                        <span class="project-card-cms-name"><?php echo $ptag; ?></span>
+                        <span class="project-card-cms-count"><?php echo $pcount; ?> post<?php echo $pcount!==1?'s':''; ?></span>
+                        <p class="project-card-cms-bio"><?php echo htmlspecialchars($p['bio']); ?></p>
+                    </div>
+                    <div class="project-card-cms-actions">
+                        <button type="button" class="btn btn-sm btn-accent"
+                                onclick="loadEditProject('<?php echo $pslug; ?>')">
+                            <i class="fa-solid fa-pen"></i> Edit
+                        </button>
+                        <form method="POST" class="delete-project-form" data-title="<?php echo addslashes($ptag); ?>" data-card-id="proj-<?php echo $pslug; ?>">
+                            <input type="hidden" name="_ajax" value="1">
+                            <input type="hidden" name="project_action" value="delete">
+                            <input type="hidden" name="project_name" value="<?php echo $ptag; ?>">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fa-solid fa-trash"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+            <div class="empty-state">
+                <i class="fa-solid fa-folder-open"></i>
+                <p>No projects yet.</p>
+            </div>
+            <?php endif; ?>
+        </section>
+
+    </main>
 </div>
 
 <script src="cms.js"></script>

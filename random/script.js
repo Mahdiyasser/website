@@ -1,201 +1,271 @@
+/**
+ * Mahdi Yasser — The Random Zone
+ * v11 design system: canvas (violet), cursor, reveal + all original card/modal logic
+ */
+
 document.addEventListener('DOMContentLoaded', () => {
-    const toggleButton = document.getElementById('theme-toggle');
-    const body = document.body;
-    const toggleIcon = document.getElementById('toggle-icon');
 
-    // Modal elements
-    const storyModalOverlay = document.getElementById('storyModalOverlay');
-    const closeStoryModalButton = document.getElementById('closeStoryModal');
-    const modalProjectName = document.getElementById('modalProjectName');
-    const modalStoryContent = document.getElementById('modalStoryContent');
-
-
-    // --- Theme Toggle Script ---
+    /* =========================================================
+       1. THEME TOGGLE
+       ========================================================= */
+    const body       = document.body;
+    const themeBtn   = document.getElementById('theme-toggle');
     const savedTheme = localStorage.getItem('theme');
-    
-    const applyTheme = (theme) => {
-        if (theme === 'light') {
-            body.classList.add('light-theme');
-            toggleIcon.textContent = '🌙'; 
-        } else {
-            body.classList.remove('light-theme');
-            toggleIcon.textContent = '💡'; 
-        }
-    };
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
 
-    if (savedTheme) {
-        applyTheme(savedTheme);
-    } else {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-            applyTheme('light');
-        } else {
-            applyTheme('dark');
-        }
-    }
-
-    toggleButton.addEventListener('click', () => {
-        const currentTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        
-        applyTheme(newTheme);
-        
-        localStorage.setItem('theme', newTheme);
+    themeBtn.addEventListener('click', () => {
+        const next = body.classList.contains('light-theme') ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem('theme', next);
     });
 
+    function applyTheme(t) {
+        body.classList.remove('dark-theme', 'light-theme');
+        body.classList.add(t + '-theme');
+    }
 
-    // --- Dynamic Card Loading Script ---
+    /* =========================================================
+       2. CUSTOM CURSOR
+       ========================================================= */
+    const dot  = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
 
-    const cardsContainer = document.getElementById('project-cards-container');
-    const DATA_URL = './data/data.json'; // Path based on your folder structure
+    document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.left = mx + 'px';
+        dot.style.top  = my + 'px';
+    });
 
-    /**
-     * Converts URLs in a string to clickable HTML anchor tags.
-     * @param {string} text - The text content possibly containing URLs.
-     * @returns {string} The text with URLs converted to links.
-     */
-    function linkify(text) {
-        // Regex to find URLs (http, https, ftp, file, www.)
-        const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
-        return text.replace(urlRegex, (url) => {
-            let displayUrl = url;
-            let href = url;
+    (function animateRing() {
+        rx += (mx - rx) * 0.14;
+        ry += (my - ry) * 0.14;
+        ring.style.left = rx + 'px';
+        ring.style.top  = ry + 'px';
+        requestAnimationFrame(animateRing);
+    })();
 
-            // Prepend 'http://' if it's a www. link without protocol
-            if (url.startsWith('www.')) {
-                href = 'http://' + url;
+    function attachCursorHover(selector) {
+        document.querySelectorAll(selector).forEach(el => {
+            el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
+        });
+    }
+    attachCursorHover('a, button, .link-card, .non-clickable-card, .card-button');
+
+    /* =========================================================
+       3. CANVAS PARTICLE BACKGROUND
+       ========================================================= */
+    const canvas = document.getElementById('bg-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+
+    function initParticles() {
+        particles = [];
+        const count = Math.floor((W * H) / 14000);
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x:  Math.random() * W,
+                y:  Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
+                r:  Math.random() * 1.2 + 0.3,
+                a:  Math.random()
+            });
+        }
+    }
+    initParticles();
+
+    function getAccentRGB() {
+        return body.classList.contains('light-theme') ? '124, 58, 237' : '168, 85, 247';
+    }
+
+    (function drawParticles() {
+        ctx.clearRect(0, 0, W, H);
+        const c = getAccentRGB();
+
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${c}, ${0.3 + p.a * 0.4})`;
+            ctx.fill();
+        });
+
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(${c}, ${(1 - dist / 120) * 0.12})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                }
             }
-            
-            return `<a href="${href}" target="_blank" rel="noopener noreferrer">${displayUrl}</a>`;
+        }
+        requestAnimationFrame(drawParticles);
+    })();
+
+    /* =========================================================
+       4. SCROLL REVEAL
+       ========================================================= */
+    const revealObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* =========================================================
+       5. DYNAMIC CARD LOADING (original logic preserved)
+       ========================================================= */
+    const cardsContainer = document.getElementById('project-cards-container');
+    const loadingState   = document.getElementById('loading-state');
+    const errorState     = document.getElementById('error-state');
+    const DATA_URL       = './data/data.json';
+
+    // Modal elements
+    const storyModalOverlay     = document.getElementById('storyModalOverlay');
+    const closeStoryModalButton = document.getElementById('closeStoryModal');
+    const modalProjectName      = document.getElementById('modalProjectName');
+    const modalStoryContent     = document.getElementById('modalStoryContent');
+
+    function linkify(text) {
+        const urlRegex = /(https?:\/\/[^\s]+)|(www\.[^\s]+)/g;
+        return text.replace(urlRegex, url => {
+            const href = url.startsWith('www.') ? 'http://' + url : url;
+            return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`;
         });
     }
 
-    /**
-     * Creates the HTML structure for a single card based on the project data.
-     * @param {Object} project - The project object from the JSON.
-     * @returns {string} The HTML string for the card.
-     */
     function createCardHTML(project) {
-        const adjustedImagePath = project.image.replace('../', ''); 
-        
-        // 1. Conditional tag rendering (Top Left)
-        const hasTag = project.tag && project.tag.trim().length > 0;
-        const tagHTML = hasTag
-            ? `<div class="card-tag">${project.tag}</div>`
-            : '';
+        const adjustedImagePath = project.image.replace('../', '');
 
-        // 2. Conditional story button rendering (Top Right)
+        const hasTag = project.tag && project.tag.trim().length > 0;
+        const tagHTML = hasTag ? `<div class="card-tag">${project.tag}</div>` : '';
+
         const hasStory = project.story && project.story.trim().length > 0;
         const storyButtonHTML = hasStory
-            ? `<button class="card-button show-story-btn" data-project-name="${project.name}" data-project-story="${encodeURIComponent(project.story)}">Show Story</button>`
+            ? `<button class="card-button show-story-btn"
+                   data-project-name="${project.name}"
+                   data-project-story="${encodeURIComponent(project.story)}">
+                   Show Story
+               </button>`
             : '';
-        
-        // 3. Conditional description rendering (Bottom Overlay)
+
         const hasDescription = project.description && project.description.trim().length > 0;
-        const descriptionHTML = hasDescription
-            ? `<p style="margin-top: 8px; font-size: 0.9rem; font-weight: normal; color: var(--text-primary); text-shadow: none;">${project.description}</p>`
-            : '';
+        const descriptionHTML = hasDescription ? `<p>${project.description}</p>` : '';
 
-        // 4. Determine if the card should be clickable
-        const isClickable = project.path !== "";
-        const wrapperTag = isClickable ? 'a' : 'div';
+        const isClickable  = project.path !== '';
+        const wrapperTag   = isClickable ? 'a' : 'div';
         const wrapperClass = isClickable ? 'link-card' : 'non-clickable-card';
-        const hrefAttribute = isClickable ? `href="${project.path}"` : '';
-        
-        // 5. Determine project name for display
-        const displayName = (project.name && project.name.trim().length > 0) ? project.name : 'No Name';
+        const hrefAttr     = isClickable ? `href="${project.path}"` : '';
+        const displayName  = (project.name && project.name.trim().length > 0) ? project.name : 'No Name';
 
-
-        return `<${wrapperTag} ${hrefAttribute} class="${wrapperClass} card-${project.id}">` +
-                    `<img src="${adjustedImagePath}" alt="${displayName} preview">` +
-                    tagHTML +         /* Top Left */
-                    storyButtonHTML + /* Top Right */
-                    '<div class="overlay">' + 
-                        displayName +
-                        descriptionHTML +
-                    '</div>' +
-               `</${wrapperTag}>`;
+        return `<${wrapperTag} ${hrefAttr} class="${wrapperClass} card-${project.id}">
+                    <img src="${adjustedImagePath}" alt="${displayName} preview">
+                    ${tagHTML}
+                    ${storyButtonHTML}
+                    <div class="overlay">
+                        ${displayName}
+                        ${descriptionHTML}
+                    </div>
+                </${wrapperTag}>`;
     }
 
-    // Fetch the JSON data and build the cards
     fetch(DATA_URL)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
+        .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
         })
         .then(data => {
-            if (Array.isArray(data)) {
-                const cardsHTML = data.map(createCardHTML).join('');
-                cardsContainer.innerHTML = cardsHTML;
+            loadingState.style.display = 'none';
 
-                // Attach event listeners to all "Show Story" buttons after they are in the DOM
-                document.querySelectorAll('.show-story-btn').forEach(button => {
-                    button.addEventListener('click', (event) => {
-                        // IMPORTANT: Check if modal elements were successfully retrieved
-                        if (!modalProjectName || !modalStoryContent || !storyModalOverlay) {
-                            console.error("Modal elements not found. Check HTML IDs.");
-                            return;
-                        }
+            if (!Array.isArray(data)) throw new Error('Data is not an array');
 
-                        event.preventDefault();
-                        event.stopPropagation();
+            cardsContainer.innerHTML = data.map(createCardHTML).join('');
 
-                        const projectName = button.dataset.projectName;
-                        const projectStoryEncoded = button.dataset.projectStory;
-                        const projectStory = decodeURIComponent(projectStoryEncoded);
+            // Re-attach cursor hover to new cards
+            attachCursorHover('.link-card, .non-clickable-card, .card-button');
 
-                        // Conditionally set modal project name
-                        if (projectName && projectName.trim().length > 0) {
-                            modalProjectName.textContent = projectName;
-                            modalProjectName.style.display = '';
-                        } else {
-                            modalProjectName.textContent = '';
-                            modalProjectName.style.display = 'none';
-                        }
-                        
-                        modalStoryContent.innerHTML = '<p>' + linkify(projectStory) + '</p>'; 
-                        storyModalOverlay.classList.add('active');
-                        document.body.style.overflow = 'hidden';
-                    });
+            // Card tilt effect
+            document.querySelectorAll('.link-card, .non-clickable-card').forEach(card => {
+                card.addEventListener('mousemove', e => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width  - 0.5) * 8;
+                    const y = ((e.clientY - rect.top)  / rect.height - 0.5) * -8;
+                    card.style.transform = `perspective(600px) rotateY(${x}deg) rotateX(${y}deg) translateY(-4px)`;
                 });
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = '';
+                });
+            });
 
-            } else {
-                console.error('Fetched data is not an array:', data);
-                cardsContainer.innerHTML = '<p>Error loading projects: Data format is incorrect.</p>';
-            }
+            // Story button listeners
+            document.querySelectorAll('.show-story-btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const name  = btn.dataset.projectName;
+                    const story = decodeURIComponent(btn.dataset.projectStory);
+
+                    if (name && name.trim().length > 0) {
+                        modalProjectName.textContent = name;
+                        modalProjectName.style.display = '';
+                    } else {
+                        modalProjectName.textContent = '';
+                        modalProjectName.style.display = 'none';
+                    }
+
+                    modalStoryContent.innerHTML = '<p>' + linkify(story) + '</p>';
+                    storyModalOverlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+            });
         })
-        .catch(error => {
-            console.error('Error fetching project data:', error);
-            cardsContainer.innerHTML = '<p>Error loading projects. Please check the console for details.</p>';
+        .catch(err => {
+            console.error('Error loading data:', err);
+            loadingState.style.display = 'none';
+            errorState.style.display = 'flex';
         });
 
-
-    // --- Modal Close Logic ---
-    
-    if (closeStoryModalButton) {
-        closeStoryModalButton.addEventListener('click', () => {
-            storyModalOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        });
+    /* =========================================================
+       6. MODAL CLOSE LOGIC
+       ========================================================= */
+    function closeModal() {
+        storyModalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
     }
+
+    if (closeStoryModalButton) closeStoryModalButton.addEventListener('click', closeModal);
 
     if (storyModalOverlay) {
-        // Close modal if user clicks outside the story-modal content
-        storyModalOverlay.addEventListener('click', (event) => {
-            if (event.target === storyModalOverlay) {
-                storyModalOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            }
+        storyModalOverlay.addEventListener('click', e => {
+            if (e.target === storyModalOverlay) closeModal();
         });
     }
 
-    // Close modal with Escape key
-    document.addEventListener('keydown', (event) => {
-        if (storyModalOverlay && event.key === 'Escape' && storyModalOverlay.classList.contains('active')) {
-            storyModalOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-        }
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && storyModalOverlay?.classList.contains('active')) closeModal();
     });
 
 });

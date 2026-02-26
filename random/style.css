@@ -1,383 +1,488 @@
-/* ---------------------------------------------------------------------- */
-/* CSS VARIABLES */
-/* ---------------------------------------------------------------------- */
+/* =========================================================
+   MAHDI YASSER — THE RANDOM ZONE
+   Matches v11 design system: Dark Editorial
+   Accent: Electric Violet (distinct from Tools amber)
+   Fonts: Syne + JetBrains Mono | Font Awesome 6
+   ========================================================= */
+
+/* ---- DESIGN TOKENS ---- */
 :root {
-    /* Color Palette - DARK MODE (DEFAULT)*/
-    --bg-primary: #0a0a0a;
-    --bg-content: rgba(0, 0, 0, 0.75);
-    --accent-neon: #00ffc8;
-    --text-primary: #f0f0f0;
-    --text-secondary: #00885f;
-    --grid-line: rgba(0, 255, 200, 0.2);
-    --glow-shadow: 0 0 10px rgba(0, 255, 200, 0.7);
-    --box-shadow-card: 0 0 15px rgba(0, 255, 200, 0.2);
-    
-    /* Typography*/
-    --font-primary: 'Consolas', 'Courier New', monospace;
-    --font-secondary: 'Arial', sans-serif;
-    
-    /* Spacing*/
-    --spacing-lg: 4rem;
-    --spacing-md: 2rem;
-    --border-radius-card: 8px; 
+    --bg:           #0c0c0f;
+    --bg-card:      #13131a;
+    --bg-card-alt:  #1a1a24;
+    --accent:       #a855f7;
+    --accent-dim:   rgba(168, 85, 247, 0.15);
+    --accent-glow:  0 0 18px rgba(168, 85, 247, 0.35);
+    --text:         #e8e8f0;
+    --text-muted:   #7070a0;
+    --border:       rgba(255, 255, 255, 0.07);
+    --border-hover: rgba(168, 85, 247, 0.45);
+    --shadow:       0 4px 32px rgba(0, 0, 0, 0.7);
+
+    --ff-display: 'Syne', sans-serif;
+    --ff-mono:    'JetBrains Mono', monospace;
+
+    --gap:  1.25rem;
+    --r:    10px;
+    --r-lg: 16px;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Hide scrollbar for Chrome, Safari, and Opera */
-::-webkit-scrollbar {
-  display: none;
-}
-/*  Hide underline in the url */
-a {
-    text-decoration: none;
-}
-
-/* LIGHT MODE VARIABLES */
 body.light-theme {
-    --bg-primary: #2c2f33;          /* Dark gray primary background */
-    --bg-content: rgba(47, 50, 56, 0.9); /* Slightly different dark gray content background */
-    --accent-neon: #7289da;         /* Discord-style blue/purple accent */
-    --text-primary: #f0f0f0;        /* Soft white/light gray text */
-    --text-secondary: #b9bbbe;      /* Lighter gray secondary text */
-    --grid-line: rgba(114, 137, 218, 0.2); /* Subtle grid line */
-    --glow-shadow: 0 0 10px rgba(114, 137, 218, 0.5); /* Glow shadow */
-    --box-shadow-card: 0 0 10px rgba(0, 0, 0, 0.4); /* Dark shadow for cards */
-    --filter-pfp: invert(0);
-    --filter-social: invert(0);
+    --bg:           #f2f0f8;
+    --bg-card:      #faf9fc;
+    --bg-card-alt:  #ede9f6;
+    --accent:       #7c3aed;
+    --accent-dim:   rgba(124, 58, 237, 0.1);
+    --accent-glow:  0 0 18px rgba(124, 58, 237, 0.2);
+    --text:         #1a1a2e;
+    --text-muted:   #888898;
+    --border:       rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(124, 58, 237, 0.45);
+    --shadow:       0 4px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* ---------------------------------------------------------------------- */
-/* GLOBAL BASE STYLES & CONTAINER (.d1) STYLES */
-/* ---------------------------------------------------------------------- */
-* {
+/* ---- RESET ---- */
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; 
 }
 
+html { scroll-behavior: smooth; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 99px; }
+
+/* ---- BASE ---- */
 body {
-    font-family: var(--font-secondary);
-    color: var(--text-primary);
+    font-family: var(--ff-display);
+    background: var(--bg);
+    color: var(--text);
     line-height: 1.6;
-    
+    overflow-x: hidden;
+    transition: background 0.4s var(--ease), color 0.4s var(--ease);
+    cursor: none;
     min-height: 100vh;
-    background-color: var(--bg-primary); 
-    display: flex;
-    flex-direction: column;
-    align-items: center; 
-    
-    background-image: url('images/bg.png'); 
-    background-repeat: no-repeat;
-    background-position: center center;
-    background-size: cover;
-    background-attachment: fixed; 
-    overflow-x: hidden; 
-    
 }
 
-.d1 {
-    width: 100%;
-    max-width: 100%;
-    padding: 0; 
-    height: auto; 
-    min-height: 100vh;
-    margin: 0 auto;
-    flex-grow: 0;
+a { text-decoration: none; color: inherit; }
 
-    background-color: var(--bg-content);
-    box-shadow: 0 0 50px rgba(0, 255, 200, 0.1);
-    
-    border-left: 1px solid var(--grid-line); 
-    border-right: 1px solid var(--grid-line); 
-    
-    display: grid;
-    gap: var(--spacing-lg);
-    grid-template-columns: 1fr;
+/* ---- CANVAS ---- */
+#bg-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.35;
 }
+body.light-theme #bg-canvas { opacity: 0.1; }
 
-/* --- THEME TOGGLE BUTTON STYLES --- */
-#theme-toggle {
-    position: fixed; 
-    top: 10px;
-    right: var(--spacing-md);
-    width: 50px;
-    height: 50px;
+/* ---- CUSTOM CURSOR ---- */
+#cursor-dot {
+    position: fixed;
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
     border-radius: 50%;
-    background-color: var(--accent-neon);
-    color: var(--bg-primary);
-    border: none;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.05s linear;
+}
+
+#cursor-ring {
+    position: fixed;
+    width: 32px;
+    height: 32px;
+    border: 1.5px solid var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s var(--ease), height 0.2s var(--ease),
+                opacity 0.2s, transform 0.12s linear;
+    opacity: 0.6;
+}
+#cursor-ring.hovered {
+    width: 52px;
+    height: 52px;
+    opacity: 0.9;
+}
+
+@media (hover: none) {
+    #cursor-dot, #cursor-ring { display: none; }
+    body { cursor: auto; }
+}
+
+/* ---- THEME TOGGLE ---- */
+#theme-toggle {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 1000;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border-hover);
+    background: var(--bg-card);
+    color: var(--accent);
     cursor: pointer;
-    box-shadow: var(--glow-shadow);
-    z-index: 100;
-    font-size: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    font-size: 1rem;
+    transition: all 0.3s var(--ease);
+    box-shadow: var(--accent-glow);
 }
-#theme-toggle:hover {
-    box-shadow: none;
-    transform: scale(1.05);
+#theme-toggle:hover { transform: rotate(20deg) scale(1.1); }
+
+.dark-theme  #toggle-icon-dark  { display: none; }
+.dark-theme  #toggle-icon-light { display: block; }
+.light-theme #toggle-icon-light { display: none; }
+.light-theme #toggle-icon-dark  { display: block; }
+
+/* ---- PAGE WRAPPER ---- */
+#page-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
 }
 
-/* ---------------------------------------------------------------------- */
-/* CARD STYLES */
-/* ---------------------------------------------------------------------- */
+/* ---- REVEAL ---- */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ---- PAGE HEADER ---- */
+.page-header {
+    padding-top: 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--ff-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    width: fit-content;
+}
+.back-link:hover { color: var(--accent); }
+.back-link i { font-size: 0.7rem; }
+
+.page-label {
+    font-family: var(--ff-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.page-title {
+    font-family: var(--ff-display);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+}
+.page-title .accent { color: var(--accent); }
+
+.page-sub {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    max-width: 480px;
+    border-top: 1px solid var(--border);
+    padding-top: 1rem;
+    margin-top: 0.25rem;
+}
+
+/* ---- LOADING & ERROR STATES ---- */
+.loading-state,
+.error-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 4rem 0;
+    font-family: var(--ff-mono);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.error-state { color: #e05050; }
+.loading-state i { color: var(--accent); }
+
+/* ============================================================
+   CARD GRID
+   ============================================================ */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); 
-    
-    gap: var(--spacing-md); 
-    padding: var(--spacing-md); 
-    
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--gap);
     width: 100%;
-    height: auto; 
-    justify-content: center;
 }
 
-.link-card, .non-clickable-card {
+.link-card,
+.non-clickable-card {
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    
-    height: 300px; 
-    
-    text-decoration: none;
-    color: var(--text-primary);
-    
-    border-radius: var(--border-radius-card); 
-    
-    background-color: var(--bg-content);
-    border: 1px solid var(--grid-line);
-    box-shadow: var(--box-shadow-card);
+    height: 280px;
+    border-radius: var(--r-lg);
     overflow: hidden;
-    
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+    color: var(--text);
+    transition: all 0.3s var(--ease);
 }
 
-/* Hover effects only for clickable cards */
-.link-card:hover {
-    transform: translateY(-5px); 
-    box-shadow: var(--glow-shadow); 
-    border-color: var(--accent-neon);
-}
+.link-card { cursor: pointer; }
+.non-clickable-card { cursor: default; }
 
-.non-clickable-card {
-    cursor: default;
-}
-.non-clickable-card:hover {
-    transform: translateY(-5px); 
-    box-shadow: var(--glow-shadow); 
-    border-color: var(--accent-neon);
-}
-
-.link-card img, .non-clickable-card img {
+.link-card img,
+.non-clickable-card img {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.3; 
-    transition: opacity 0.3s ease;
+    opacity: 0.1;
+    transition: opacity 0.4s var(--ease), transform 0.5s var(--ease);
+    z-index: 0;
+}
+
+.link-card:hover img,
+.non-clickable-card:hover img {
+    opacity: 0.2;
+    transform: scale(1.05);
+}
+
+.link-card:hover,
+.non-clickable-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--accent-glow);
+    transform: translateY(-4px);
 }
 
 .overlay {
     position: relative;
-    z-index: 10;
-    padding: var(--spacing-md);
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8)); 
-    color: var(--accent-neon);
-    font-family: var(--font-primary);
-    font-size: 1.6rem;
+    z-index: 2;
+    padding: 1.25rem;
+    background: linear-gradient(transparent, var(--bg-card) 55%);
+    font-family: var(--ff-display);
+    font-size: 1.15rem;
     font-weight: 700;
-    text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+    color: var(--text);
     display: flex;
     flex-direction: column;
+    gap: 0.3rem;
 }
 
-/* --- CARD TAG STYLES (Top Left) --- */
+.overlay p {
+    font-size: 0.82rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-family: var(--ff-mono);
+    line-height: 1.5;
+    text-shadow: none !important;
+    margin-top: 2px;
+}
+
+/* ---- Card Tag (top-left) ---- */
 .card-tag {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 15;
-    background-color: var(--text-secondary); /* Darker background */
-    color: var(--text-primary);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-family: var(--font-secondary);
-    font-size: 0.75rem;
+    top: 12px;
+    left: 12px;
+    z-index: 5;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    padding: 3px 9px;
+    border-radius: 99px;
+    font-family: var(--ff-mono);
+    font-size: 0.65rem;
     text-transform: uppercase;
-    font-weight: bold;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-}
-body.light-theme .card-tag {
-    background-color: #f0f0f0;
-    color: var(--accent-neon);
+    letter-spacing: 0.1em;
+    font-weight: 600;
 }
 
-
-/* --- SHOW STORY BUTTON STYLES (Top Right) --- */
+/* ---- Story Button (top-right) ---- */
 .card-button {
     position: absolute;
-    top: 10px;
-    right: 10px; /* Moved to the top right */
-    left: auto; /* Ensure no left positioning interferes */
-    z-index: 15;
-
-    background-color: var(--accent-neon);
-    color: var(--bg-primary);
-    border: none;
-    padding: 6px 10px;
-    border-radius: 5px;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+    background: var(--accent-dim);
+    border: 1.5px solid var(--accent);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 99px;
     cursor: pointer;
-    font-family: var(--font-primary);
-    font-size: 0.8rem;
-    box-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    font-family: var(--ff-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: all 0.22s var(--ease);
 }
 .card-button:hover {
-    background-color: #00e0b3; 
-    box-shadow: 0 0 10px rgba(0, 255, 200, 0.9);
-    transform: scale(1.05);
+    background: var(--accent);
+    color: var(--bg);
+    box-shadow: var(--accent-glow);
+    transform: scale(1.04);
 }
 
+/* ---- Card hover arrow ---- */
+.link-card::after {
+    content: '\f35d';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    opacity: 0;
+    transform: translate(-3px, 3px);
+    transition: all 0.22s var(--ease);
+}
+.link-card:has(.card-button)::after { display: none; }
+.link-card:hover::after {
+    opacity: 1;
+    transform: translate(0, 0);
+    color: var(--accent);
+}
 
-/* ---------------------------------------------------------------------- */
-/* MODAL STYLES */
-/* ---------------------------------------------------------------------- */
+/* ============================================================
+   MODAL
+   ============================================================ */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 2000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.3s var(--ease), visibility 0.3s var(--ease);
 }
-
 .modal-overlay.active {
     opacity: 1;
     visibility: visible;
 }
 
 .story-modal {
-    background-color: var(--bg-content); 
-    border: 1px solid var(--accent-neon);
-    border-radius: var(--border-radius-card);
-    padding: 10px; /* Reduced padding */
+    background: var(--bg-card);
+    border: 1px solid var(--border-hover);
+    border-radius: var(--r-lg);
+    padding: 2rem;
     max-width: 600px;
     width: 90%;
-    max-height: 80%;
+    max-height: 80vh;
     overflow-y: auto;
-    color: var(--text-primary);
-    box-shadow: var(--glow-shadow);
+    color: var(--text);
+    box-shadow: var(--accent-glow), var(--shadow);
     position: relative;
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
+    transform: translateY(16px);
+    transition: transform 0.35s var(--ease);
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
 }
-
-.modal-overlay.active .story-modal {
-    transform: translateY(0);
-}
+.modal-overlay.active .story-modal { transform: translateY(0); }
 
 .story-modal h3 {
-    color: var(--accent-neon);
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-    font-family: var(--font-primary);
-    text-shadow: 0 0 5px rgba(0, 255, 200, 0.5);
+    font-family: var(--ff-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+    padding-right: 2rem;
 }
 
 .story-modal p {
-    margin-bottom: 10px;
-    line-height: 1.7;
-    font-size: 1rem;
-    color: var(--text-primary);
+    font-size: 0.92rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
 }
 .story-modal p a {
-    color: var(--accent-neon);
+    color: var(--accent);
     word-break: break-all;
+    text-underline-offset: 3px;
+    text-decoration: underline;
 }
-.story-modal p a:hover {
-    color: var(--text-secondary);
-}
+.story-modal p a:hover { opacity: 0.75; }
 
 .close-button {
     position: absolute;
-    top: 10px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 2rem;
-    color: var(--text-primary);
+    top: 1.1rem;
+    right: 1.1rem;
+    background: var(--bg-card-alt);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    line-height: 1;
-    transition: color 0.3s ease;
+    font-size: 0.9rem;
+    transition: all 0.2s var(--ease);
 }
-
 .close-button:hover {
-    color: var(--accent-neon);
+    color: var(--accent);
+    border-color: var(--accent);
 }
 
-/* Light theme adjustments for the modal and button */
-body.light-theme .modal-overlay {
-    background-color: rgba(0, 0, 0, 0.5);
+/* ---- PAGE FOOTER ---- */
+.page-footer {
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+    font-family: var(--ff-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
 }
-body.light-theme .story-modal {
-    border: 1px solid var(--accent-neon);
-    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+.page-footer a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+    text-decoration: underline;
 }
-body.light-theme .story-modal h3 {
-    text-shadow: none;
-}
-body.light-theme .card-button {
-    background-color: var(--accent-neon);
-    color: #fff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
-}
-body.light-theme .card-button:hover {
-    background-color: #0069d9;
-}
+.page-footer a:hover { opacity: 0.7; }
 
-
-/* ---------------------------------------------------------------------- */
-/* MOBILE RESPONSIVENESS (Screens 850px and smaller) */
-/* ---------------------------------------------------------------------- */
-@media (max-width: 850px) {
-    .card-grid {
-        /* Change from 2 columns to 1 column */
-        grid-template-columns: 1fr;
-        /* Ensure full width */
-        width: 100%;
-        /* Padding adjustment for edge-to-edge look on narrow screens */
-        padding: var(--spacing-md) 10px; 
-    }
-    
-    .link-card, .non-clickable-card {
-        /* Cards take up the full width of the grid column (100% of 1fr) */
-        height: 230px; /* Slightly reduced height for mobile viewing */
-    }
-    
-    .overlay {
-        /* Reduce font size for smaller screens */
-        font-size: 1.4rem;
-        padding: 15px;
-    }
-
-    #theme-toggle {
-        top: 10px;
-        right: 10px;
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 700px) {
+    .card-grid { grid-template-columns: 1fr; }
+    .link-card, .non-clickable-card { height: 230px; }
+    .page-title { font-size: 2.5rem; }
+    #page-wrapper { padding: 0 1rem 3rem; }
 }

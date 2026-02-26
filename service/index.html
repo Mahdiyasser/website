@@ -3,285 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plans & Services - Mahdi Yasser</title>
 
+    <title>Plans & Services - Mahdi Yasser</title>
     <meta name="title" content="Plans & Services - Mahdi Yasser">
     <meta name="description" content="Affordable and fast web design services starting from ₤500 EGP. Offering custom websites, e-commerce, POS systems, server setup, and more.">
     <meta name="author" content="Mahdi Yasser">
     <meta name="robots" content="index, follow">
 
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://mahdiyasser.site/service/"> 
+    <meta property="og:url" content="https://mahdiyasser.site/service/">
     <meta property="og:title" content="Plans & Services - Mahdi Yasser">
     <meta property="og:description" content="Affordable and fast web design services starting from ₤500 EGP. Offering custom websites, e-commerce, POS systems, server setup, and more.">
-    <meta property="og:image" content="https://mahdiyasser.site/img/vetrom.png"> 
+    <meta property="og:image" content="https://mahdiyasser.site/img/vetrom.png">
 
-    <link rel="icon" type="image/png" href="../favicon.ico"> 
-    <link rel="apple-touch-icon" href="../favicon.ico"> 
-    <link rel="shortcut icon" href="../favicon.ico" />
-    <link rel="icon" href="../favicon.ico" />
+    <link rel="icon" type="image/png" href="../favicon.ico">
+    <link rel="apple-touch-icon" href="../favicon.ico">
+    <link rel="shortcut icon" href="../favicon.ico">
 
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
 
-<!--cloudflare worker tracking only session IDs no user data-->
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+
+<!-- Cloudflare worker tracking -->
 <script>
 (function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
-  }
-
-  // --- Set these per page/tool ---
-  const type = 'page';   // 'page' or 'tool'
-  const name = 'service'; // unique page/tool name
-
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
+    let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
+    if (!sessionID) {
+        sessionID = crypto.randomUUID();
+        document.cookie = `sessionID=${sessionID}; path=/`;
+    }
+    fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionID, type: 'page', name: 'service' })
+    }).catch(() => {});
 })();
 </script>
-<!--worker end-->
 
+<!-- Canvas background -->
+<canvas id="bg-canvas"></canvas>
 
-<!-- Light/Dark Mode Toggle -->
-<button id="modeToggle">Mode</button>
-<button id="langToggle">عربي</button>
+<!-- Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
+<!-- Theme toggle -->
+<button id="theme-toggle" aria-label="Toggle theme">
+    <i class="fa-solid fa-sun" id="toggle-icon-light"></i>
+    <i class="fa-solid fa-moon" id="toggle-icon-dark"></i>
+</button>
 
-    <!-- Intro -->
-    <section>
-        <h2 class="section-title">Plans & Services</h2>
-        <p class="section-subtitle">Fast, private, and tailored digital systems and websites ready to use.</p>
+<!-- Language toggle -->
+<button id="lang-toggle" onclick="window.location.href='./eg/index.html'">عربي</button>
+
+<!-- Main content -->
+<main id="main-wrapper">
+
+    <!-- ======== PAGE HEADER ======== -->
+    <section class="page-header reveal">
+        <div class="section-label"><i class="fa-solid fa-layer-group"></i> Services</div>
+        <h1>Plans &amp; <span>Services</span></h1>
+        <p>Fast, private, and tailored digital systems and websites — ready to deploy.</p>
     </section>
 
-    <!-- ₤500 EGP One-Page Website -->
-    <section>
-        <div class="grid">
-            <div class="card" id="sponsored">
-                <h3>₤500 EGP One-Page Website</h3>
-                <ul>
-                    <li>• Clean static site with free hosting & domain</li>
-                    <li>• Can be delivered in under 24 hours</li>
-                    <li>• Great for portfolios, landing pages, quick projects, or for personal websites</li>
-                    <li>• Own your site with no hidden costs</li>
-                </ul>
-                <button class="btn" id="openContact">Get Started</button>
-            </div>
+    <!-- ======== FEATURED / SPONSORED ======== -->
+    <section class="reveal">
+        <div class="featured-card">
+            <div class="featured-badge"><i class="fa-solid fa-bolt"></i> Best Value</div>
+            <h2>₤500 EGP One-Page Website</h2>
+            <ul>
+                <li>Clean static site with free hosting &amp; domain</li>
+                <li>Delivered in under 24 hours</li>
+                <li>Great for portfolios, landing pages &amp; personal sites</li>
+                <li>You own your site — zero hidden costs</li>
+            </ul>
+            <button class="btn-primary open-contact"><i class="fa-solid fa-arrow-right"></i> Get Started</button>
         </div>
     </section>
 
-    <!-- Plans -->
-    <section>
-        <h2 class="section-title">Plans & Packages</h2>
-        <div class="grid">
-            <div class="card">
-                <h3>Starter</h3>
+    <!-- ======== PLANS & PACKAGES ======== -->
+    <section class="reveal">
+        <div class="section-label"><i class="fa-solid fa-cubes"></i> Plans &amp; Packages</div>
+        <div class="plans-grid">
+
+            <div class="service-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fa-solid fa-rocket"></i></div>
+                    <h3>Starter</h3>
+                </div>
                 <ul>
-                    <li>• Basic multi-page website</li>
-                    <li>• Free hosting & domain</li>
-                    <li>• Can be delivered in 2 day</li>
-                    <li>• Optional SEO for Google visibility</li>
+                    <li>Basic multi-page website</li>
+                    <li>Free hosting &amp; domain included</li>
+                    <li>Delivered in under 2 days</li>
+                    <li>Optional SEO for better Google visibility</li>
                 </ul>
-                <button class="btn" id="openContact">Start Now</button>
+                <button class="btn-outline open-contact">Start Now <i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <div class="card">
-                <h3>Entry Level</h3>
+
+            <div class="service-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <h3>Entry Level</h3>
+                </div>
                 <ul>
-                    <li>• Advanced multi-page website</li>
-                    <li>• Can include a products page with product/section management</li>
-                    <li>• Can be delivered in less than 3 days</li>
-                    <li>• For small and medium businesses, start-ups or creators going live fast</li>
+                    <li>Advanced multi-page website</li>
+                    <li>Can include a products page with full section &amp; product management</li>
+                    <li>Delivered in under 3 days</li>
+                    <li>Perfect for small businesses, startups, or creators going online fast</li>
                 </ul>
-                <button class="btn" id="openContact">Upgrade</button>
+                <button class="btn-outline open-contact">Upgrade <i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <div class="card">
-                <h3>E-Commerce</h3>
+
+            <div class="service-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fa-solid fa-store"></i></div>
+                    <h3>E-Commerce</h3>
+                </div>
                 <ul>
-                    <li>• Can include</li>
+                    <li>Can include any combination of:</li>
                     <ol>
-                    <li>Full orders system</li>
-                    <li>Point of Sale system (POS)</li>
-                    <li>Analytics dashboard</li>
-                    <li>Orders Archive</li>
-                    <li>User-friendly Archive manager</li>
-                    <li>Order tracking for customers</li>
-                    <li>Full products page</li>
-                    <li>A CMS (Content Management System) for the products page</li>
-                    <li>And any tool you want can be custom made and added</li>
+                        <li>Full orders system</li>
+                        <li>Point of Sale (POS) system</li>
+                        <li>Analytics dashboard</li>
+                        <li>Orders archive</li>
+                        <li>User-friendly archive manager</li>
+                        <li>Order tracking for customers</li>
+                        <li>Full products page</li>
+                        <li>CMS for the products page</li>
+                        <li>Any custom tool can be built and added</li>
                     </ol>
-                    <li>• Online or offline (local-only) builds</li>
-                    <li>• Protected private websites</li>
-                    <li>• Can be Delivered in 3–4 days or less</li>
-                    <li>Have a question or custom request ? click the debloy button</li>
+                    <li>Online or offline (local-only) builds</li>
+                    <li>Protected private websites</li>
+                    <li>Delivered in 3–4 days or less</li>
                 </ul>
-                <button class="btn" id="openContact">Deploy</button>
+                <button class="btn-outline open-contact">Deploy <i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <div class="card">
-                <h3>Enterprice</h3>
+
+            <div class="service-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fa-solid fa-building"></i></div>
+                    <h3>Enterprise</h3>
+                </div>
                 <ul>
-                    <li>• For large businesses or companies</li>
-                    <li>• Mix different systems and tools</li>
-                    <li>• Delivery & pricing variy</li>
-                    <li>• Tell me your idea i make it happen</li>
+                    <li>For large businesses or companies</li>
+                    <li>Integration of multiple systems and tools</li>
+                    <li>Delivery &amp; pricing vary by scope</li>
+                    <li>Tell me your idea — I make it happen</li>
                 </ul>
-                <button class="btn" id="openContact">Enterprice</button>
+                <button class="btn-outline open-contact">Enterprise <i class="fa-solid fa-arrow-right"></i></button>
             </div>
-            <div class="card">
-                <h3>Custom</h3>
+
+            <div class="service-card">
+                <div class="card-header">
+                    <div class="card-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                    <h3>Custom</h3>
+                </div>
                 <ul>
-                    <li>• Have any other request ? then this is for you</li>
-                    <li>• Tailored to your unique needs</li>
-                    <li>• Mix different systems or tools</li>
-                    <li>• Delivery & pricing depend on scope</li>
-                    <li>• You explain, I build</li>
+                    <li>Have a request that doesn't fit the above? This is for you</li>
+                    <li>Tailored entirely to your unique needs</li>
+                    <li>Mix and match different systems or tools</li>
+                    <li>Delivery &amp; pricing depend on project scope</li>
+                    <li>You explain — I build</li>
                 </ul>
-                <button class="btn" id="openContact">Custom Build</button>
+                <button class="btn-outline open-contact">Custom Build <i class="fa-solid fa-arrow-right"></i></button>
             </div>
+
         </div>
     </section>
 
-    <!-- Standalone Services -->
-    <section class="standalone">
-        <h2 class="section-title">Standalone Services</h2>
+    <!-- ======== STANDALONE SERVICES ======== -->
+    <section class="reveal">
+        <div class="section-label"><i class="fa-solid fa-puzzle-piece"></i> Standalone Services</div>
         <div class="standalone-grid">
+
             <div class="standalone-card">
-                <h4>Anything you need</h4>
-                <p>• Have your own website live in less than 4 hours.</p>
-                <p>• For simple websites, experimntal websites or private projects.</p>
+                <h4><i class="fa-solid fa-lightbulb" style="color:var(--accent);margin-right:6px"></i>Anything You Need</h4>
+                <p>Have your own website live in under 4 hours — for simple, experimental, or private projects.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>Server Setup & Configuration</h4>
-                <p>• Set up or fix servers for any purpose — media, hosting, file, or database.</p>
-                <p>• Works on any device, even old laptops or PCs.</p>
+                <h4><i class="fa-solid fa-server" style="color:var(--accent);margin-right:6px"></i>Server Setup &amp; Configuration</h4>
+                <p>Set up or fix any server — media, hosting, file, or database. Works on any device, even old hardware.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>Hosting Setup</h4>
-                <p>• Turn your PC, laptop, or server into a working host.</p>
-                <p>• Secure remote access or local-only deployment.</p>
+                <h4><i class="fa-solid fa-globe" style="color:var(--accent);margin-right:6px"></i>Hosting Setup</h4>
+                <p>Turn your PC or laptop into a working host. Secure remote access or fully local deployment.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>Offline & Private Systems</h4>
-                <p>• Systems that run fully offline inside your local network.</p>
-                <p>• Perfect for privacy-focused setups.</p>
+                <h4><i class="fa-solid fa-lock" style="color:var(--accent);margin-right:6px"></i>Offline &amp; Private Systems</h4>
+                <p>Systems that run fully offline inside your local network. Perfect for privacy-focused setups.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>POS & Orders</h4>
-                <p>• Standalone sales and order tracking tools.</p>
-                <p>• Connect to your platform or run independently.</p>
+                <h4><i class="fa-solid fa-cash-register" style="color:var(--accent);margin-right:6px"></i>POS &amp; Orders</h4>
+                <p>Standalone sales and order tracking tools. Connect to your platform or run independently.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>Custom Tools</h4>
-                <p>• Tailor-made search pages, dashboards, and control panels.</p>
-                <p>• Designed exactly how you want them to look and work.</p>
+                <h4><i class="fa-solid fa-screwdriver-wrench" style="color:var(--accent);margin-right:6px"></i>Custom Tools</h4>
+                <p>Tailor-made search pages, dashboards, and control panels — designed exactly how you want them.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>E-Commerce (No Orders)</h4>
-                <p>• Product-only stores for catalogs or display sites.</p>
-                <p>• Admin panel for total control over sections and products.</p>
+                <h4><i class="fa-solid fa-tags" style="color:var(--accent);margin-right:6px"></i>E-Commerce (No Orders)</h4>
+                <p>Product-only stores for catalogs or display sites, with a full admin panel for sections and products.</p>
             </div>
+
             <div class="standalone-card">
-                <h4>SEO / Visibility</h4>
-                <p>• Make your site appear on Google and optimize results.</p>
+                <h4><i class="fa-brands fa-google" style="color:var(--accent);margin-right:6px"></i>SEO / Visibility</h4>
+                <p>Make your site appear on Google and optimize its ranking for better search results.</p>
             </div>
+
         </div>
     </section>
 
-    <!-- Contact Modal Button -->
-    <section>
-        <h2 class="section-title">Contact Me</h2>
-        <button class="btn" id="openContact">Open Contact Form</button>
+    <!-- ======== CONTACT ======== -->
+    <section class="contact-section reveal">
+        <div class="section-label" style="justify-content:center;border:none;margin-bottom:0.5rem"><i class="fa-solid fa-envelope"></i> Contact Me</div>
+        <h2>Let's Build Something.</h2>
+        <p>Have a project in mind? Open the form and let's get started.</p>
+        <button class="btn-primary open-contact"><i class="fa-solid fa-paper-plane"></i> Open Contact Form</button>
     </section>
 
-    <!-- Modal -->
-    <div class="modal-bg" id="contactModal">
-        <div class="modal-content">
-            <span class="modal-close" id="closeContact">&times;</span>
-            <iframe src="../contact/index.html"></iframe>
+    <!-- ======== FOOTER ======== -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div><span class="footer-name">Mahdi Yasser</span> · <span style="color:var(--text-muted);font-size:0.85rem;font-family:var(--ff-mono)">2025</span></div>
+            <p class="footer-sub"><a href="../index.html">← Back to Home</a></p>
         </div>
+    </footer>
+
+</main>
+
+<!-- Modal -->
+<div class="modal-bg" id="contactModal">
+    <div class="modal-content">
+        <button class="modal-close" id="closeContact" aria-label="Close">&times;</button>
+        <iframe src="../contact/index.html"></iframe>
     </div>
-
 </div>
 
 <script>
-// ---------------------- THEME TOGGLE ----------------------
-function applyTheme(theme) {
-    if(theme === 'dark') {
-        document.body.classList.add('dark');
-    } else {
-        document.body.classList.remove('dark');
+/* =========================================================
+   THEME
+   ========================================================= */
+(function() {
+    const body = document.body;
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(saved || (prefersDark ? 'dark' : 'light'));
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        const next = body.classList.contains('light-theme') ? 'dark' : 'light';
+        applyTheme(next);
+        localStorage.setItem('theme', next);
+    });
+
+    function applyTheme(t) {
+        body.classList.remove('dark-theme', 'light-theme');
+        body.classList.add(t + '-theme');
     }
-    localStorage.setItem('theme', theme);
-}
+})();
 
-function toggleTheme() {
-    const currentTheme = document.body.classList.contains('dark') ? 'dark' : 'light';
-    applyTheme(currentTheme === 'light' ? 'dark' : 'light');
-}
+/* =========================================================
+   CURSOR
+   ========================================================= */
+(function() {
+    const dot  = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
 
-// Apply saved theme on load
-document.addEventListener('DOMContentLoaded', () => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    applyTheme(savedTheme);
-
-    const modeToggle = document.getElementById('modeToggle');
-    if(modeToggle) modeToggle.addEventListener('click', toggleTheme);
-});
-
-// ---------------------- MODAL / CONTACT ----------------------
-const modalBg = document.querySelector('.modal-bg');
-const modalClose = document.querySelector('.modal-close');
-const contactButtons = document.querySelectorAll('.btn'); // any button with this class
-
-// Open modal
-contactButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        if(modalBg) modalBg.classList.add('show');
+    document.addEventListener('mousemove', e => {
+        mx = e.clientX; my = e.clientY;
+        dot.style.left = mx + 'px';
+        dot.style.top  = my + 'px';
     });
-});
 
-// Close modal
-if(modalClose) {
-    modalClose.addEventListener('click', () => {
-        modalBg.classList.remove('show');
+    (function loop() {
+        rx += (mx - rx) * 0.14;
+        ry += (my - ry) * 0.14;
+        ring.style.left = rx + 'px';
+        ring.style.top  = ry + 'px';
+        requestAnimationFrame(loop);
+    })();
+
+    document.querySelectorAll('a, button, .service-card, .standalone-card, .featured-card').forEach(el => {
+        el.addEventListener('mouseenter', () => ring.classList.add('hovered'));
+        el.addEventListener('mouseleave', () => ring.classList.remove('hovered'));
     });
-}
+})();
 
-// Close modal on outside click
-if(modalBg) {
-    modalBg.addEventListener('click', (e) => {
-        if(e.target === modalBg) modalBg.classList.remove('show');
-    });
-}
+/* =========================================================
+   CANVAS PARTICLES
+   ========================================================= */
+(function() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
 
-// ---------------------- OPTIONAL CARD INTERACTIONS ----------------------
-// Example: if you want buttons on cards to log or highlight
-const cardButtons = document.querySelectorAll('.btn');
-cardButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        // Example action: open contact modal if button has class 'contact-btn'
-        if(btn.classList.contains('contact-btn') && modalBg) {
-            modalBg.classList.add('show');
+    function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', () => { resize(); init(); });
+
+    function init() {
+        particles = [];
+        const count = Math.floor((W * H) / 14000);
+        for (let i = 0; i < count; i++) {
+            particles.push({ x: Math.random() * W, y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+                r: Math.random() * 1.2 + 0.3, a: Math.random() });
         }
-        // You can add more custom actions here per card
+    }
+    init();
+
+    function color() {
+        return document.body.classList.contains('light-theme') ? '196, 122, 0' : '240, 165, 0';
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, W, H);
+        const c = color();
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy;
+            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${c}, ${0.3 + p.a * 0.4})`;
+            ctx.fill();
+        });
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 120) {
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.strokeStyle = `rgba(${c}, ${(1 - d / 120) * 0.12})`;
+                    ctx.lineWidth = 0.8;
+                    ctx.stroke();
+                }
+            }
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+})();
+
+/* =========================================================
+   SCROLL REVEAL
+   ========================================================= */
+(function() {
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+(function() {
+    const modal = document.getElementById('contactModal');
+    const close = document.getElementById('closeContact');
+
+    document.querySelectorAll('.open-contact').forEach(btn => {
+        btn.addEventListener('click', () => modal.classList.add('show'));
     });
-});
-
-// ----------------------   language toggle button ----------------------
-document.getElementById('langToggle').addEventListener('click', () => {
-    window.location.href = './eg/index.html';
-});
+    close.addEventListener('click', () => modal.classList.remove('show'));
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('show'); });
+})();
 </script>
-
 
 </body>
 </html>
-

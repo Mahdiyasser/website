@@ -77,13 +77,12 @@ Unlike V10.0, this version was **not built with templates in mind**. No hand-hol
 | V10.0 Work Per Day | ~6 hours |
 | V10.0 Total Time | ≈ 84+ hours |
 | V11.0 Remake | 2026-02-25 |
-| V11.0 Scope | Front-end only (homepage) |
+| V11.0 Scope | Full Remake of everything |
 
 ---
 
 ## 🧩 Technical Notes
 
-- Both CMS are PHP-based (≈900–1400 lines each).  
 - Compatible with **any real hosting platform or web server** (Apache, Nginx, LiteSpeed, etc).  
 - Fully modular — every section can be moved or reused independently.  
 - No `backdrop-filter` used anywhere.  

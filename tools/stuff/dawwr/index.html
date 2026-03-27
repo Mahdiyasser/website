@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>دوّر</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===== SCREEN 1: WELCOME ===== -->
+  <div id="screen-welcome" class="screen active">
+    <div class="welcome-bg-blob blob-1"></div>
+    <div class="welcome-bg-blob blob-2"></div>
+    <div class="welcome-bg-blob blob-3"></div>
+
+    <!-- Logo Header — fixed at top -->
+    <div class="welcome-logo-header">
+      <div class="logo-circle">
+        <span class="logo-emoji">🎲</span>
+      </div>
+      <h1 class="logo-text">دوّر</h1>
+      <p class="logo-sub">لعبة الأسئلة الاجتماعية</p>
+    </div>
+
+    <!-- Setup Panel — modal-style, fills rest of screen -->
+    <div class="setup-panel">
+      <div class="modal-handle">—</div>
+
+      <h2 class="setup-section-title">مين اللاعبين؟</h2>
+      <p class="setup-section-hint">ادخل أسماء اللي هيلعبوا</p>
+
+      <div id="players-list" class="players-list"></div>
+
+      <div class="add-player-row">
+        <input type="text" id="player-input" class="input-field"
+               placeholder="اسم اللاعب..." maxlength="20" />
+        <button class="btn-icon" id="add-player-btn" onclick="addPlayer()">+</button>
+      </div>
+
+      <!-- ⏱ Timer -->
+      <div class="setting-block">
+        <label class="setting-label">⏱ وقت كل سؤال</label>
+        <div class="seg-options" id="timer-options">
+          <button class="seg-opt active" data-seconds="30">٣٠ ث</button>
+          <button class="seg-opt" data-seconds="45">٤٥ ث</button>
+          <button class="seg-opt" data-seconds="60">دقيقة</button>
+        </div>
+      </div>
+
+      <!-- 📊 Questions Per Player -->
+      <div class="setting-block">
+        <label class="setting-label">📊 أسئلة لكل لاعب</label>
+        <div class="seg-options" id="qpp-options">
+          <button class="seg-opt active" data-qpp="0">بلا حد</button>
+          <button class="seg-opt" data-qpp="3">٣</button>
+          <button class="seg-opt" data-qpp="5">٥</button>
+          <button class="seg-opt" data-qpp="10">١٠</button>
+        </div>
+      </div>
+
+      <!-- 😅 Skip Limit -->
+      <div class="setting-block">
+        <label class="setting-label">😅 تخطيات لكل لاعب</label>
+        <div class="seg-options" id="skip-options">
+          <button class="seg-opt active" data-skips="1">١</button>
+          <button class="seg-opt" data-skips="2">٢</button>
+          <button class="seg-opt" data-skips="3">٣</button>
+          <button class="seg-opt" data-skips="99">بلا حد</button>
+        </div>
+      </div>
+
+      <!-- 🔁 Repeat Count (moved from modal) -->
+      <div class="setting-block">
+        <label class="setting-label">🔁 تكرار الأسئلة</label>
+        <div class="seg-options" id="repeat-options">
+          <button class="seg-opt active" data-repeat="1">مرة</button>
+          <button class="seg-opt" data-repeat="2">٢×</button>
+          <button class="seg-opt" data-repeat="3">٣×</button>
+          <button class="seg-opt" data-repeat="0">بلا حد</button>
+        </div>
+      </div>
+
+      <!-- 🗂 Category Filter -->
+      <div class="setting-block">
+        <label class="setting-label">🗂 الفئات اللي هتلعبوا بيها</label>
+        <div class="cat-filter-wrap" id="cat-filter-wrap">
+          <!-- Built dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- 💡 Custom Questions Button -->
+      <div class="setting-block">
+        <button class="btn-open-modal" onclick="openAddQModal()">
+          <span>💡 أضف أسئلة مخصصة للجلسة</span>
+          <span class="modal-btn-badge" id="custom-q-badge" style="display:none">0</span>
+        </button>
+      </div>
+
+      <!-- ⚙️ Custom/Advanced Settings -->
+      <div class="custom-settings-section" id="custom-settings-section">
+        <button class="custom-settings-toggle" onclick="toggleCustomSettings()">
+          <span>⚙️ إعدادات مخصصة</span>
+          <span class="custom-toggle-arrow" id="custom-toggle-arrow">▼</span>
+        </button>
+        <div class="custom-settings-body" id="custom-settings-body">
+          <p class="custom-settings-hint">اكتب قيمة مخصصة — هتتغلب على الخيارات فوق</p>
+          <div class="custom-inputs-grid">
+            <div class="custom-input-item">
+              <label class="custom-input-label">⏱ وقت (ثانية)</label>
+              <input type="number" id="custom-timer" class="custom-number-input"
+                     min="5" max="300" placeholder="—" />
+            </div>
+            <div class="custom-input-item">
+              <label class="custom-input-label">📊 سؤال / لاعب</label>
+              <input type="number" id="custom-qpp" class="custom-number-input"
+                     min="1" max="50" placeholder="—" />
+            </div>
+            <div class="custom-input-item">
+              <label class="custom-input-label">😅 تخطيات / لاعب</label>
+              <input type="number" id="custom-skips" class="custom-number-input"
+                     min="0" max="20" placeholder="—" />
+            </div>
+            <div class="custom-input-item">
+              <label class="custom-input-label">🔁 تكرار الأسئلة</label>
+              <input type="number" id="custom-repeat" class="custom-number-input"
+                     min="0" max="20" placeholder="—" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary setup-start-btn" id="start-btn" onclick="startGame()" disabled>
+        يلا نلعب! 🎉
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 2: GAME ===== -->
+  <div id="screen-game" class="screen">
+    <div class="game-header">
+      <div class="score-pill" id="question-counter">سؤال ١</div>
+      <div class="timer-ring-wrap">
+        <svg class="timer-ring" viewBox="0 0 56 56" id="timer-svg">
+          <circle class="timer-track" cx="28" cy="28" r="24"/>
+          <circle class="timer-fill" cx="28" cy="28" r="24" id="timer-circle"/>
+        </svg>
+        <span class="timer-number" id="timer-display">30</span>
+      </div>
+      <button class="btn-ghost-sm" onclick="goHome()">✕</button>
+    </div>
+
+    <!-- Player name + skip remaining badge inline -->
+    <div class="player-turn-strip">
+      <span class="turn-label">دور</span>
+      <span class="turn-name" id="current-player-name">أحمد</span>
+      <span class="skip-remaining-label" id="skip-remaining-label"></span>
+    </div>
+
+    <div class="question-area">
+      <div class="category-tag" id="question-category">
+        <span id="cat-emoji">🪞</span>
+        <span id="cat-name">عن نفسك</span>
+      </div>
+
+      <div class="question-card" id="question-card">
+        <p class="question-text" id="question-text">
+          قول حاجة مش حد هنا عارفها عنك
+        </p>
+      </div>
+    </div>
+
+    <div class="game-actions">
+      <button class="btn-secondary" id="skip-btn" onclick="skipQuestion()">تخطي 😅</button>
+      <button class="btn-primary" onclick="nextTurn()">جاوب وامشي ✅</button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 3: TIME'S UP ===== -->
+  <div id="screen-timesup" class="screen">
+    <div class="timesup-content">
+      <div class="timesup-emoji-big">⏰</div>
+      <h2 class="timesup-title">خلص الوقت!</h2>
+      <p class="timesup-player" id="timesup-player-name">أحمد</p>
+      <p class="timesup-desc">لازم يعمل العقوبة اللي قررتوها!</p>
+      <div class="consequence-box">
+        <p class="consequence-label">العقوبة المتفق عليها</p>
+        <p class="consequence-hint">اخنارو العقوبة بنفسكم 😈</p>
+      </div>
+      <button class="btn-primary" onclick="continueAfterPenalty()">
+        اتعاقب وكمّل 😂
+      </button>
+    </div>
+  </div>
+
+  <!-- ===== SCREEN 4: END ===== -->
+  <div id="screen-end" class="screen">
+    <div class="end-content">
+      <div class="end-emoji-big">🎊</div>
+      <h2 class="end-title">خلصت الجولة!</h2>
+      <p class="end-sub">كانت جلسة حلوة 😄</p>
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-num" id="stat-questions">0</span>
+          <span class="stat-label">سؤال اتجاوب</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num" id="stat-skipped">0</span>
+          <span class="stat-label">اتتخطوا</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-num" id="stat-penalties">0</span>
+          <span class="stat-label">عقوبة</span>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="restartGame()">جولة تانية! 🔄</button>
+      <button class="btn-secondary" onclick="goHome()">الرئيسية</button>
+    </div>
+  </div>
+
+  <!-- ===== ADD QUESTIONS MODAL ===== -->
+  <div id="modal-add-q" class="modal-overlay hidden" onclick="closeAddQModalBackdrop(event)">
+    <div class="modal-box" id="modal-add-q-box">
+      <div class="modal-handle">—</div>
+      <h3 class="modal-title">💡 أضف أسئلتك</h3>
+      <p class="modal-hint">الأسئلة دي هتتضاف للجلسة الحالية</p>
+
+      <textarea
+        id="modal-q-text"
+        class="textarea-field"
+        placeholder="اكتب سؤالك هنا..."
+        maxlength="150"
+        rows="3"
+      ></textarea>
+
+      <!-- Anonymous toggle -->
+      <div class="anon-toggle-row">
+        <button id="anon-toggle" class="anon-toggle-btn" onclick="toggleAnonymous()">🕵️ مجهول</button>
+        <span class="anon-toggle-hint">يخفي السؤال في القائمة علشان محدش يعرف مين كتبه</span>
+      </div>
+
+      <!-- Category pick -->
+      <div class="modal-cat-pick">
+        <label class="setting-label">الفئة</label>
+        <div class="cat-options-grid" id="modal-cat-options">
+          <!-- Built dynamically -->
+        </div>
+      </div>
+
+      <!-- Add button -->
+      <button class="btn-primary" onclick="saveModalQuestion()" style="margin-bottom:12px">
+        + أضف السؤال
+      </button>
+
+      <!-- Added questions list -->
+      <div class="modal-divider" id="modal-divider" style="display:none"></div>
+      <div class="added-questions-list" id="modal-added-list"></div>
+
+      <!-- Done button -->
+      <button class="btn-secondary" onclick="closeAddQModal()">تم ✓</button>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRM EXIT MODAL ===== -->
+  <div id="modal-confirm-exit" class="modal-overlay hidden" onclick="closeConfirmExitBackdrop(event)">
+    <div class="modal-box confirm-exit-box">
+      <div class="modal-handle">—</div>
+      <h3 class="modal-title">تخرج من اللعبة؟ 🤔</h3>
+      <p class="modal-hint">هيتمسح كل تقدم اللعبة الحالية</p>
+      <button class="btn-primary confirm-exit-yes" onclick="confirmExit()">أيوه، اخرج 🚪</button>
+      <button class="btn-secondary" onclick="closeConfirmExit()">لأ، كمّل اللعب ▶️</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

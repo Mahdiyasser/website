@@ -1,9 +1,9 @@
 [
     {
         "id": 17,
-        "name": "Dawwr",
-        "path": ".\/stuff\/dawwr",
-        "image": "..\/img\/dawwr.png",
+        "name": "Dawwar",
+        "path": ".\/stuff\/dawwar",
+        "image": "..\/img\/dawwar.svg",
         "tag": "Game",
         "style": "card",
         "description": "\u062f\u0648\u0651\u0631 \u2014 a social Arabic party game where players take turns answering personal, confessional, and challenge questions with a timer.",

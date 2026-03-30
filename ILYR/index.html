@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>رودي</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+  </style>
+  <style>
+:root {
+  --bg: #080008;
+  --rose: #c0392b;
+  --gold: #e2b96f;
+  --text: #f5e0e5;
+  --soft-rose: #ff8fa3;
+  --deep-red: #6b0000;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body {
+  height:100%; overflow:hidden; background:var(--bg);
+  font-family:'Amiri',serif; direction:rtl; touch-action:none;
+}
+
+canvas#bg { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+
+/* Petal container — isolated from body so appending petals doesn't reflow body */
+#petalContainer { position:fixed; inset:0; pointer-events:none; z-index:2; contain:strict; }
+
+.petal { position:absolute; top:-30px; pointer-events:none; will-change:transform,opacity; animation:petalFall linear forwards; }
+@keyframes petalFall {
+  0%   { transform:translateY(0) rotate(0deg) scale(1); opacity:.8 }
+  80%  { opacity:.5 }
+  100% { transform:translateY(110vh) rotate(540deg) scale(.6); opacity:0 }
+}
+.petal svg { display:block; }
+
+/* START */
+#startScreen {
+  position:fixed; inset:0; z-index:200;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at 50% 40%, #1a0015 0%, #080008 70%);
+  transition:opacity 1.4s ease;
+}
+.start-deco { font-size:3.5rem; animation:heartPulse 1.4s ease-in-out infinite; margin-bottom:.4rem; filter:drop-shadow(0 0 10px #c0392b); }
+.start-name {
+  font-size:5.5rem; font-weight:700; color:var(--gold);
+  text-shadow:0 0 40px rgba(226,185,111,.55);
+  position:relative; line-height:1.1;
+}
+.start-name::after {
+  content:attr(data-text); position:absolute; inset:0;
+  color:transparent; text-shadow:0 0 80px rgba(226,185,111,.85),0 0 120px rgba(226,185,111,.5);
+  animation:nameGlow 3s ease-in-out infinite;
+  will-change:opacity; pointer-events:none;
+}
+.start-sub { color:#8a5a70; font-size:1rem; margin-top:.5rem; margin-bottom:3rem; letter-spacing:.1em; }
+.start-btn {
+  background:linear-gradient(135deg,#6b0000 0%,#a52840 60%,#c0392b 100%);
+  border:none; color:#ffe8ee; font-family:'Amiri',serif; font-size:1.5rem;
+  padding:1rem 3.4rem; border-radius:60px; cursor:pointer;
+  box-shadow:0 0 40px rgba(165,40,64,.45),0 4px 20px rgba(0,0,0,.5);
+  position:relative; overflow:hidden; transition:transform .15s;
+}
+.start-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,transparent 60%);
+  border-radius:60px;
+}
+.start-btn:active { transform:scale(.95); }
+
+@keyframes heartPulse {
+  0%,100% { transform:scale(1); }
+  50%      { transform:scale(1.15); }
+}
+/* nameGlow: static text-shadow + cheap opacity pulse on a pseudo-element blur layer */
+@keyframes nameGlow { 0%,100%{opacity:.55} 50%{opacity:1} }
+
+/* STAGE */
+#stage {
+  position:fixed; inset:0; z-index:10;
+  display:flex; align-items:center; justify-content:center; pointer-events:none;
+  contain:layout style;
+}
+.chunk {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  padding:2.5rem 2rem; opacity:0; transition:opacity .8s ease;
+  pointer-events:none; text-align:center; will-change:opacity; contain:layout style;
+}
+.chunk.active    { opacity:1; pointer-events:auto; }
+.chunk.fadingOut { opacity:0 !important; transition:opacity .7s ease; }
+.ornament { font-size:1.2rem; color:var(--gold); opacity:.4; margin-bottom:.9rem; letter-spacing:.3em; }
+.chunk-body {
+  font-family:'Amiri',serif; color:var(--text); font-size:1.7rem;
+  line-height:2.1; max-width:360px; text-shadow:0 2px 24px rgba(0,0,0,.9);
+}
+.word {
+  display:inline-block; opacity:0; transform:translateY(8px);
+  transition:opacity .35s ease,transform .35s ease; margin:0 .08em; will-change:opacity,transform;
+}
+.word.shown { opacity:1; transform:translateY(0); }
+.chunk-name .chunk-body {
+  font-size:6.5rem; font-weight:700; color:var(--gold);
+  text-shadow:0 0 50px rgba(226,185,111,.6);
+  line-height:1; position:relative;
+}
+.chunk-name .chunk-body::after {
+  content:attr(data-text); position:absolute; inset:0;
+  color:transparent; text-shadow:0 0 100px rgba(226,185,111,.9),0 0 160px rgba(226,185,111,.5);
+  animation:nameGlow 2.5s ease-in-out infinite;
+  will-change:opacity; pointer-events:none;
+}
+.chunk-love .chunk-body {
+  font-size:2.8rem; font-weight:700; color:#ffb3c6;
+  text-shadow:0 0 40px rgba(255,100,130,.75);
+  line-height:1.6; position:relative;
+}
+.chunk-love .chunk-body::after {
+  content:attr(data-text); position:absolute; inset:0;
+  color:transparent; text-shadow:0 0 80px rgba(255,150,170,1),0 0 140px rgba(255,100,130,.8);
+  animation:nameGlow 1.6s ease-in-out infinite;
+  will-change:opacity; pointer-events:none;
+}
+@keyframes lovePulse { 0%,100%{opacity:.6} 50%{opacity:1} }
+.chunk-final .chunk-body    { font-size:2.1rem; color:var(--gold); text-shadow:0 0 30px rgba(226,185,111,.6); }
+.chunk-question .chunk-body { font-size:2rem; color:#ffccd5; font-style:italic; }
+
+/* END */
+#endScreen {
+  position:fixed; inset:0; z-index:100;
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  gap:1.4rem; padding:2.5rem 2rem; text-align:center;
+  opacity:0; transition:opacity 1.5s ease;
+}
+#endScreen.visible { display:flex; }
+#endScreen.shown   { opacity:1; }
+.end-heart  { font-size:4rem; animation:heartPulse 1.4s ease-in-out infinite; }
+.end-title  { font-size:1.9rem; color:var(--gold); line-height:1.8; }
+.end-sub    { font-size:1.05rem; color:#8a5a70; margin-top:-.5rem; }
+.resp-btn {
+  width:100%; max-width:300px; padding:1.1rem 2rem;
+  border-radius:60px; font-family:'Amiri',serif; font-size:1.4rem;
+  cursor:pointer; transition:transform .15s; border:none;
+}
+.resp-btn:active { transform:scale(.95); }
+.resp-yes {
+  background:linear-gradient(135deg,#6b0000,#c0392b); color:#ffe8ee;
+  box-shadow:0 0 30px rgba(192,57,43,.5),0 4px 20px rgba(0,0,0,.4);
+}
+.resp-maybe { background:transparent; border:2px solid var(--gold); color:var(--gold); }
+
+/* PROGRESS */
+#progressBar {
+  position:fixed; bottom:0; right:0; height:3px;
+  background:linear-gradient(to left,var(--gold),var(--rose));
+  width:0%; z-index:300; transition:width .5s ease;
+}
+
+/* BURST */
+.burst-heart { position:fixed; pointer-events:none; z-index:8; will-change:transform,opacity; animation:burstFly ease-out forwards; }
+@keyframes burstFly {
+  0%   { transform:translate(0,0) scale(.5) rotate(0deg); opacity:1 }
+  100% { transform:var(--fly-to) scale(1.5) rotate(var(--rot)); opacity:0 }
+}
+
+/* REPLY */
+#replyScreen {
+  position:fixed; inset:0; z-index:500;
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  gap:1.8rem; padding:2.5rem 2rem; text-align:center;
+  background:radial-gradient(ellipse at 50% 40%,#1a0015 0%,#080008 80%);
+  opacity:0; transition:opacity 1s ease;
+}
+#replyScreen.visible { display:flex; }
+#replyScreen.shown   { opacity:1; }
+.reply-icon { font-size:5rem; animation:heartPulse 1.4s ease-in-out infinite; }
+.reply-text { font-size:2rem; color:var(--gold); line-height:1.8; max-width:340px; }
+.reply-sub  { font-size:1.1rem; color:#8a5a70; max-width:300px; line-height:1.8; }
+
+
+/* ══════════════════════════════════════
+   CATALOGUE  (?cat)
+══════════════════════════════════════ */
+#catalogue {
+  display:none; position:fixed; inset:0; z-index:1000;
+  overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+  background:radial-gradient(ellipse at 50% 0%,#180010 0%,#080008 60%);
+  padding:4rem 1.6rem 5rem;
+}
+#catalogue.active { display:block; }
+
+.cat-header { text-align:center; margin-bottom:2.4rem; position:relative; }
+.cat-header::after {
+  content:''; display:block; width:80px; height:1px;
+  background:linear-gradient(to left,transparent,var(--gold),transparent);
+  margin:1.5rem auto 0; opacity:.4;
+}
+.cat-name {
+  font-size:4rem; font-weight:700; color:var(--gold);
+  text-shadow:0 0 40px rgba(226,185,111,.45); line-height:1;
+  position:relative;
+}
+.cat-name::after {
+  content:attr(data-text); position:absolute; inset:0;
+  color:transparent; text-shadow:0 0 80px rgba(226,185,111,.85);
+  animation:nameGlow 3s ease-in-out infinite;
+  will-change:opacity; pointer-events:none;
+}
+.cat-label { font-size:.85rem; color:#8a5a70; letter-spacing:.18em; margin-top:.6rem; }
+
+.tap-hint {
+  text-align:center; font-size:.7rem; color:#8a5a70; letter-spacing:.12em;
+  margin-bottom:2rem; opacity:.65;
+}
+
+.cat-section { margin:2.2rem 0; }
+.cat-section-badge {
+  display:inline-block; background:rgba(107,0,0,.35); border:1px solid rgba(192,57,43,.3);
+  color:#c0392b; font-size:.7rem; letter-spacing:.22em; padding:.28rem .9rem;
+  border-radius:20px; margin-bottom:1.4rem;
+}
+
+.cat-line {
+  font-family:'Amiri',serif; color:var(--text); font-size:1.25rem;
+  line-height:2.15; text-align:center; max-width:320px; margin:0 auto; opacity:.92;
+  border-radius:8px; transition:background .2s, opacity .2s;
+}
+.cat-line[data-chunk] {
+  cursor:pointer; padding:.15rem .7rem;
+}
+.cat-line[data-chunk]:hover  { background:rgba(226,185,111,.08); opacity:1; }
+.cat-line[data-chunk]:active { background:rgba(192,57,43,.18); }
+
+.cat-line.is-name {
+  font-size:3.2rem; font-weight:700; color:var(--gold);
+  text-shadow:0 0 30px rgba(226,185,111,.5); line-height:1.3; margin-bottom:.4rem;
+}
+.cat-line.is-love {
+  font-size:1.85rem; font-weight:700; color:#ffb3c6;
+  text-shadow:0 0 25px rgba(255,100,130,.5); line-height:1.7;
+}
+.cat-line.is-final { font-size:1.55rem; color:var(--gold); text-shadow:0 0 20px rgba(226,185,111,.4); }
+.cat-line.is-question { font-style:italic; color:#ffccd5; }
+
+.cat-divider { text-align:center; color:var(--gold); opacity:.22; font-size:.9rem; letter-spacing:.5em; margin:1.8rem 0; }
+
+.cat-cta {
+  display:flex; flex-direction:column; align-items:center; gap:1rem;
+  margin-top:3.5rem; padding-top:2rem; border-top:1px solid rgba(226,185,111,.1);
+}
+.cat-cta-label { font-size:.8rem; color:#8a5a70; letter-spacing:.12em; }
+.cat-cta-btn {
+  background:linear-gradient(135deg,#6b0000 0%,#a52840 60%,#c0392b 100%);
+  border:none; color:#ffe8ee; font-family:'Amiri',serif; font-size:1.35rem;
+  padding:.9rem 2.8rem; border-radius:60px; cursor:pointer;
+  box-shadow:0 0 35px rgba(165,40,64,.4),0 4px 18px rgba(0,0,0,.5);
+  position:relative; overflow:hidden; transition:transform .15s;
+}
+.cat-cta-btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.1) 0%,transparent 60%); border-radius:60px;
+}
+.cat-cta-btn:active { transform:scale(.95); }
+
+/* ══════════════════════════════════════
+   GO SCREEN  (?go)
+══════════════════════════════════════ */
+#goScreen {
+  display:none; position:fixed; inset:0; z-index:1000;
+  overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+  background:radial-gradient(ellipse at 50% 20%,#1a0015 0%,#080008 65%);
+  padding:3.5rem 1.4rem 4rem;
+  flex-direction:column; align-items:center;
+}
+#goScreen.active { display:flex; }
+
+.go-header { text-align:center; margin-bottom:.6rem; }
+.go-title {
+  font-size:3.6rem; font-weight:700; color:var(--gold);
+  text-shadow:0 0 40px rgba(226,185,111,.45); line-height:1;
+  position:relative;
+}
+.go-title::after {
+  content:attr(data-text); position:absolute; inset:0;
+  color:transparent; text-shadow:0 0 80px rgba(226,185,111,.85);
+  animation:nameGlow 3s ease-in-out infinite;
+  will-change:opacity; pointer-events:none;
+}
+.go-subtitle { font-size:.82rem; color:#8a5a70; letter-spacing:.18em; margin-top:.5rem; }
+
+.go-rule {
+  width:60px; height:1px;
+  background:linear-gradient(to left,transparent,var(--gold),transparent);
+  opacity:.35; margin:1.8rem auto;
+  flex-shrink:0;
+}
+
+.go-grid {
+  display:flex; flex-direction:column; gap:.95rem;
+  width:100%; max-width:340px;
+}
+
+.go-card {
+  position:relative;
+  display:flex; flex-direction:column; align-items:flex-start;
+  padding:1.3rem 3rem 1.3rem 1.5rem;
+  background:rgba(255,255,255,.022);
+  border:1px solid rgba(226,185,111,.15);
+  border-radius:16px; cursor:pointer; overflow:hidden;
+  transition:transform .18s, border-color .25s, box-shadow .25s, background .25s;
+  -webkit-tap-highlight-color:transparent;
+}
+.go-card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(107,0,0,.0) 0%,rgba(192,57,43,.1) 100%);
+  opacity:0; transition:opacity .25s; border-radius:16px;
+}
+.go-card:hover::before,.go-card:active::before { opacity:1; }
+.go-card:hover  { border-color:rgba(226,185,111,.45); box-shadow:0 0 24px rgba(226,185,111,.1); transform:translateY(-2px); }
+.go-card:active { transform:scale(.97); }
+
+/* Left glow strip */
+.go-card::after {
+  content:''; position:absolute; right:0; top:50%; transform:translateY(-50%);
+  width:3px; height:0; border-radius:0 3px 3px 0;
+  background:linear-gradient(to bottom,transparent,var(--gold),transparent);
+  transition:height .3s ease;
+}
+.go-card:hover::after { height:70%; }
+
+.go-card-num  { font-size:.62rem; letter-spacing:.25em; color:#8a5a70; margin-bottom:.4rem; }
+.go-card-label {
+  font-size:1.65rem; font-weight:700; color:var(--gold);
+  text-shadow:0 0 20px rgba(226,185,111,.3); line-height:1.2; margin-bottom:.3rem;
+}
+.go-card-desc { font-size:.92rem; color:rgba(245,224,229,.5); line-height:1.6; }
+
+.go-card-arrow {
+  position:absolute; left:1.3rem; top:50%; transform:translateY(-50%);
+  font-size:1rem; color:rgba(226,185,111,.28); transition:color .25s, left .2s;
+}
+.go-card:hover .go-card-arrow { color:rgba(226,185,111,.8); left:1rem; }
+
+.go-back {
+  margin-top:2rem; font-size:.8rem; color:#8a5a70; letter-spacing:.1em;
+  cursor:pointer; text-decoration:underline; text-underline-offset:3px; opacity:.7;
+}
+.go-back:hover { opacity:1; color:var(--text); }
+  </style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<div id="petalContainer"></div>
+
+<!-- CATALOGUE (?cat) -->
+<div id="catalogue">
+  <div class="cat-header">
+    <div class="cat-name" data-text="رودي">رودي</div>
+    <div class="cat-label">رسالة مخصوصة ليكي</div>
+  </div>
+  <div class="tap-hint">✦ اضغطي على أي سطر عشان تبدأي التجربة من هناك ✦</div>
+
+  <div class="cat-section">
+    <div class="cat-section-badge">البداية</div>
+    <div class="cat-line is-name" data-chunk="0">رودي</div>
+    <div class="cat-line" data-chunk="1">انا في حاجة كنت عايز اقولهالك</div>
+    <div class="cat-line" data-chunk="2">من زمان...</div>
+    <div class="cat-line" data-chunk="3">من زمان اوي</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="4">الحاجة دي بسببها انا كل يوم كنت بسرح</div>
+    <div class="cat-line" data-chunk="5">طول الايام اللي فاتت</div>
+    <div class="cat-line" data-chunk="6">مش بس الايام اللي فاتت</div>
+    <div class="cat-line" data-chunk="7">لا.. كمان الشهور اللي فاتت</div>
+  </div>
+
+  <div class="cat-divider">✦ ✦ ✦</div>
+
+  <div class="cat-section">
+    <div class="cat-section-badge">الخوف</div>
+    <div class="cat-line" data-chunk="8">و انا عارف اني لو قولتلك علي الحاجة دي</div>
+    <div class="cat-line" data-chunk="9">انا هرتاح</div>
+    <div class="cat-line" data-chunk="10">هرتاح بجد</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="11">بس المشكلة كانت</div>
+    <div class="cat-line" data-chunk="12">ان انا مش عارفك احساسك ناحيتي يبقي اي بالظبط</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="13">فكنت خايف</div>
+    <div class="cat-line" data-chunk="14">اني اقولك و اخسرك</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="15">لو الاحساس اللي عندي ليكي مش نفس الاحساس اللي عندك ليا</div>
+    <div class="cat-line" data-chunk="16">و انا مش عايز اخسرك خالص</div>
+    <div class="cat-line" data-chunk="17">انا اخر حاجة عايزها هي اني اخسرك</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="18">وده كان احساسي طول الشهور اللي فاتت</div>
+    <div class="cat-line" data-chunk="19">عايز اقولك بس مش عايز اخسرك بس خايف اني لو مقولتش ليكي هخسرك برده</div>
+  </div>
+
+  <div class="cat-divider">✦ ✦ ✦</div>
+
+  <div class="cat-section">
+    <div class="cat-section-badge">الاعتراف</div>
+    <div class="cat-line is-name" data-chunk="20">رودي</div>
+    <div class="cat-line" data-chunk="21">انتي مش مجرد بنت خالتي</div>
+    <div class="cat-line" data-chunk="22">انتي بالنسبالي اقرب حد ليا</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line is-love" data-chunk="23">و انا بحبك يا رودي ❤</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="24">انا مش عارف انتي عارفة ولا لا</div>
+    <div class="cat-line" data-chunk="25">بس انا بقالي اكتر من شهر بحاول ابينلك</div>
+    <div class="cat-line is-question" data-chunk="26">واظن انك عرفتي صح ؟</div>
+  </div>
+
+  <div class="cat-divider">✦ ✦ ✦</div>
+
+  <div class="cat-section">
+    <div class="cat-section-badge">الختام</div>
+    <div class="cat-line" data-chunk="27">بس انا مش عايز اخسرك تحت اي ظروف</div>
+    <div class="cat-line" data-chunk="28">و لو انتي معندكيش نفس احساس الحب ده ناحيتي انا اه هكون زعلان</div>
+    <div class="cat-line" data-chunk="29">بس انا اقدر اني اتعامل عادي زي ما كنت بتعامل معاكي قبل ما تقري الكلام ده</div>
+    <div class="cat-divider">✦ ✦ ✦</div>
+    <div class="cat-line" data-chunk="30">و انا بجد مش عايز اندم اني اعترفتلك</div>
+    <div class="cat-line is-final" data-chunk="31">و مش عايز اخسرك ❤</div>
+  </div>
+
+  <div class="cat-cta">
+    <div class="cat-cta-label">عايزة تعيشي التجربة كاملة ؟</div>
+    <button class="cat-cta-btn" onclick="launchAtChunk(0)">ابدأي من الأول ❤</button>
+  </div>
+</div>
+
+<!-- GO SCREEN (?go) -->
+<div id="goScreen">
+  <div class="go-header">
+    <div class="go-title" data-text="رودي">رودي</div>
+    <div class="go-subtitle">روحي للجزء اللي تعيشيه</div>
+  </div>
+  <div class="go-rule"></div>
+  <div class="go-grid">
+    <div class="go-card" onclick="launchAtChunk(0)">
+      <div class="go-card-num">٠١</div>
+      <div class="go-card-label">البداية</div>
+      <div class="go-card-desc">من أول الكلام</div>
+      <div class="go-card-arrow">◀</div>
+    </div>
+    <div class="go-card" onclick="launchAtChunk(8)">
+      <div class="go-card-num">٠٢</div>
+      <div class="go-card-label">الخوف</div>
+      <div class="go-card-desc">لما كنت خايف اقولك و اخسرك</div>
+      <div class="go-card-arrow">◀</div>
+    </div>
+    <div class="go-card" onclick="launchAtChunk(23)">
+      <div class="go-card-num">٠٣</div>
+      <div class="go-card-label">الاعتراف</div>
+      <div class="go-card-desc">و انا بحبك يا رودي ❤</div>
+      <div class="go-card-arrow">◀</div>
+    </div>
+    <div class="go-card" onclick="launchAtChunk(27)">
+      <div class="go-card-num">٠٤</div>
+      <div class="go-card-label">الختام</div>
+      <div class="go-card-desc">مش عايز اخسرك تحت اي ظروف</div>
+      <div class="go-card-arrow">◀</div>
+    </div>
+  </div>
+  <div class="go-back" onclick="showStartScreen()">أو ابدأي التجربة كاملة من الأول</div>
+</div>
+
+<!-- MAIN EXPERIENCE -->
+<div id="startScreen">
+  <div class="start-deco">❤</div>
+  <div class="start-name" data-text="رودي">رودي</div>
+  <div class="start-sub">في رسالة مخصوصة ليكي</div>
+  <button class="start-btn" onclick="startExperience()">افتحي رسالتي ليكي ❤</button>
+</div>
+
+<audio id="song" src="./data/song.mp3" preload="auto"></audio>
+<div id="progressBar"></div>
+<div id="stage"></div>
+<div id="endScreen">
+  <div class="end-heart">❤</div>
+  <div class="end-title">دلوقتي الكلام كله اتقال</div>
+  <div class="end-sub">وقت ما تعوزي تردي ابعتيلي الزراير اللي تحت دول مش بيعرفوني حاجة</div>
+  <button class="resp-btn resp-yes"   onclick="reply('yes')">بحبك برضو ❤</button>
+  <button class="resp-btn resp-maybe" onclick="reply('maybe')">———</button>
+</div>
+
+<div id="replyScreen">
+  <div class="reply-icon" id="replyIcon">❤</div>
+  <div class="reply-text" id="replyText"></div>
+  <div class="reply-sub"  id="replySub"></div>
+</div>
+
+<script>
+/* ── Cached DOM refs (avoid repeated getElementById in hot paths) ── */
+const DOM = {};
+document.addEventListener('DOMContentLoaded', () => {}, {once:true}); // ensure parsed
+(function cacheDom(){
+  ['bg','song','progressBar','stage','startScreen','endScreen','replyScreen',
+   'catalogue','goScreen','replyIcon','replyText','replySub'].forEach(id=>{
+    DOM[id] = document.getElementById(id);
+  });
+})();
+
+const INITIAL_DELAY_MS = 1700;
+
+const chunks = [
+  {cls:'chunk-name', text:'رودي',             wordDelay:0,   pauseAfter:4200},
+  {text:'انا في حاجة كنت عايز اقولهالك',      wordDelay:270, pauseAfter:350},
+  {text:'من زمان...',                          wordDelay:900, pauseAfter:600},
+  {text:'من زمان اوي',                         wordDelay:650, pauseAfter:2200},
+  {text:'الحاجة دي بسببها انا كل يوم كنت بسرح',wordDelay:200, pauseAfter:500},
+  {text:'طول الايام اللي فاتت',                wordDelay:370, pauseAfter:250},
+  {text:'مش بس الايام اللي فاتت',              wordDelay:90,  pauseAfter:150},
+  {text:'لا.. كمان الشهور اللي فاتت',          wordDelay:90,  pauseAfter:2400},
+  {text:'و انا عارف اني لو قولتلك علي الحاجة دي',wordDelay:230,pauseAfter:350},
+  {text:'انا هرتاح',                           wordDelay:550, pauseAfter:300},
+  {text:'هرتاح بجد',                           wordDelay:780, pauseAfter:3000},
+  {text:'بس المشكلة كانت',                     wordDelay:420, pauseAfter:1000},
+  {text:'ان انا مش عارفك احساسك ناحيتي يبقي اي بالظبط',wordDelay:195,pauseAfter:1300},
+  {text:'فكنت خايف',                           wordDelay:660, pauseAfter:280},
+  {text:'اني اقولك و اخسرك',                   wordDelay:490, pauseAfter:950},
+  {text:'لو الاحساس اللي عندي ليكي مش نفس الاحساس اللي عندك ليا',wordDelay:95,pauseAfter:1700},
+  {text:'و انا مش عايز اخسرك خالص',            wordDelay:460, pauseAfter:500},
+  {text:'انا اخر حاجة عايزها هي اني اخسرك',   wordDelay:390, pauseAfter:2400},
+  {text:'وده كان احساسي طول الشهور اللي فاتت', wordDelay:235, pauseAfter:700},
+  {text:'عايز اقولك بس مش عايز اخسرك بس خايف اني لو مقولتش ليكي هخسرك برده',wordDelay:82,pauseAfter:2200},
+  {cls:'chunk-name', text:'رودي',             wordDelay:0,   pauseAfter:4000},
+  {text:'انتي مش مجرد بنت خالتي',             wordDelay:410, pauseAfter:1100},
+  {text:'انتي بالنسبالي اقرب حد ليا',         wordDelay:430, pauseAfter:3500},
+  {cls:'chunk-love', text:'و انا بحبك يا رودي ❤',wordDelay:780,pauseAfter:7000},
+  {text:'انا مش عارف انتي عارفة ولا لا',      wordDelay:150, pauseAfter:700},
+  {text:'بس انا بقالي اكتر من شهر بحاول ابينلك',wordDelay:195,pauseAfter:600},
+  {cls:'chunk-question',text:'واظن انك عرفتي صح ؟',wordDelay:540,pauseAfter:3800},
+  {text:'بس انا مش عايز اخسرك تحت اي ظروف',  wordDelay:360, pauseAfter:1500},
+  {text:'و لو انتي معندكيش نفس احساس الحب ده ناحيتي انا اه هكون زعلان',wordDelay:95,pauseAfter:1000},
+  {text:'بس انا اقدر اني اتعامل عادي زي ما كنت بتعامل معاكي قبل ما تقري الكلام ده',wordDelay:80,pauseAfter:2000},
+  {text:'و انا بجد مش عايز اندم اني اعترفتلك',wordDelay:420, pauseAfter:1600},
+  {cls:'chunk-final', text:'و مش عايز اخسرك ❤',wordDelay:720, pauseAfter:5500},
+];
+
+
+/* Precompute song seek time per chunk */
+const chunkSongTimeSec = [];
+(function(){
+  let t = INITIAL_DELAY_MS;
+  chunks.forEach(c=>{
+    chunkSongTimeSec.push(t/1000);
+    const wc = c.text.split(' ').filter(Boolean).length;
+    t += Math.max(0,wc-1)*c.wordDelay + 350 + c.pauseAfter;
+  });
+})();
+
+/* Build stage */
+const stage = DOM.stage;
+chunks.forEach((c,i)=>{
+  const div=document.createElement('div');
+  div.className='chunk '+(c.cls||''); div.id='ch'+i;
+  let body='';
+  c.text.split(' ').forEach(w=>{ if(w) body+=`<span class="word">${w}</span> `; });
+  div.innerHTML=(c.cls==='chunk-name'?'':'<div class="ornament">✦ ✦ ✦</div>')+`<div class="chunk-body"${c.cls==='chunk-name'||c.cls==='chunk-love'?` data-text="${c.text}"`:''}>${body}</div>`;
+  stage.appendChild(div);
+});
+
+/* Cat line click → launch */
+DOM.catalogue.addEventListener('click',function(e){
+  const el=e.target.closest('[data-chunk]');
+  if(el) launchAtChunk(parseInt(el.dataset.chunk,10));
+});
+
+/* Canvas */
+const canvas=DOM.bg, ctx=canvas.getContext('2d',{alpha:false});
+let W,H;
+
+/* ── Declare shared state vars before any function that references them ── */
+let _gradientCache=null, _gradientAtP=-1;
+let bgProgress=0, animRunning=false;
+
+/* ── Cap pixel ratio — old phones at 2-3x DPR would otherwise fill 2-3x the pixels ── */
+const DPR = Math.min(window.devicePixelRatio||1, 1.5);
+
+/* ── Debounced resize (avoid thrashing on every drag pixel) ── */
+let _resizeTimer;
+function resize(){
+  const dw=window.innerWidth, dh=window.innerHeight;
+  W=dw; H=dh;
+  canvas.width=Math.round(dw*DPR); canvas.height=Math.round(dh*DPR);
+  canvas.style.width=dw+'px'; canvas.style.height=dh+'px';
+  ctx.scale(DPR,DPR);
+  _gradientCache=null;
+}
+function onResize(){ clearTimeout(_resizeTimer); _resizeTimer=setTimeout(resize,80); }
+resize(); window.addEventListener('resize',onResize);
+
+const stars=Array.from({length:80},()=>({
+  x:Math.random(),y:Math.random(),r:Math.random()*1.2+.3,
+  phase:Math.random()*Math.PI*2,speed:Math.random()*.008+.003
+}));
+const floatHearts=[];
+const bgPhases=[[8,0,10],[10,0,14],[13,0,17],[16,0,18],[20,2,14],[24,3,16],[20,3,14],[18,2,12],[14,0,10],[8,0,10]];
+function lerp(a,b,t){return a.map((v,i)=>Math.round(v+(b[i]-v)*t));}
+
+/* ── Memoised getBg — only recomputes when bgProgress changes ── */
+let _lastBgP=-1, _lastBgRgb=null;
+function getBg(p){
+  if(p===_lastBgP) return _lastBgRgb;
+  _lastBgP=p;
+  const n=bgPhases.length-1,gi=Math.min(p*n,n-.001),lo=Math.floor(gi);
+  return (_lastBgRgb=lerp(bgPhases[lo],bgPhases[lo+1],gi-lo));
+}
+
+/* ── Cached gradient — only recreated when bgProgress or size changes ── */
+function getGradient(r,g,b,p){
+  if(_gradientCache && _gradientAtP===p) return _gradientCache;
+  _gradientAtP=p;
+  const grd=ctx.createRadialGradient(W*.5,H*.42,0,W*.5,H*.5,W*.9);
+  grd.addColorStop(0,`rgb(${r+10},${g+2},${b+12})`);
+  grd.addColorStop(1,`rgb(${r},${g},${b})`);
+  return (_gradientCache=grd);
+}
+
+/* ── rAF throttle: target ~30fps on canvas (halves GPU load on old phones) ── */
+let _lastFrameTime=0;
+const FRAME_INTERVAL=1000/30; // ~33ms
+
+function drawFrame(){
+  if(!animRunning) return;
+  requestAnimationFrame(drawFrame);
+  const now=performance.now();
+  if(now-_lastFrameTime < FRAME_INTERVAL) return;
+  _lastFrameTime=now;
+
+  const t=now*.001;
+  const[r,g,b]=getBg(bgProgress);
+
+  /* Background — reuse cached gradient when bgProgress unchanged */
+  ctx.fillStyle=getGradient(r,g,b,bgProgress);
+  ctx.fillRect(0,0,W,H);
+
+  /* ── Stars: single beginPath for ALL stars — 80 arc calls, 1 fill call ── */
+  ctx.fillStyle='rgb(255,220,190)';
+  ctx.beginPath();
+  stars.forEach(s=>{
+    const alpha=.45+.45*Math.sin(s.phase+t*s.speed);
+    ctx.globalAlpha=alpha;
+    ctx.moveTo(s.x*W+s.r,s.y*H);
+    ctx.arc(s.x*W,s.y*H,s.r,0,Math.PI*2);
+  });
+  ctx.fill();
+  ctx.globalAlpha=1;
+
+  /* ── Float hearts: batch by color to minimise fillStyle switches ── */
+  if(floatHearts.length){
+    /* Update positions first */
+    for(let i=floatHearts.length-1;i>=0;i--){
+      const h=floatHearts[i];
+      h.y-=h.vy; h.x+=Math.sin(h.angle)*.6; h.angle+=.025; h.opacity-=.0018;
+      if(h.opacity<=0){floatHearts.splice(i,1);}
+    }
+    /* Sort by color string so same-color hearts are contiguous — cuts fillStyle switches */
+    floatHearts.sort((a,b)=>a.color<b.color?-1:a.color>b.color?1:0);
+    let lastFont='', lastColor='';
+    for(let i=0;i<floatHearts.length;i++){
+      const h=floatHearts[i];
+      const f=`${h.size|0}px serif`;
+      if(f!==lastFont){ ctx.font=f; lastFont=f; }
+      if(h.color!==lastColor){ ctx.fillStyle=h.color; lastColor=h.color; }
+      ctx.globalAlpha=h.opacity;
+      ctx.fillText('❤',h.x,h.y);
+    }
+    ctx.globalAlpha=1;
+  }
+}
+
+function spawnHeart(n){
+  const c=['#ff8fa3','#c0392b','#e2b96f','#ff6b8a','#ffb3c6'];
+  for(let i=0;i<(n||1);i++)
+    floatHearts.push({x:Math.random()*W,y:H+10,vy:Math.random()*1.2+.6,
+      angle:Math.random()*Math.PI*2,opacity:Math.random()*.35+.45,
+      size:Math.random()*18+10,color:c[Math.floor(Math.random()*c.length)]});
+}
+
+/* ── Pre-parsed petal templates — clone instead of innerHTML parse each spawn ── */
+const _petalTemplates = (function(){
+  const svgs = [
+    `<svg viewBox="0 0 20 24" xmlns="http://www.w3.org/2000/svg"><ellipse cx="10" cy="12" rx="8" ry="11" fill="#c0392b" opacity=".7"/></svg>`,
+    `<svg viewBox="0 0 18 22" xmlns="http://www.w3.org/2000/svg"><ellipse cx="9" cy="11" rx="7" ry="10" fill="#a52840" opacity=".6" transform="rotate(20 9 11)"/></svg>`,
+    `<svg viewBox="0 0 16 20" xmlns="http://www.w3.org/2000/svg"><path d="M8,1 Q16,5 14,14 Q8,20 2,14 Q0,5 8,1Z" fill="#ff8fa3" opacity=".5"/></svg>`,
+  ];
+  return svgs.map(s=>{ const d=document.createElement('div'); d.innerHTML=s; return d.firstChild; });
+})();
+function startPetals(){
+  const container=document.getElementById('petalContainer');
+  function spawn(){
+    const p=document.createElement('div'); p.className='petal';
+    const sz=10+Math.random()*14, idx=Math.floor(Math.random()*_petalTemplates.length);
+    p.style.cssText=`left:${Math.random()*100}%;width:${sz}px;height:${sz}px;animation-duration:${8+Math.random()*7}s;`;
+    p.appendChild(_petalTemplates[idx].cloneNode(true));
+    container.appendChild(p); setTimeout(()=>p.remove(),16000);
+  }
+  spawn();spawn();spawn(); setInterval(spawn,650);
+}
+
+function triggerHeartBurst(){
+  ['❤','💕','🌹','❤','💗','❤','💖','❤'].forEach((e,i)=>{
+    const el=document.createElement('div'); el.className='burst-heart'; el.textContent=e;
+    const angle=(i/8)*Math.PI*2,dist=100+Math.random()*140;
+    el.style.cssText=`left:${W/2}px;top:${H/2}px;--fly-to:translate(${Math.cos(angle)*dist}px,${Math.sin(angle)*dist}px);--rot:${Math.random()*720-360}deg;animation-duration:${1+Math.random()*.8}s;animation-delay:${i*.06}s;font-size:${1.8+Math.random()*1.6}rem;`;
+    document.body.appendChild(el); setTimeout(()=>el.remove(),2500);
+  });
+}
+
+/* Sequencer */
+let activeChunk=-1, seqTimer=null, wordTimers=[];
+function clearAll(){ wordTimers.forEach(t=>clearTimeout(t)); wordTimers=[]; clearTimeout(seqTimer); }
+
+function showChunk(i){
+  if(i>=chunks.length){ showEnd(); return; }
+  bgProgress=i/(chunks.length-1);
+  _gradientCache=null; // invalidate gradient cache on bgProgress change
+  if(activeChunk>=0){
+    const old=document.getElementById('ch'+activeChunk);
+    old.classList.add('fadingOut');
+    setTimeout(()=>{ old.classList.remove('active','fadingOut'); old.querySelectorAll('.word').forEach(w=>w.classList.remove('shown')); },800);
+  }
+  activeChunk=i; clearAll();
+  updateProgressBar(); // event-driven update
+  const c=chunks[i], el=document.getElementById('ch'+i);
+  el.classList.add('active');
+  let lastTime=0;
+  el.querySelectorAll('.word').forEach((w,wi)=>{
+    const delay=wi*c.wordDelay; lastTime=delay+350;
+    wordTimers.push(setTimeout(()=>w.classList.add('shown'),delay));
+  });
+  if(c.cls==='chunk-love'){
+    wordTimers.push(setTimeout(triggerHeartBurst,lastTime-100));
+    const iv=setInterval(()=>spawnHeart(3),280); setTimeout(()=>clearInterval(iv),5500);
+  }
+  seqTimer=setTimeout(()=>showChunk(i+1),lastTime+c.pauseAfter);
+}
+
+/* Jump while already playing */
+function jumpToChunk(i){
+  if(!animRunning) return;
+  clearAll();
+  if(activeChunk>=0){
+    const old=document.getElementById('ch'+activeChunk);
+    old.classList.add('fadingOut');
+    setTimeout(()=>{ old.classList.remove('active','fadingOut'); old.querySelectorAll('.word').forEach(w=>w.classList.remove('shown')); },700);
+  }
+  try{ DOM.song.currentTime=chunkSongTimeSec[i]; }catch(e){}
+  setTimeout(()=>showChunk(i),120);
+}
+
+/* ═══════════════════════════════════════════
+   LAUNCH ENGINE — used by ?go cards, ?cat taps,
+   and the catalogue CTA. Starts from any chunk.
+═══════════════════════════════════════════ */
+let pbStarted=false;
+
+/* ── Event-driven progress bar — no more rAF loop ── */
+function updateProgressBar(){
+  DOM.progressBar.style.width=(activeChunk>=0?(activeChunk/(chunks.length-1)*100):0)+'%';
+}
+
+function launchAtChunk(target){
+  // Hide all portals (cached refs)
+  DOM.catalogue.classList.remove('active');
+  DOM.goScreen.classList.remove('active');
+  DOM.startScreen.style.display='none';
+
+  // Boot background once
+  if(!animRunning){
+    animRunning=true; drawFrame(); startPetals();
+    setInterval(()=>{ if(animRunning) spawnHeart(1); },950);
+  }
+
+  // Progress bar — just call once here (no more infinite rAF loop)
+  if(!pbStarted){ pbStarted=true; updateProgressBar(); }
+
+  // Play + seek
+  const song=DOM.song;
+  const seekTo=chunkSongTimeSec[target]||0;
+  const doPlay=()=>{ song.play().then(()=>{ try{song.currentTime=seekTo;}catch(e){} }).catch(()=>{}); };
+  if(song.readyState>=1){ doPlay(); }
+  else { song.addEventListener('canplay',function h(){ song.removeEventListener('canplay',h); doPlay(); }); song.load(); }
+
+  showChunk(target);
+}
+
+function startExperience(){
+  const ss=DOM.startScreen;
+  ss.style.opacity='0'; setTimeout(()=>ss.style.display='none',1400);
+  launchAtChunk(0);
+}
+
+function showStartScreen(){
+  DOM.goScreen.classList.remove('active');
+  DOM.catalogue.classList.remove('active');
+  DOM.startScreen.style.display='flex';
+  DOM.startScreen.style.opacity='1';
+}
+
+function showEnd(){
+  if(activeChunk>=0){
+    const old=document.getElementById('ch'+activeChunk);
+    old.classList.add('fadingOut');
+    setTimeout(()=>old.classList.remove('active','fadingOut'),800);
+  }
+  const es=DOM.endScreen;
+  setTimeout(()=>{
+    es.classList.add('visible');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>es.classList.add('shown')));
+    for(let i=0;i<3;i++) setTimeout(()=>{triggerHeartBurst();spawnHeart(4);},i*700);
+  },700);
+}
+
+function reply(type){
+  DOM.endScreen.style.opacity='0';
+  setTimeout(()=>{
+    const rs=DOM.replyScreen;
+    DOM.replyIcon.textContent=type==='yes'?'❤':'🌹';
+    DOM.replyText.textContent=type==='yes'?'ده اجمل كلام ممكن اسمعه في حياتي':'ده كفاية يا رودي';
+    DOM.replySub.textContent=type==='yes'?'بحبك يا رودي من قلبي ❤':'هتفضلي دايما اقرب حد ليا مهما حصل ❤';
+    rs.classList.add('visible');
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      rs.classList.add('shown');
+      for(let i=0;i<5;i++) setTimeout(()=>{triggerHeartBurst();spawnHeart(4);},i*500);
+    }));
+  },900);
+}
+
+/* URL ROUTING */
+(function(){
+  const q=window.location.search;
+  const startBg=()=>{ animRunning=true; bgProgress=0.3; drawFrame(); startPetals(); };
+  if(q.includes('cat')){
+    DOM.catalogue.classList.add('active');
+    DOM.startScreen.style.display='none';
+    startBg();
+  } else if(q.includes('go')){
+    DOM.goScreen.classList.add('active');
+    DOM.startScreen.style.display='none';
+    startBg();
+  }
+})();
+
+/* ── Pause canvas loop when tab is hidden — saves battery and CPU on old phones ── */
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    animRunning=false;
+  } else if(activeChunk>=0||bgProgress>0){
+    /* Only restart if the experience was already running */
+    animRunning=true; drawFrame();
+  }
+});
+</script>
+</body>
+</html>

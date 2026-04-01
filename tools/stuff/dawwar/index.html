@@ -17,122 +17,382 @@
     <!-- Logo Header — fixed at top -->
     <div class="welcome-logo-header">
       <div class="logo-circle">
-        <span class="logo-emoji">🎲</span>
+        <span class="logo-emoji"> <img src="./icon.png"> </span>
       </div>
       <h1 class="logo-text">دوّر</h1>
       <p class="logo-sub">لعبة الأسئلة الاجتماعية</p>
     </div>
 
-    <!-- Setup Panel — modal-style, fills rest of screen -->
+    <!-- Setup Panel -->
     <div class="setup-panel">
-      <div class="modal-handle">—</div>
 
-      <h2 class="setup-section-title">مين اللاعبين؟</h2>
-      <p class="setup-section-hint">ادخل أسماء اللي هيلعبوا</p>
-
-      <div id="players-list" class="players-list"></div>
-
-      <div class="add-player-row">
-        <input type="text" id="player-input" class="input-field"
-               placeholder="اسم اللاعب..." maxlength="20" />
-        <button class="btn-icon" id="add-player-btn" onclick="addPlayer()">+</button>
-      </div>
-
-      <!-- ⏱ Timer -->
-      <div class="setting-block">
-        <label class="setting-label">⏱ وقت كل سؤال</label>
-        <div class="seg-options" id="timer-options">
-          <button class="seg-opt active" data-seconds="30">٣٠ ث</button>
-          <button class="seg-opt" data-seconds="45">٤٥ ث</button>
-          <button class="seg-opt" data-seconds="60">دقيقة</button>
+      <!-- PLAYERS -->
+      <div class="setup-section">
+        <p class="section-label">👥 اللاعبين</p>
+        <div id="players-list" class="players-list"></div>
+        <div class="add-player-row">
+          <input type="text" id="player-input" class="input-field"
+                 placeholder="اسم اللاعب..." maxlength="20" />
+          <button class="btn-icon" id="add-player-btn" onclick="addPlayer()">+</button>
         </div>
       </div>
 
-      <!-- 📊 Questions Per Player -->
-      <div class="setting-block">
-        <label class="setting-label">📊 أسئلة لكل لاعب</label>
-        <div class="seg-options" id="qpp-options">
-          <button class="seg-opt active" data-qpp="0">بلا حد</button>
-          <button class="seg-opt" data-qpp="3">٣</button>
-          <button class="seg-opt" data-qpp="5">٥</button>
-          <button class="seg-opt" data-qpp="10">١٠</button>
+      <div class="setup-divider"></div>
+
+      <!-- GAME SETTINGS -->
+      <div class="setup-section">
+        <p class="section-label">⚙️ إعدادات اللعبة</p>
+
+        <div class="setting-block">
+          <label class="setting-label">⏱ وقت كل سؤال</label>
+          <div class="seg-options" id="timer-options">
+            <button class="seg-opt active" data-seconds="30">٣٠ ث</button>
+            <button class="seg-opt" data-seconds="45">٤٥ ث</button>
+            <button class="seg-opt" data-seconds="60">دقيقة</button>
+          </div>
         </div>
-      </div>
 
-      <!-- 😅 Skip Limit -->
-      <div class="setting-block">
-        <label class="setting-label">😅 تخطيات لكل لاعب</label>
-        <div class="seg-options" id="skip-options">
-          <button class="seg-opt active" data-skips="1">١</button>
-          <button class="seg-opt" data-skips="2">٢</button>
-          <button class="seg-opt" data-skips="3">٣</button>
-          <button class="seg-opt" data-skips="99">بلا حد</button>
+        <div class="setting-block">
+          <label class="setting-label">📊 أسئلة لكل لاعب</label>
+          <div class="seg-options" id="qpp-options">
+            <button class="seg-opt active" data-qpp="0">بلا حد</button>
+            <button class="seg-opt" data-qpp="3">٣</button>
+            <button class="seg-opt" data-qpp="5">٥</button>
+            <button class="seg-opt" data-qpp="10">١٠</button>
+          </div>
         </div>
-      </div>
 
-      <!-- 🔁 Repeat Count (moved from modal) -->
-      <div class="setting-block">
-        <label class="setting-label">🔁 تكرار الأسئلة</label>
-        <div class="seg-options" id="repeat-options">
-          <button class="seg-opt active" data-repeat="1">مرة</button>
-          <button class="seg-opt" data-repeat="2">٢×</button>
-          <button class="seg-opt" data-repeat="3">٣×</button>
-          <button class="seg-opt" data-repeat="0">بلا حد</button>
+        <div class="setting-block">
+          <label class="setting-label">😅 تخطيات لكل لاعب</label>
+          <div class="seg-options" id="skip-options">
+            <button class="seg-opt active" data-skips="1">١</button>
+            <button class="seg-opt" data-skips="2">٢</button>
+            <button class="seg-opt" data-skips="3">٣</button>
+            <button class="seg-opt" data-skips="99">بلا حد</button>
+          </div>
         </div>
-      </div>
 
-      <!-- 🗂 Category Filter -->
-      <div class="setting-block">
-        <label class="setting-label">🗂 الفئات اللي هتلعبوا بيها</label>
-        <div class="cat-filter-wrap" id="cat-filter-wrap">
-          <!-- Built dynamically by JS -->
+        <div class="setting-block">
+          <label class="setting-label">🔁 تكرار الأسئلة</label>
+          <div class="seg-options" id="repeat-options">
+            <button class="seg-opt active" data-repeat="1">مرة</button>
+            <button class="seg-opt" data-repeat="2">٢×</button>
+            <button class="seg-opt" data-repeat="3">٣×</button>
+            <button class="seg-opt" data-repeat="0">بلا حد</button>
+          </div>
         </div>
-      </div>
 
-      <!-- 💡 Custom Questions Button -->
-      <div class="setting-block">
-        <button class="btn-open-modal" onclick="openAddQModal()">
-          <span>💡 أضف أسئلة مخصصة للجلسة</span>
-          <span class="modal-btn-badge" id="custom-q-badge" style="display:none">0</span>
-        </button>
-      </div>
+        <div class="setting-block">
+          <label class="setting-label">⏱ إضافة وقت أثناء اللعب</label>
+          <div class="add-time-toggle-row">
+            <span class="add-time-toggle-desc">تسمح للمجموعة بإضافة ٣٠ ثانية للاعب لو السؤال صعب</span>
+            <button class="toggle-switch" id="add-time-toggle" onclick="toggleAllowAddTime()">
+              <span class="toggle-knob"></span>
+            </button>
+          </div>
+        </div>
 
-      <!-- ⚙️ Custom/Advanced Settings -->
-      <div class="custom-settings-section" id="custom-settings-section">
-        <button class="custom-settings-toggle" onclick="toggleCustomSettings()">
-          <span>⚙️ إعدادات مخصصة</span>
-          <span class="custom-toggle-arrow" id="custom-toggle-arrow">▼</span>
-        </button>
-        <div class="custom-settings-body" id="custom-settings-body">
-          <p class="custom-settings-hint">اكتب قيمة مخصصة — هتتغلب على الخيارات فوق</p>
-          <div class="custom-inputs-grid">
-            <div class="custom-input-item">
-              <label class="custom-input-label">⏱ وقت (ثانية)</label>
-              <input type="number" id="custom-timer" class="custom-number-input"
-                     min="5" max="300" placeholder="—" />
-            </div>
-            <div class="custom-input-item">
-              <label class="custom-input-label">📊 سؤال / لاعب</label>
-              <input type="number" id="custom-qpp" class="custom-number-input"
-                     min="1" max="50" placeholder="—" />
-            </div>
-            <div class="custom-input-item">
-              <label class="custom-input-label">😅 تخطيات / لاعب</label>
-              <input type="number" id="custom-skips" class="custom-number-input"
-                     min="0" max="20" placeholder="—" />
-            </div>
-            <div class="custom-input-item">
-              <label class="custom-input-label">🔁 تكرار الأسئلة</label>
-              <input type="number" id="custom-repeat" class="custom-number-input"
-                     min="0" max="20" placeholder="—" />
+        <div class="custom-settings-section" id="custom-settings-section">
+          <button class="custom-settings-toggle" onclick="toggleCustomSettings()">
+            <span>🔧 اعدادات مخصصة</span>
+            <span class="custom-toggle-arrow" id="custom-toggle-arrow">▼</span>
+          </button>
+          <div class="custom-settings-body" id="custom-settings-body">
+            <p class="custom-settings-hint">اكتب قيمة مخصصة — هتتغلب على الخيارات فوق</p>
+            <div class="custom-inputs-grid">
+              <div class="custom-input-item">
+                <label class="custom-input-label">⏱ وقت (ثانية)</label>
+                <input type="number" id="custom-timer" class="custom-number-input" min="5" max="300" placeholder="—" />
+              </div>
+              <div class="custom-input-item">
+                <label class="custom-input-label">📊 سؤال / لاعب</label>
+                <input type="number" id="custom-qpp" class="custom-number-input" min="1" max="50" placeholder="—" />
+              </div>
+              <div class="custom-input-item">
+                <label class="custom-input-label">😅 تخطيات / لاعب</label>
+                <input type="number" id="custom-skips" class="custom-number-input" min="0" max="20" placeholder="—" />
+              </div>
+              <div class="custom-input-item">
+                <label class="custom-input-label">🔁 تكرار الأسئلة</label>
+                <input type="number" id="custom-repeat" class="custom-number-input" min="0" max="20" placeholder="—" />
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <button class="btn-primary setup-start-btn" id="start-btn" onclick="startGame()" disabled>
-        يلا نلعب! 🎉
-      </button>
+      <div class="setup-divider"></div>
+
+      <!-- QUESTIONS -->
+      <div class="setup-section">
+        <p class="section-label">💬 الأسئلة</p>
+
+        <div class="setting-block">
+          <label class="setting-label">🗂 الفئات</label>
+          <div class="cat-filter-wrap" id="cat-filter-wrap"></div>
+        </div>
+
+        <div class="setting-block">
+          <button class="btn-open-modal" onclick="openAddQModal()">
+            <span>💡 أسئلة مخصصة</span>
+            <span class="modal-btn-badge" id="custom-q-badge" style="display:none">0</span>
+          </button>
+        </div>
+
+        <div class="setting-block">
+          <button class="btn-open-modal show-questions-btn" onclick="openShowQModal()">
+            <span>👁️ شوف كل الأسئلة</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <!-- HELP -->
+      <div class="setup-section">
+        <button class="help-toggle-btn" onclick="toggleHelp()">
+          <span>❓ دليل اللعبة</span>
+          <span class="help-toggle-arrow" id="help-toggle-arrow">▼</span>
+        </button>
+        <div class="help-body" id="help-body">
+          <!-- HOW TO SETUP -->
+          <div class="help-section">
+            <h4 class="help-heading">🎮 إزاي تبدأ</h4>
+            <p class="help-p">١. ادخل أسماء اللاعبين (لازم ٢ على الأقل، حد أقصى ٨).</p>
+            <p class="help-p">٢. اختار الإعدادات اللي تناسبكم (وقت، أسئلة، تخطيات).</p>
+            <p class="help-p">٣. اضغط «يلا نلعب!» — اللعبة هتخلط الترتيب وتبدأ تلقائي.</p>
+            <p class="help-p">٤. كل لاعب بدوره — يجاوب السؤال أو يتخطاه لو عنده تخطيات.</p>
+            <p class="help-p">٥. لو الوقت خلص قبل ما يجاوب، يعمل العقوبة اللي اتفقتم عليها!</p>
+          </div>
+
+          <!-- SETTINGS EXPLAINED -->
+          <div class="help-section">
+            <h4 class="help-heading">⚙️ شرح الإعدادات</h4>
+            <div class="help-setting-row">
+              <span class="help-setting-icon">⏱</span>
+              <div>
+                <b>وقت كل سؤال</b>
+                <p class="help-p">الوقت اللي عند اللاعب يجاوب فيه. لو خلص من غير إجابة = عقوبة! ٣٠ ثانية مناسبة لأسئلة سريعة، دقيقة للأسئلة اللي بتحتاج تفكير.</p>
+              </div>
+            </div>
+            <div class="help-setting-row">
+              <span class="help-setting-icon">📊</span>
+              <div>
+                <b>أسئلة لكل لاعب</b>
+                <p class="help-p">بيحدد كم سؤال هيخد كل لاعب قبل ما اللعبة تخلص. «بلا حد» يعني اللعبة هتفضل لحد ما الأسئلة تخلص أو توقفوا.</p>
+              </div>
+            </div>
+            <div class="help-setting-row">
+              <span class="help-setting-icon">😅</span>
+              <div>
+                <b>تخطيات لكل لاعب</b>
+                <p class="help-p">عدد المرات اللي ممكن اللاعب يتخطى السؤال من غير عقوبة. لو خلصت تخطياته، زر التخطي بيتعطل وملزوم يجاوب!</p>
+              </div>
+            </div>
+            <div class="help-setting-row">
+              <span class="help-setting-icon">🔁</span>
+              <div>
+                <b>تكرار الأسئلة</b>
+                <p class="help-p">بيتحكم في كم مرة ممكن نفس السؤال يظهر في الجلسة. «مرة» = كل سؤال هيظهر مرة بس. «بلا حد» = ممكن يتكرر طول اليوم!</p>
+              </div>
+            </div>
+            <div class="help-setting-row">
+              <span class="help-setting-icon">🗂</span>
+              <div>
+                <b>الفئات</b>
+                <p class="help-p">تقدر تختار فئة معينة أو أكتر وتلعبوا بيها بس. «الكل» يشمل كل الفئات. «✏️ مخصصة فقط» بتلعبوا بالأسئلة اللي أضفتوها إنتوا بس من غير أسئلة اللعبة الأصلية.</p>
+              </div>
+            </div>
+            <div class="help-setting-row">
+              <span class="help-setting-icon">⏱</span>
+              <div>
+                <b>إضافة وقت أثناء اللعب</b>
+                <p class="help-p">لو فعّلت الخيار ده، هيظهر زر «+٣٠ ثانية» أثناء اللعب. لو السؤال صعب والمجموعة شايفة إن اللاعب محتاج وقت أكتر، اضغطوا الزر وهيتضاف ٣٠ ثانية على الفور — من غير ما التايمر يقف.</p>
+              </div>
+            </div>
+
+            <!-- CUSTOM SETTINGS DEEP EXPLAIN -->
+            <div class="help-setting-row help-advanced-row">
+              <span class="help-setting-icon">🔧</span>
+              <div>
+                <b>إعدادات مخصصة (للمتقدمين)</b>
+                <p class="help-p">الأزرار الجاهزة فوق بتديك خيارات سريعة، لكن لو عايز دقة أكبر — فتح «إعدادات مخصصة» وهتلاقي خانات تكتب فيها أي رقم. مثلاً:</p>
+                <ul class="help-ul">
+                  <li>⏱ وقت: أي قيمة من ٥ ثوان لـ٣٠٠ ثانية (٥ دقايق!). مفيد لو عايز ٢٠ ثانية بالظبط مثلاً.</li>
+                  <li>📊 سؤال/لاعب: من ١ لـ٥٠. اكتب ٧ مثلاً لو عايز كل لاعب ياخد ٧ أسئلة بالظبط.</li>
+                  <li>😅 تخطيات/لاعب: من ٠ لـ٢٠. اكتب ٠ يعني ممنوع التخطي خالص!</li>
+                  <li>🔁 تكرار: من ٠ لـ٢٠. اكتب ٠ يعني «بلا حد» (نفس معنى زر بلا حد).</li>
+                </ul>
+                <p class="help-p" style="margin-top:6px">⚠️ الإعداد المخصص بيلغي الزر اللي مختاره فوق. لو مسحت الخانة، اللعبة ترجع لآخر زر ضغطت عليه.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CATEGORIES EXPLAINED -->
+          <div class="help-section">
+            <h4 class="help-heading">🗂 الفئات وطبيعة أسئلتها</h4>
+            <p class="help-note">ملاحظة: ممكن تكون في اللعبة فئات إضافية مش مذكورة هنا بسبب التحديثات المستمرة!</p>
+
+            <div class="help-cat-card" style="--cat-accent:#FF6B35">
+              <span class="help-cat-emoji">🪞</span>
+              <div>
+                <b>عن نفسك</b>
+                <span class="help-cat-badge">مناسب للتجمعات ✅</span>
+                <p class="help-p">أسئلة بتخليك تتكلم عن نفسك — أحلامك، مخاوفك، ذكرياتك. هادية ومريحة. تمام مع أي مجموعة حتى لو في ناس كبيرة في السن.</p>
+                <p class="help-cat-tip">💡 الإجابة بصدق بتخلي الجو أكتر حميمية ودفا</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#F7C59F">
+              <span class="help-cat-emoji">🤔</span>
+              <div>
+                <b>لو كنت...</b>
+                <span class="help-cat-badge">مناسب للتجمعات ✅</span>
+                <p class="help-p">أسئلة افتراضية خيالية — لو كنت حيوان، لو كنت مليونير، لو كنت سوبرهيرو... بتفتح باب للضحك والفنتازيا. مفيش إجابة غلط!</p>
+                <p class="help-cat-tip">💡 الأسئلة دي بتكشف شخصية الناس بطريقة خفيفة وممتعة</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#E84855">
+              <span class="help-cat-emoji">😳</span>
+              <div>
+                <b>اعترف!</b>
+                <span class="help-cat-badge help-cat-badge-hot">اصدقاء بس 🔞</span>
+                <p class="help-p">اعترافات حقيقية — أكتر حاجة عملتها وعمرك ما قلتها، مواقف محرجة، أسرار. الأسئلة دي بتحتاج شجاعة وبتخلق لحظات مش هتتنسى!</p>
+                <p class="help-cat-tip">💡 اتفقوا قبل اللعبة إن كل حاجة بتتقال في الأوضة — تفضل في الأوضة 😉</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#3D9970">
+              <span class="help-cat-emoji">💬</span>
+              <div>
+                <b>رأيك في...</b>
+                <span class="help-cat-badge">مناسب للتجمعات ✅</span>
+                <p class="help-p">آراء ومواقف — رأيك في موضوع معين، في ظاهرة، في حاجة بتحصل. بتفتح نقاشات ممتعة. مفيش إجابة صح أو غلط، كلٌ رأيه.</p>
+                <p class="help-cat-tip">💡 ممكن تخلق جدال بس ده جزء من المتعة!</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#9B59B6">
+              <span class="help-cat-emoji">🔥</span>
+              <div>
+                <b>تحدي</b>
+                <span class="help-cat-badge help-cat-badge-warn">هتحتاج جرأة ⚡</span>
+                <p class="help-p">مش بس كلام — لازم تعمل حاجة! تحديات خفيفة بتتحدى اللاعب يعمل فعل مش بس يجاوب. الجماعة بتحكم إنت اتحديت صح ولا لأ.</p>
+                <p class="help-cat-tip">💡 ممتعة جداً لما يبقى الجو حمسان ومزبوط</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#FF69B4">
+              <span class="help-cat-emoji">🙈</span>
+              <div>
+                <b>يا حلاوة!</b>
+                <span class="help-cat-badge help-cat-badge-hot">اصدقاء بس 🔞</span>
+                <p class="help-p">أسئلة فيها شوية حرارة — عن العلاقات، الجاذبية، المواقف الرومانسية. بتفتح نقاشات جريئة ومسلية. مش للعيلة!</p>
+                <p class="help-cat-tip">💡 تأكد إن المجموعة مرتاحة قبل ما تختار الفئة دي</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#FF1493">
+              <span class="help-cat-emoji">👀</span>
+              <div>
+                <b>في الأوضة</b>
+                <span class="help-cat-badge help-cat-badge-hot">اصدقاء بس 🔞</span>
+                <p class="help-p">أسئلة عن الناس الموجودين في نفس الجلسة — ممكن يبقى فيها تحرج! بتخلي الجو مشتعل ومضحك. لازم الكل يبقى مرتاح.</p>
+                <p class="help-cat-tip">💡 أمتع الفئات لما بيلعب فيها أصحاب قريبين من بعض</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#1fff0f">
+              <span class="help-cat-emoji">🧘‍♂</span>
+              <div>
+                <b>مفيش أسهل</b>
+                <span class="help-cat-badge">مناسب للتجمعات ✅</span>
+                <p class="help-p">أسئلة خفيفة جداً وسهلة — مريحة ومش محرجة. تمام لو الجو الأول متوتر وعايزين تكسروا الجليد أو لو في أطفال.</p>
+                <p class="help-cat-tip">💡 نقطة بداية ممتازة لمجموعات جديدة</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#33fff1">
+              <span class="help-cat-emoji">✅❎</span>
+              <div>
+                <b>آه أو لا</b>
+                <span class="help-cat-badge">مناسب للتجمعات ✅</span>
+                <p class="help-p">بسيطة — إجابتك إما آه أو لا! السؤال بيتكلم عن تجارب أو مواقف زي «عملت ده قبل؟». بتكشف مفاجآت كتير عن الناس!</p>
+                <p class="help-cat-tip">💡 الناس بتتفاجئ لما تلاقي إن حد عمل حاجة محدش توقعها 😂</p>
+              </div>
+            </div>
+
+            <div class="help-cat-card" style="--cat-accent:#964de0">
+              <span class="help-cat-emoji">🫣</span>
+              <div>
+                <b>انا يبني</b>
+                <span class="help-cat-badge help-cat-badge-warn">مناسب للتجمعات ✅</span>
+                <p class="help-p">أسئلة شخصية جداً عن الاشخاص اللي موجودين في القعدة — من كتر الصدمة اللي قدامك ممكن يقول «انا يبني» .</p>
+                <p class="help-cat-tip">💡 ممتعة مع أصحاب بيعرفوا بعض كويس</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- CUSTOM QUESTIONS EXPLAINED -->
+          <div class="help-section">
+            <h4 class="help-heading">💡 الأسئلة المخصصة والمجموعات</h4>
+
+            <div class="help-setting-row">
+              <span class="help-setting-icon">💡</span>
+              <div>
+                <b>إضافة أسئلة مخصصة</b>
+                <p class="help-p">من زر «أسئلة مخصصة» تقدر تكتب أسئلتك الخاصة وتضيفها للجلسة. تختار الفئة المناسبة للسؤال وهيتضاف جنب أسئلة اللعبة العادية.</p>
+              </div>
+            </div>
+
+            <div class="help-setting-row">
+              <span class="help-setting-icon">🕵️</span>
+              <div>
+                <b>وضع مجهول</b>
+                <p class="help-p">لما تكتب سؤال مخصص، تقدر تضغط زر «🕵️ مجهول» قبل الإضافة — السؤال هيتضاف ويتلعب بس من غير ما يظهر اسمه أو نصه في القائمة، عشان محدش يعرف مين كتبه. أثناء اللعب السؤال هيظهر عادي.</p>
+              </div>
+            </div>
+
+            <div class="help-setting-row" style="border-bottom:none;margin-bottom:0;padding-bottom:0">
+              <span class="help-setting-icon">💾</span>
+              <div>
+                <b>مجموعات الأسئلة</b>
+                <p class="help-p">لو عندك أسئلة مخصصة كتير وعايز تحفظهم عشان تستخدمهم مرة تانية، اكتب اسم للمجموعة واضغط «احفظ». في المرة الجاية افتح الموديل واضغط «تحميل» جنب اسم المجموعة وهتترجع الأسئلة كلها في لحظة.</p>
+                <ul class="help-ul" style="margin-top:6px">
+                  <li>ممكن تحفظ أكتر من مجموعة — كل قعدة بأسئلتها.</li>
+                  <li>«تحميل» بيضيف الأسئلة الجديدة بس من غير ما يكرر اللي موجودة.</li>
+                  <li>تقدر تحذف أي مجموعة في أي وقت من زر 🗑 جنبها.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- HOW TO ANSWER -->
+          <div class="help-section">
+            <h4 class="help-heading">🗣️ إزاي تجاوب صح؟</h4>
+            <p class="help-p">🎯 <b>الصدق هو الروح:</b> اللعبة مش اختبار — جاوب بصدق حتى لو الإجابة مش مثالية.</p>
+            <p class="help-p">😂 <b>الضحك مسموح:</b> لو السؤال جاب ضحك أو موقف، ده جزء من المتعة!</p>
+            <p class="help-p">🤫 <b>الخصوصية محترمة:</b> لو السؤال حساس ومش عايز تجاوب، فيك تتخطاه (لو عندك تخطيات).</p>
+            <p class="help-p">⏱️ <b>الوقت بيعدّ:</b> جاوب قبل ما الدايرة تخلص! لو خلص الوقت — عقوبة اتفقتم عليها.</p>
+            <p class="help-p">🎉 <b>مفيش إجابة غلط:</b> اللعبة للمتعة والتقرب — مش للحكم على حد.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-divider"></div>
+
+      <!-- ══ START ══ -->
+      <div class="setup-section setup-start-section">
+        <button class="btn-primary setup-start-btn" id="start-btn" onclick="startGame()" disabled>
+          يلا نلعب! 🎉
+        </button>
+
+        <button class="btn-reset-all" onclick="confirmResetAll()">
+          🗑 مسح كل شيء والبداية من الأول
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -171,8 +431,11 @@
     </div>
 
     <div class="game-actions">
-      <button class="btn-secondary" id="skip-btn" onclick="skipQuestion()">تخطي 😅</button>
-      <button class="btn-primary" onclick="nextTurn()">جاوب وامشي ✅</button>
+      <button class="btn-add-time" id="add-time-btn" onclick="addExtraTime()">⏱ +٣٠ ثانية (وقت إضافي)</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn-secondary" id="skip-btn" onclick="skipQuestion()" style="flex:1">تخطي 😅</button>
+        <button class="btn-primary" onclick="nextTurn()" style="flex:2">جاوب وامشي ✅</button>
+      </div>
     </div>
   </div>
 
@@ -256,8 +519,23 @@
       <div class="modal-divider" id="modal-divider" style="display:none"></div>
       <div class="added-questions-list" id="modal-added-list"></div>
 
+      <!-- Save as set -->
+      <div class="qsets-section" id="save-set-section" style="display:none">
+        <label class="setting-label">💾 احفظ الأسئلة كـ «مجموعة»</label>
+        <div class="save-as-set-row">
+          <input type="text" id="set-name-input" class="save-set-input" placeholder="اسم المجموعة..." maxlength="30" />
+          <button class="save-set-btn" onclick="saveAsSet()">احفظ</button>
+        </div>
+      </div>
+
+      <!-- Saved sets -->
+      <div class="qsets-section">
+        <label class="setting-label">📚 مجموعات محفوظة</label>
+        <div class="qsets-list" id="qsets-list"></div>
+      </div>
+
       <!-- Done button -->
-      <button class="btn-secondary" onclick="closeAddQModal()">تم ✓</button>
+      <button class="btn-secondary" onclick="closeAddQModal()" style="margin-top:14px">تم ✓</button>
     </div>
   </div>
 
@@ -269,6 +547,53 @@
       <p class="modal-hint">هيتمسح كل تقدم اللعبة الحالية</p>
       <button class="btn-primary confirm-exit-yes" onclick="confirmExit()">أيوه، اخرج 🚪</button>
       <button class="btn-secondary" onclick="closeConfirmExit()">لأ، كمّل اللعب ▶️</button>
+    </div>
+  </div>
+
+  <!-- ===== SHOW QUESTIONS PASSWORD MODAL ===== -->
+  <div id="modal-show-q-password" class="modal-overlay hidden" onclick="closeShowQPasswordBackdrop(event)">
+    <div class="modal-box">
+      <div class="modal-handle">—</div>
+      <h3 class="modal-title">🔒 ادخل الباسورد</h3>
+      <p class="modal-hint">الأسئلة محمية — ادخل الرمز عشان تشوفها</p>
+      <input type="password" id="show-q-password-input" class="input-field password-input"
+             placeholder="الباسورد..." 
+             maxlength="10" inputmode="numeric" />
+      <p class="show-q-error" id="show-q-error" style="display:none">❌ باسورد غلط، حاول تاني</p>
+      <button class="btn-primary" onclick="checkShowQPassword()" style="margin-bottom:10px">دخول 🔓</button>
+      <button class="btn-secondary" onclick="closeShowQPasswordModal()">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- ===== SHOW QUESTIONS BROWSER MODAL ===== -->
+  <div id="modal-show-q-browser" class="modal-overlay hidden" onclick="closeShowQBrowserBackdrop(event)">
+    <div class="modal-box modal-box-tall">
+      <div class="modal-handle">—</div>
+      <h3 class="modal-title">👁️ كل الأسئلة</h3>
+      <p class="modal-hint">اضغط على فئة عشان تصفح أسئلتها</p>
+
+      <!-- Category tabs -->
+      <div class="show-q-cat-tabs" id="show-q-cat-tabs">
+        <!-- Built by JS -->
+      </div>
+
+      <!-- Questions list -->
+      <div class="show-q-list" id="show-q-list">
+        <!-- Built by JS -->
+      </div>
+
+      <button class="btn-secondary" onclick="closeShowQBrowserModal()" style="margin-top:12px">إغلاق</button>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRM RESET MODAL ===== -->
+  <div id="modal-confirm-reset" class="modal-overlay hidden" onclick="closeConfirmResetBackdrop(event)">
+    <div class="modal-box confirm-exit-box">
+      <div class="modal-handle"></div>
+      <h3 class="modal-title">مسح كل شيء؟ 🗑</h3>
+      <p class="modal-hint">هيتمسح اللاعبين، الإعدادات، الأسئلة المخصصة، والمجموعات المحفوظة — مش هترجع!</p>
+      <button class="btn-reset-confirm" onclick="executeResetAll()">أيوه، امسح كل حاجة 🗑</button>
+      <button class="btn-secondary" onclick="closeConfirmReset()">لأ، خليها</button>
     </div>
   </div>
 

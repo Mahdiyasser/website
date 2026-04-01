@@ -23,6 +23,8 @@ let state = {
   // Session stats
   timerInterval: null,
   timerRemaining: 30,
+  timerTotal: 30,
+  allowAddTime: false,
   questionCount: 0,
   skippedCount: 0,
   penaltyCount: 0,
@@ -95,95 +97,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   buildCategoryFilter();
   buildModalCategoryPicker();
   setupCustomSettings();
-  setupDraggablePanel();
+  loadSettingsFromStorage();  // ← restore saved settings
 });
-
-// ── DRAGGABLE SETUP PANEL ─────────────────────
-function setupDraggablePanel() {
-  const panel   = document.querySelector('.setup-panel');
-  const handle  = panel.querySelector('.modal-handle');
-  const screen  = document.getElementById('screen-welcome');
-
-  let dragging   = false;
-  let startY     = 0;
-  let startTop   = 0;
-  let currentTop = 0;  // px from top of screen
-
-  // Compute the default (collapsed) top — logo header height
-  function getDefaultTop() {
-    const header = document.querySelector('.welcome-logo-header');
-    return header ? header.getBoundingClientRect().bottom : 180;
-  }
-
-  function getFullTop() {
-    return 24; // leave a small gap at the very top
-  }
-
-  function applyTop(top, animate) {
-    const screenH = screen.getBoundingClientRect().height;
-    top = Math.max(getFullTop(), Math.min(top, getDefaultTop()));
-    currentTop = top;
-    panel.style.transition = animate ? 'top .3s cubic-bezier(.34,1.2,.64,1)' : 'none';
-    panel.style.top        = top + 'px';
-    panel.style.height     = (screenH - top) + 'px';
-    panel.style.position   = 'absolute';
-    panel.style.left       = '0';
-    panel.style.right      = '0';
-  }
-
-  function snapToNearest() {
-    const mid = (getDefaultTop() + getFullTop()) / 2;
-    applyTop(currentTop < mid ? getFullTop() : getDefaultTop(), true);
-  }
-
-  // ── TOUCH ──
-  handle.addEventListener('touchstart', e => {
-    dragging = true;
-    startY   = e.touches[0].clientY;
-    startTop = currentTop || getDefaultTop();
-    panel.style.transition = 'none';
-    panel.style.overflowY  = 'hidden'; // prevent scroll while dragging
-  }, { passive: true });
-
-  document.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    const dy  = e.touches[0].clientY - startY;
-    applyTop(startTop + dy, false);
-  }, { passive: true });
-
-  document.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    panel.style.overflowY = 'auto';
-    snapToNearest();
-  });
-
-  // ── MOUSE (desktop) ──
-  handle.addEventListener('mousedown', e => {
-    dragging = true;
-    startY   = e.clientY;
-    startTop = currentTop || getDefaultTop();
-    panel.style.transition = 'none';
-    panel.style.overflowY  = 'hidden';
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const dy = e.clientY - startY;
-    applyTop(startTop + dy, false);
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    panel.style.overflowY = 'auto';
-    snapToNearest();
-  });
-
-  // Init at default position
-  applyTop(getDefaultTop(), false);
-}
 
 // ── LOAD QUESTIONS ────────────────────────────
 async function loadQuestions() {
@@ -214,6 +129,7 @@ function setupTimerOptions() {
       // Clear custom timer input
       const ci = document.getElementById('custom-timer');
       if (ci) ci.value = '';
+      autoSave();
     });
   });
 }
@@ -227,6 +143,7 @@ function setupQppOptions() {
       state.questionsPerPlayer = parseInt(btn.dataset.qpp);
       const ci = document.getElementById('custom-qpp');
       if (ci) ci.value = '';
+      autoSave();
     });
   });
 }
@@ -240,6 +157,7 @@ function setupSkipOptions() {
       state.skipLimitPerPlayer = parseInt(btn.dataset.skips);
       const ci = document.getElementById('custom-skips');
       if (ci) ci.value = '';
+      autoSave();
     });
   });
 }
@@ -253,6 +171,7 @@ function setupRepeatOptions() {
       state.globalRepeatLimit = parseInt(btn.dataset.repeat);
       const ci = document.getElementById('custom-repeat');
       if (ci) ci.value = '';
+      autoSave();
     });
   });
 }
@@ -271,6 +190,7 @@ function setupCustomSettings() {
     if (!isNaN(val) && val >= 5 && val <= 300) {
       state.timerDuration = val;
       document.querySelectorAll('#timer-options .seg-opt').forEach(b => b.classList.remove('active'));
+      autoSave();
     }
   });
 
@@ -280,8 +200,7 @@ function setupCustomSettings() {
     if (!isNaN(val) && val >= 1 && val <= 50) {
       state.questionsPerPlayer = val;
       document.querySelectorAll('#qpp-options .seg-opt').forEach(b => b.classList.remove('active'));
-    } else if (this.value === '') {
-      // revert to whatever seg option was active
+      autoSave();
     }
   });
 
@@ -291,6 +210,7 @@ function setupCustomSettings() {
     if (!isNaN(val) && val >= 0 && val <= 20) {
       state.skipLimitPerPlayer = val === 0 ? 99 : val;
       document.querySelectorAll('#skip-options .seg-opt').forEach(b => b.classList.remove('active'));
+      autoSave();
     }
   });
 
@@ -300,6 +220,7 @@ function setupCustomSettings() {
     if (!isNaN(val) && val >= 0 && val <= 20) {
       state.globalRepeatLimit = val;
       document.querySelectorAll('#repeat-options .seg-opt').forEach(b => b.classList.remove('active'));
+      autoSave();
     }
   });
 }
@@ -308,6 +229,255 @@ function setupCustomSettings() {
 function toggleCustomSettings() {
   const section = document.getElementById('custom-settings-section');
   section.classList.toggle('open');
+}
+
+// ── LOCALSTORAGE: SETTINGS PERSISTENCE ────────
+const LS_SETTINGS  = 'dawwar_settings';
+const LS_PLAYERS   = 'dawwar_players';
+const LS_CUSTOM_QS = 'dawwar_custom_qs';
+const LS_QSETS     = 'dawwar_qsets';
+
+function saveSettingsToStorage() {
+  try {
+    const settings = {
+      timerDuration:      state.timerDuration,
+      skipLimitPerPlayer: state.skipLimitPerPlayer,
+      questionsPerPlayer: state.questionsPerPlayer,
+      globalRepeatLimit:  state.globalRepeatLimit,
+      selectedCategories: state.selectedCategories,
+      customOnly:         state.customOnly,
+      allowAddTime:       state.allowAddTime
+    };
+    localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
+    localStorage.setItem(LS_PLAYERS, JSON.stringify(state.players));
+    localStorage.setItem(LS_CUSTOM_QS, JSON.stringify(state.setupCustomQuestions));
+  } catch (e) { /* ignore storage errors */ }
+}
+
+function loadSettingsFromStorage() {
+  try {
+    // Restore settings
+    const raw = localStorage.getItem(LS_SETTINGS);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s.timerDuration)      applyTimerSetting(s.timerDuration);
+      if (s.questionsPerPlayer !== undefined) applyQppSetting(s.questionsPerPlayer);
+      if (s.skipLimitPerPlayer !== undefined) applySkipSetting(s.skipLimitPerPlayer);
+      if (s.globalRepeatLimit !== undefined)  applyRepeatSetting(s.globalRepeatLimit);
+      if (s.selectedCategories?.length)       restoreCategoryFilter(s.selectedCategories);
+      else if (s.customOnly)                  restoreCategoryFilter(null, true);
+      if (s.allowAddTime === true) {
+        state.allowAddTime = true;
+        document.getElementById('add-time-toggle')?.classList.add('active');
+      }
+    }
+
+    // Restore players
+    const rawP = localStorage.getItem(LS_PLAYERS);
+    if (rawP) {
+      const players = JSON.parse(rawP);
+      players.forEach(name => {
+        if (!state.players.includes(name) && state.players.length < 8) {
+          state.players.push(name);
+        }
+      });
+      renderPlayersList();
+      updateStartBtn();
+    }
+
+    // Restore custom questions
+    const rawQ = localStorage.getItem(LS_CUSTOM_QS);
+    if (rawQ) {
+      state.setupCustomQuestions = JSON.parse(rawQ);
+      renderModalAddedList();
+      updateCustomBadge();
+    }
+
+    // Render saved question sets
+    renderQsetsList();
+  } catch (e) { /* ignore */ }
+}
+
+function applyTimerSetting(val) {
+  state.timerDuration = val;
+  const btns = document.querySelectorAll('#timer-options .seg-opt');
+  let matched = false;
+  btns.forEach(b => {
+    b.classList.remove('active');
+    if (parseInt(b.dataset.seconds) === val) { b.classList.add('active'); matched = true; }
+  });
+  if (!matched) {
+    const ci = document.getElementById('custom-timer');
+    if (ci) ci.value = val;
+  }
+}
+
+function applyQppSetting(val) {
+  state.questionsPerPlayer = val;
+  const btns = document.querySelectorAll('#qpp-options .seg-opt');
+  let matched = false;
+  btns.forEach(b => {
+    b.classList.remove('active');
+    if (parseInt(b.dataset.qpp) === val) { b.classList.add('active'); matched = true; }
+  });
+  if (!matched) {
+    const ci = document.getElementById('custom-qpp');
+    if (ci) ci.value = val;
+  }
+}
+
+function applySkipSetting(val) {
+  state.skipLimitPerPlayer = val;
+  const btns = document.querySelectorAll('#skip-options .seg-opt');
+  let matched = false;
+  btns.forEach(b => {
+    b.classList.remove('active');
+    if (parseInt(b.dataset.skips) === val) { b.classList.add('active'); matched = true; }
+  });
+  if (!matched) {
+    const ci = document.getElementById('custom-skips');
+    if (ci) ci.value = val === 99 ? 0 : val;
+  }
+}
+
+function applyRepeatSetting(val) {
+  state.globalRepeatLimit = val;
+  const btns = document.querySelectorAll('#repeat-options .seg-opt');
+  let matched = false;
+  btns.forEach(b => {
+    b.classList.remove('active');
+    if (parseInt(b.dataset.repeat) === val) { b.classList.add('active'); matched = true; }
+  });
+  if (!matched) {
+    const ci = document.getElementById('custom-repeat');
+    if (ci) ci.value = val;
+  }
+}
+
+function restoreCategoryFilter(cats, customOnly = false) {
+  // Reset first
+  const allBtn    = document.querySelector('.cat-filter-btn.all-btn');
+  const customBtn = document.querySelector('.cat-filter-btn.custom-btn');
+  document.querySelectorAll('.cat-filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.color = '';
+  });
+
+  if (customOnly) {
+    customBtn?.classList.add('active');
+    state.customOnly = true;
+  } else if (cats && cats.length > 0) {
+    state.selectedCategories = cats;
+    cats.forEach(catId => {
+      const btn = document.querySelector(`.cat-filter-btn[data-cat="${catId}"]`);
+      const cat = state.categories.find(c => c.id === catId);
+      if (btn && cat) {
+        btn.classList.add('active');
+        btn.style.background = cat.color;
+        btn.style.color = '#fff';
+      }
+    });
+    allBtn?.classList.remove('active');
+  } else {
+    allBtn?.classList.add('active');
+  }
+}
+
+// Auto-save settings whenever they change
+function autoSave() {
+  saveSettingsToStorage();
+}
+
+// ── QUESTION SETS ──────────────────────────────
+function getQsets() {
+  try { return JSON.parse(localStorage.getItem(LS_QSETS) || '[]'); }
+  catch (e) { return []; }
+}
+
+function saveQsets(sets) {
+  try { localStorage.setItem(LS_QSETS, JSON.stringify(sets)); }
+  catch (e) { showToast('⚠️ مساحة التخزين ممتلية'); }
+}
+
+function saveAsSet() {
+  const input = document.getElementById('set-name-input');
+  const name  = input?.value.trim();
+  if (!name) {
+    if (input) { input.style.borderColor = 'var(--red)'; setTimeout(() => input.style.borderColor = '', 800); }
+    return;
+  }
+  if (state.setupCustomQuestions.length === 0) {
+    showToast('أضف أسئلة الأول!');
+    return;
+  }
+
+  const sets = getQsets();
+  // Replace if same name
+  const existIdx = sets.findIndex(s => s.name === name);
+  const newSet = {
+    id:        'set_' + Date.now(),
+    name,
+    questions: state.setupCustomQuestions.map(q => ({ ...q }))
+  };
+
+  if (existIdx >= 0) sets[existIdx] = newSet;
+  else sets.push(newSet);
+
+  saveQsets(sets);
+  input.value = '';
+  renderQsetsList();
+  showToast(`✅ تم حفظ «${name}»`);
+}
+
+function loadSet(setId) {
+  const sets = getQsets();
+  const set  = sets.find(s => s.id === setId);
+  if (!set) return;
+
+  // Merge: add questions that aren't already in the session (by text match)
+  const existingTexts = new Set(state.setupCustomQuestions.map(q => q.text));
+  const newOnes = set.questions.filter(q => !existingTexts.has(q.text));
+  newOnes.forEach(q => {
+    state.setupCustomQuestions.push({ ...q, id: 'custom_' + Date.now() + '_' + Math.floor(rnd() * 1e9) });
+  });
+
+  renderModalAddedList();
+  updateCustomBadge();
+  renderQsetsList();
+  saveSettingsToStorage();
+  showToast(`📚 تم تحميل «${set.name}» (${toArabicNum(newOnes.length)} سؤال جديد)`);
+}
+
+function deleteSet(setId) {
+  const sets    = getQsets().filter(s => s.id !== setId);
+  saveQsets(sets);
+  renderQsetsList();
+}
+
+function renderQsetsList() {
+  const container = document.getElementById('qsets-list');
+  if (!container) return;
+
+  const sets = getQsets();
+  container.innerHTML = '';
+
+  if (sets.length === 0) {
+    container.innerHTML = '<p class="qsets-empty">مفيش مجموعات محفوظة لسه</p>';
+    return;
+  }
+
+  sets.forEach(set => {
+    const chip = document.createElement('div');
+    chip.className = 'qset-chip';
+    chip.innerHTML = `
+      <div class="qset-name">${set.name}</div>
+      <span class="qset-count">${toArabicNum(set.questions.length)} سؤال</span>
+      <button class="qset-load-btn" onclick="loadSet('${set.id}')">تحميل</button>
+      <button class="qset-delete-btn" onclick="deleteSet('${set.id}')">🗑</button>
+    `;
+    container.appendChild(chip);
+  });
 }
 
 // ── CATEGORY FILTER (setup screen) ───────────
@@ -356,6 +526,7 @@ function selectCategoryFilter(catId, clickedBtn) {
     allBtn.classList.add('active');
     state.selectedCategories = [];
     state.customOnly = false;
+    autoSave();
     return;
   }
 
@@ -374,6 +545,7 @@ function selectCategoryFilter(catId, clickedBtn) {
       allBtn.classList.add('active');
       state.customOnly = false;
     }
+    autoSave();
     return;
   }
 
@@ -407,6 +579,7 @@ function selectCategoryFilter(catId, clickedBtn) {
     allBtn.classList.remove('active');
     allBtn.style.background = '';
   }
+  autoSave();
 }
 
 // ── MODAL: CATEGORY PICKER ────────────────────
@@ -445,6 +618,8 @@ function buildModalCategoryPicker() {
 // ── MODAL: OPEN / CLOSE ───────────────────────
 function openAddQModal() {
   document.getElementById('modal-add-q').classList.remove('hidden');
+  updateSaveSetSection();
+  renderQsetsList();
   setTimeout(() => document.getElementById('modal-q-text').focus(), 300);
 }
 
@@ -491,16 +666,10 @@ function saveModalQuestion() {
   state.setupCustomQuestions.push(newQ);
   textarea.value = '';
 
-  // Reset anonymous toggle after each add
-  state.anonymousMode = false;
-  const anonBtn = document.getElementById('anon-toggle');
-  if (anonBtn) {
-    anonBtn.classList.remove('active');
-    anonBtn.textContent = '🕵️ مجهول';
-  }
-
   renderModalAddedList();
   updateCustomBadge();
+  updateSaveSetSection();
+  autoSave();
   showToast('تم إضافة سؤالك! 🎉');
 }
 
@@ -508,6 +677,13 @@ function removeSetupQuestion(id) {
   state.setupCustomQuestions = state.setupCustomQuestions.filter(q => q.id !== id);
   renderModalAddedList();
   updateCustomBadge();
+  updateSaveSetSection();
+  autoSave();
+}
+
+function updateSaveSetSection() {
+  const section = document.getElementById('save-set-section');
+  if (section) section.style.display = state.setupCustomQuestions.length > 0 ? '' : 'none';
 }
 
 function renderModalAddedList() {
@@ -585,12 +761,14 @@ function addPlayer() {
   input.value = '';
   renderPlayersList();
   updateStartBtn();
+  autoSave();
 }
 
 function removePlayer(index) {
   state.players.splice(index, 1);
   renderPlayersList();
   updateStartBtn();
+  autoSave();
 }
 
 function renderPlayersList() {
@@ -733,6 +911,7 @@ function showQuestion() {
   $.questionText.textContent = q.text;
 
   updateSkipButton();
+  updateAddTimeBtnVisibility();
 }
 
 function updateQuestionCounter() {
@@ -750,11 +929,12 @@ function updateQuestionCounter() {
 function startTimer() {
   clearInterval(state.timerInterval);
   state.timerRemaining = state.timerDuration;
+  state.timerTotal     = state.timerDuration;  // track current "full" for ring
   updateTimerUI(state.timerDuration, state.timerDuration);
 
   state.timerInterval = setInterval(() => {
     state.timerRemaining--;
-    updateTimerUI(state.timerRemaining, state.timerDuration);
+    updateTimerUI(state.timerRemaining, state.timerTotal);  // use timerTotal, not timerDuration
     if (state.timerRemaining <= 0) {
       clearInterval(state.timerInterval);
       timesUp();
@@ -764,6 +944,15 @@ function startTimer() {
 
 function stopTimer() {
   clearInterval(state.timerInterval);
+}
+
+// ── ADD EXTRA TIME (in-game) ──────────────────
+function addExtraTime() {
+  const bonus = 30;
+  state.timerRemaining += bonus;
+  state.timerTotal     += bonus;  // expand the ring's reference total too
+  updateTimerUI(state.timerRemaining, state.timerTotal);
+  showToast(`⏱ +${toArabicNum(bonus)} ثانية!`);
 }
 
 function updateTimerUI(remaining, total) {
@@ -919,7 +1108,233 @@ function showToast(msg) {
 }
 
 // ── HELPERS ───────────────────────────────────
-const arabicNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+var arabicNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
 function toArabicNum(n) {
   return String(n).split('').map(d => arabicNums[d] ?? d).join('');
+}
+
+// ── HELP SECTION ──────────────────────────────
+function toggleHelp() {
+  const body  = document.getElementById('help-body');
+  const arrow = document.getElementById('help-toggle-arrow');
+  const btn   = document.querySelector('.help-toggle-btn');
+  const open  = body.classList.toggle('open');
+  arrow.textContent = open ? '▲' : '▼';
+  btn.classList.toggle('help-toggle-open', open);
+}
+
+// ── SHOW QUESTIONS PASSWORD MODAL ─────────────
+const SHOW_Q_PASSWORD = '2486';
+let showQBrowserCatId = null;
+
+function openShowQModal() {
+  const input = document.getElementById('show-q-password-input');
+  const err   = document.getElementById('show-q-error');
+  input.value = '';
+  err.style.display = 'none';
+  document.getElementById('modal-show-q-password').classList.remove('hidden');
+  setTimeout(() => input.focus(), 300);
+}
+
+function closeShowQPasswordModal() {
+  document.getElementById('modal-show-q-password').classList.add('hidden');
+}
+
+function closeShowQPasswordBackdrop(e) {
+  if (e.target === document.getElementById('modal-show-q-password')) closeShowQPasswordModal();
+}
+
+function checkShowQPassword() {
+  const input = document.getElementById('show-q-password-input');
+  const err   = document.getElementById('show-q-error');
+  if (input.value.trim() === SHOW_Q_PASSWORD) {
+    closeShowQPasswordModal();
+    openShowQBrowserModal();
+  } else {
+    err.style.display = '';
+    input.value = '';
+    input.classList.add('error');
+    setTimeout(() => input.classList.remove('error'), 900);
+  }
+}
+
+// Allow Enter key in password input
+document.addEventListener('DOMContentLoaded', () => {
+  const pi = document.getElementById('show-q-password-input');
+  if (pi) pi.addEventListener('keydown', e => { if (e.key === 'Enter') checkShowQPassword(); });
+});
+
+// ── SHOW QUESTIONS BROWSER MODAL ──────────────
+function openShowQBrowserModal() {
+  buildShowQCatTabs();
+  document.getElementById('modal-show-q-browser').classList.remove('hidden');
+}
+
+function closeShowQBrowserModal() {
+  document.getElementById('modal-show-q-browser').classList.add('hidden');
+}
+
+function closeShowQBrowserBackdrop(e) {
+  if (e.target === document.getElementById('modal-show-q-browser')) closeShowQBrowserModal();
+}
+
+function buildShowQCatTabs() {
+  const tabs = document.getElementById('show-q-cat-tabs');
+  tabs.innerHTML = '';
+  const frag = document.createDocumentFragment();
+
+  // "All" tab
+  const allTab = document.createElement('button');
+  allTab.className = 'show-q-tab active';
+  allTab.dataset.cat = 'all';
+  allTab.textContent = '🌟 الكل';
+  allTab.addEventListener('click', () => selectShowQTab('all', allTab));
+  frag.appendChild(allTab);
+
+  state.categories.forEach(cat => {
+    const tab = document.createElement('button');
+    tab.className = 'show-q-tab';
+    tab.dataset.cat = cat.id;
+    tab.textContent = `${cat.emoji} ${cat.name}`;
+    tab.style.setProperty('--tab-color', cat.color);
+    tab.addEventListener('click', () => selectShowQTab(cat.id, tab));
+    frag.appendChild(tab);
+  });
+
+  tabs.appendChild(frag);
+  showQBrowserCatId = 'all';
+  renderShowQList('all');
+}
+
+function selectShowQTab(catId, clickedTab) {
+  document.querySelectorAll('.show-q-tab').forEach(t => t.classList.remove('active'));
+  clickedTab.classList.add('active');
+  showQBrowserCatId = catId;
+  renderShowQList(catId);
+}
+
+function renderShowQList(catId) {
+  const list = document.getElementById('show-q-list');
+  list.innerHTML = '';
+
+  const filtered = catId === 'all'
+    ? state.questions.filter(q => !q.custom)
+    : state.questions.filter(q => !q.custom && q.category === catId);
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:24px 0;font-size:14px">مفيش أسئلة في الفئة دي</p>';
+    return;
+  }
+
+  const frag = document.createDocumentFragment();
+  filtered.forEach((q, i) => {
+    const cat = state.categories.find(c => c.id === q.category) || { emoji: '💬', color: '#FF6B35' };
+    const row = document.createElement('div');
+    row.className = 'show-q-row';
+    row.innerHTML = `
+      <span class="show-q-num">${toArabicNum(i + 1)}</span>
+      <span class="show-q-cat-dot" style="background:${cat.color}">${cat.emoji}</span>
+      <span class="show-q-text">${q.text}</span>
+    `;
+    frag.appendChild(row);
+  });
+  list.appendChild(frag);
+}
+
+// ── RESET ALL ─────────────────────────────────
+function confirmResetAll() {
+  document.getElementById('modal-confirm-reset').classList.remove('hidden');
+}
+
+function closeConfirmReset() {
+  document.getElementById('modal-confirm-reset').classList.add('hidden');
+}
+
+function closeConfirmResetBackdrop(e) {
+  if (e.target === document.getElementById('modal-confirm-reset')) closeConfirmReset();
+}
+
+function executeResetAll() {
+  // Clear localStorage
+  try {
+    localStorage.removeItem('dawwar_settings');
+    localStorage.removeItem('dawwar_players');
+    localStorage.removeItem('dawwar_custom_qs');
+    localStorage.removeItem('dawwar_qsets');
+  } catch (e) {}
+
+  // Reset state
+  state.players              = [];
+  state.timerDuration        = 30;
+  state.skipLimitPerPlayer   = 1;
+  state.questionsPerPlayer   = 0;
+  state.globalRepeatLimit    = 1;
+  state.selectedCategories   = [];
+  state.customOnly           = false;
+  state.setupCustomQuestions = [];
+  state.allowAddTime         = false;
+
+  // Reset UI — players
+  renderPlayersList();
+  updateStartBtn();
+  updateCustomBadge();
+
+  // Reset timer buttons
+  document.querySelectorAll('#timer-options .seg-opt').forEach(b => b.classList.remove('active'));
+  document.querySelector('#timer-options .seg-opt[data-seconds="30"]')?.classList.add('active');
+
+  // Reset qpp buttons
+  document.querySelectorAll('#qpp-options .seg-opt').forEach(b => b.classList.remove('active'));
+  document.querySelector('#qpp-options .seg-opt[data-qpp="0"]')?.classList.add('active');
+
+  // Reset skip buttons
+  document.querySelectorAll('#skip-options .seg-opt').forEach(b => b.classList.remove('active'));
+  document.querySelector('#skip-options .seg-opt[data-skips="1"]')?.classList.add('active');
+
+  // Reset repeat buttons
+  document.querySelectorAll('#repeat-options .seg-opt').forEach(b => b.classList.remove('active'));
+  document.querySelector('#repeat-options .seg-opt[data-repeat="1"]')?.classList.add('active');
+
+  // Reset custom number inputs
+  ['custom-timer','custom-qpp','custom-skips','custom-repeat'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Reset category filter
+  document.querySelectorAll('.cat-filter-btn').forEach(b => {
+    b.classList.remove('active');
+    b.style.background = '';
+    b.style.color = '';
+  });
+  document.querySelector('.cat-filter-btn.all-btn')?.classList.add('active');
+
+  // Reset add-time toggle
+  document.getElementById('add-time-toggle')?.classList.remove('active');
+
+  // Reset modal lists
+  const addedList = document.getElementById('modal-added-list');
+  if (addedList) addedList.innerHTML = '';
+  const divider = document.getElementById('modal-divider');
+  if (divider) divider.style.display = 'none';
+  const saveSection = document.getElementById('save-set-section');
+  if (saveSection) saveSection.style.display = 'none';
+  renderQsetsList();
+
+  closeConfirmReset();
+  showToast('تم المسح — ابدأ من جديد! 🧹');
+}
+
+// ── ALLOW ADD TIME TOGGLE ─────────────────────
+function toggleAllowAddTime() {
+  state.allowAddTime = !state.allowAddTime;
+  const btn = document.getElementById('add-time-toggle');
+  if (btn) btn.classList.toggle('active', state.allowAddTime);
+  updateAddTimeBtnVisibility();
+  autoSave();
+}
+
+function updateAddTimeBtnVisibility() {
+  const btn = document.getElementById('add-time-btn');
+  if (btn) btn.style.display = state.allowAddTime ? '' : 'none';
 }

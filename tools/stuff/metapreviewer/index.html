@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetaPreviewer Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --accent: #7c6af7;
+    --accent2: #f76af7;
+    --accent3: #6af7c8;
+    --text: #f0f0fa;
+    --text2: #9898b8;
+    --text3: #5a5a7a;
+    --glow: rgba(124,106,247,0.15);
+    --red: #f76a6a;
+    --green: #6af7c8;
+    --yellow: #f7d96a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* Gradient orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .orb1 { width: 600px; height: 600px; background: rgba(124,106,247,0.12); top: -200px; left: -100px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(247,106,247,0.08); bottom: -100px; right: -100px; animation-delay: -10s; }
+  .orb3 { width: 300px; height: 300px; background: rgba(106,247,200,0.06); top: 50%; left: 50%; animation-delay: -5s; }
+
+  @keyframes drift {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(30px, 20px) scale(1.05); }
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 56px;
+    padding-top: 20px;
+  }
+
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    background: linear-gradient(135deg, #fff 30%, var(--accent) 70%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+  }
+
+  .tagline {
+    color: var(--text3);
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+    margin-top: 6px;
+  }
+
+  /* URL Bar */
+  .url-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 48px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .url-bar:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--glow);
+  }
+
+  #urlInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+  }
+  #urlInput::placeholder { color: var(--text3); }
+
+  #analyzeBtn {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 10px 28px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+  #analyzeBtn:hover { opacity: 0.9; transform: translateY(-1px); }
+  #analyzeBtn:active { transform: translateY(0); }
+  #analyzeBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Status Bar */
+  #statusBar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 0.82rem;
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 32px;
+    border: 1px solid;
+  }
+  #statusBar.info { background: rgba(124,106,247,0.08); border-color: rgba(124,106,247,0.3); color: var(--accent); }
+  #statusBar.success { background: rgba(106,247,200,0.08); border-color: rgba(106,247,200,0.3); color: var(--green); }
+  #statusBar.error { background: rgba(247,106,106,0.08); border-color: rgba(247,106,106,0.3); color: var(--red); }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .dot.pulse { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab.active {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .tab:hover:not(.active) { color: var(--text2); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Grid Layout */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } .grid3 { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .dot2 { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+  /* Meta fields */
+  .meta-field { margin-bottom: 20px; }
+  .meta-field:last-child { margin-bottom: 0; }
+  .meta-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 5px;
+  }
+  .meta-value {
+    font-size: 0.9rem;
+    color: var(--text2);
+    word-break: break-word;
+    line-height: 1.5;
+  }
+  .meta-value.highlight { color: var(--text); font-weight: 500; }
+  .meta-value.mono { font-family: 'DM Mono', monospace; font-size: 0.78rem; color: var(--accent); }
+  .meta-value.empty { color: var(--text3); font-style: italic; font-size: 0.82rem; }
+  .meta-value.badge {
+    display: inline-block;
+    background: rgba(106,247,200,0.1);
+    border: 1px solid rgba(106,247,200,0.2);
+    color: var(--green);
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .meta-value.badge.warn {
+    background: rgba(247,217,106,0.1);
+    border-color: rgba(247,217,106,0.2);
+    color: var(--yellow);
+  }
+  .meta-value.badge.bad {
+    background: rgba(247,106,106,0.1);
+    border-color: rgba(247,106,106,0.2);
+    color: var(--red);
+  }
+
+  /* OG Image */
+  .og-img-wrap {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    aspect-ratio: 1200/630;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    position: relative;
+  }
+  .og-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .og-img-wrap .no-img {
+    color: var(--text3);
+    font-size: 0.8rem;
+    font-family: 'DM Mono', monospace;
+    text-align: center;
+  }
+  .img-url {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text3);
+    word-break: break-all;
+    padding: 8px 12px;
+    background: var(--surface2);
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+
+  /* Social Previews */
+  .preview-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .preview-label span {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* Facebook preview */
+  .fb-preview {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #3a3a4a;
+    background: #1e1e2e;
+    max-width: 500px;
+  }
+  .fb-preview img { width: 100%; height: 260px; object-fit: cover; display: block; }
+  .fb-preview .fb-body { padding: 10px 12px; background: #232333; }
+  .fb-preview .fb-domain { font-size: 11px; text-transform: uppercase; color: #8888aa; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .fb-preview .fb-title { font-size: 14px; font-weight: 700; color: #eeeeff; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fb-preview .fb-desc { font-size: 13px; color: #9898b8; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+  /* Twitter/X preview */
+  .x-preview {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #2a2a3a;
+    background: #0f0f1a;
+    max-width: 500px;
+  }
+  .x-preview img { width: 100%; height: 260px; object-fit: cover; display: block; }
+  .x-preview .x-body { padding: 12px 14px; }
+  .x-preview .x-domain { font-size: 12px; color: #6666aa; margin-bottom: 4px; }
+  .x-preview .x-title { font-size: 14px; color: #eeeeff; font-weight: 500; margin-bottom: 3px; }
+  .x-preview .x-desc { font-size: 13px; color: #6666aa; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+  /* WhatsApp preview */
+  .wa-preview {
+    background: #111b21;
+    border-radius: 10px;
+    padding: 6px;
+    max-width: 340px;
+  }
+  .wa-inner {
+    background: #1f2c34;
+    border-left: 4px solid #00a884;
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .wa-preview img { width: 100%; height: 160px; object-fit: cover; border-radius: 4px; display: block; margin-bottom: 8px; }
+  .wa-title { color: #00a884; font-size: 13px; font-weight: 600; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .wa-desc { color: #aebac1; font-size: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .wa-domain { color: #667781; font-size: 11px; margin-top: 4px; }
+
+  /* LinkedIn preview */
+  .li-preview {
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #2a2a3a;
+    background: #1a1a2a;
+    max-width: 500px;
+  }
+  .li-preview img { width: 100%; height: 260px; object-fit: cover; display: block; }
+  .li-preview .li-body { padding: 10px 14px; border-top: 1px solid #2a2a3a; }
+  .li-preview .li-title { font-size: 14px; font-weight: 600; color: #eeeeff; margin-bottom: 4px; }
+  .li-preview .li-domain { font-size: 11px; color: #8888aa; text-transform: uppercase; }
+
+  /* Slack preview */
+  .slack-preview {
+    border-left: 4px solid #4a154b;
+    background: #1a1a22;
+    padding: 12px 14px;
+    border-radius: 4px;
+    max-width: 500px;
+  }
+  .slack-preview img { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; display: block; margin-top: 8px; }
+  .slack-domain { font-size: 12px; font-weight: 700; color: #ccccdd; margin-bottom: 6px; }
+  .slack-title { font-size: 14px; font-weight: 700; color: #7c6af7; margin-bottom: 4px; }
+  .slack-desc { font-size: 13px; color: #9898b8; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+  /* Telegram preview */
+  .tg-preview {
+    background: #17212b;
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 360px;
+    padding: 6px;
+  }
+  .tg-inner {
+    border-left: 3px solid #2196f3;
+    padding: 8px 10px;
+    background: #232e3c;
+    border-radius: 0 6px 6px 0;
+  }
+  .tg-preview img { width: 100%; height: 180px; object-fit: cover; border-radius: 4px; display: block; margin-bottom: 6px; }
+  .tg-site { font-size: 12px; font-weight: 700; color: #2196f3; margin-bottom: 3px; }
+  .tg-title { font-size: 14px; color: #eeeeff; font-weight: 500; margin-bottom: 3px; }
+  .tg-desc { font-size: 12px; color: #7a8c9a; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+
+  /* SEO Score */
+  .score-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    border: 3px solid;
+    flex-shrink: 0;
+  }
+  .score-ring.good { border-color: var(--green); color: var(--green); }
+  .score-ring.warn { border-color: var(--yellow); color: var(--yellow); }
+  .score-ring.bad { border-color: var(--red); color: var(--red); }
+
+  .score-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+
+  .score-checks { flex: 1; }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .check-item:last-child { border-bottom: none; }
+  .check-icon { flex-shrink: 0; margin-top: 1px; }
+  .check-icon.pass { color: var(--green); }
+  .check-icon.fail { color: var(--red); }
+  .check-icon.warn { color: var(--yellow); }
+  .check-text { color: var(--text2); flex: 1; }
+  .check-detail { font-size: 0.75rem; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  /* Tech stack */
+  .tech-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+    margin: 4px 4px 4px 0;
+    border: 1px solid;
+  }
+  .tech-tag.cms { background: rgba(124,106,247,0.1); border-color: rgba(124,106,247,0.3); color: var(--accent); }
+  .tech-tag.framework { background: rgba(106,247,200,0.1); border-color: rgba(106,247,200,0.3); color: var(--green); }
+  .tech-tag.analytics { background: rgba(247,106,247,0.1); border-color: rgba(247,106,247,0.3); color: var(--accent2); }
+  .tech-tag.generic { background: var(--surface2); border-color: var(--border); color: var(--text3); }
+
+  /* Headers table */
+  .headers-table { width: 100%; border-collapse: collapse; }
+  .headers-table td {
+    padding: 8px 10px;
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .headers-table tr:last-child td { border-bottom: none; }
+  .headers-table .hkey { color: var(--accent); width: 35%; word-break: break-all; }
+  .headers-table .hval { color: var(--text3); word-break: break-all; }
+
+  /* Links list */
+  .links-list { max-height: 300px; overflow-y: auto; }
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.78rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .link-item:last-child { border-bottom: none; }
+  .link-internal { color: var(--accent); }
+  .link-external { color: var(--text3); }
+  .link-dot-in { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+  .link-dot-ex { width: 5px; height: 5px; border-radius: 50%; background: var(--text3); flex-shrink: 0; }
+
+  /* Schema */
+  .schema-type {
+    display: inline-block;
+    padding: 4px 12px;
+    background: rgba(247,217,106,0.1);
+    border: 1px solid rgba(247,217,106,0.25);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: var(--yellow);
+    font-family: 'DM Mono', monospace;
+    margin: 3px;
+  }
+
+  /* Placeholder state */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text3);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+  .empty-state .big-icon { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+
+  /* Spinner */
+  .spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(124,106,247,0.3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* Copy button */
+  .copy-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text3);
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-left: auto;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Animation */
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(16px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .fadein { animation: fadeUp 0.35s ease both; }
+
+  /* Image search badge */
+  .img-badge {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: rgba(0,0,0,0.6);
+    border: 1px solid var(--border2);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--text2);
+  }
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div class="container">
+
+  <header>
+    <div class="logo-row">
+      <div class="logo-icon">🔍</div>
+      <h1>MetaPreviewer Pro</h1>
+    </div>
+    <p class="tagline">Open Graph · Twitter Cards · SEO · Tech Stack · Schema · Links</p>
+  </header>
+
+  <div class="url-bar">
+    <input type="text" id="urlInput" placeholder="Paste any URL — https://example.com" autocomplete="off" spellcheck="false">
+    <button id="analyzeBtn" onclick="run()">Analyze →</button>
+  </div>
+
+  <div id="statusBar">
+    <div class="dot" id="statusDot"></div>
+    <span id="statusText"></span>
+  </div>
+
+  <div id="mainContent">
+    <div class="empty-state">
+      <div class="big-icon">🌐</div>
+      <div>Enter any URL above to inspect its metadata, social previews, SEO score, and more.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function setStatus(msg, type = 'info', spin = false) {
+  const bar = document.getElementById('statusBar');
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  bar.style.display = 'flex';
+  bar.className = type;
+  dot.className = 'dot' + (spin ? ' pulse' : '');
+  text.textContent = msg;
+}
+
+function hideStatus() {
+  document.getElementById('statusBar').style.display = 'none';
+}
+
+function getAbsoluteUrl(base, rel) {
+  try { return new URL(rel, base).href; } catch { return rel; }
+}
+
+function getMeta(doc, names) {
+  for (const n of names) {
+    const el = doc.querySelector(
+      `meta[property="${n}"], meta[name="${n}"], meta[property="${n.toLowerCase()}"], meta[name="${n.toLowerCase()}"]`
+    );
+    if (el?.content) return el.content.trim();
+  }
+  return null;
+}
+
+function getAllMeta(doc) {
+  const result = [];
+  doc.querySelectorAll('meta').forEach(el => {
+    const name = el.getAttribute('property') || el.getAttribute('name') || el.getAttribute('http-equiv');
+    const content = el.getAttribute('content');
+    if (name && content) result.push({ name, content });
+  });
+  return result;
+}
+
+function truncate(str, n) {
+  if (!str) return '';
+  return str.length > n ? str.slice(0, n) + '…' : str;
+}
+
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+}
+
+function getHostname(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url; }
+}
+
+// ─── Proxy chain ─────────────────────────────────────────────────────────────
+// Multiple extraction strategies + proxy fallbacks for maximum site compatibility
+
+async function fetchRaw(targetUrl) {
+  // Strategy 1: Try multiple CORS proxies  
+  const proxies = [
+    {
+      url: `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}&timestamp=${Date.now()}`,
+      extract: async r => { const j = await r.json(); return j.contents; }
+    },
+    {
+      url: `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+      extract: r => r.text()
+    },
+    {
+      url: `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+      extract: r => r.text()
+    },
+    {
+      url: `https://thingproxy.freeboard.io/fetch/${targetUrl}`,
+      extract: r => r.text()
+    },
+  ];
+
+  for (let i = 0; i < proxies.length; i++) {
+    try {
+      setStatus(`Trying proxy ${i+1} of ${proxies.length}…`, 'info', true);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(proxies[i].url, { signal: controller.signal });
+      clearTimeout(timeout);
+      if (!res.ok) continue;
+      const html = await proxies[i].extract(res);
+      if (html && html.length > 200) {
+        setStatus(`Fetched via proxy ${i+1} ✓`, 'success');
+        return html;
+      }
+    } catch (e) {
+      console.warn(`Proxy ${i+1} failed:`, e.message);
+    }
+  }
+
+  // Strategy 2: Try direct fetch (works if site allows CORS, e.g., APIs)
+  try {
+    setStatus('Trying direct fetch…', 'info', true);
+    const res = await fetch(targetUrl, { mode: 'cors' });
+    if (res.ok) {
+      const html = await res.text();
+      if (html && html.length > 200) return html;
+    }
+  } catch {}
+
+  // Strategy 3: Use Open Graph scraper API as last resort
+  try {
+    setStatus('Using OG scraper API…', 'info', true);
+    const res = await fetch(`https://opengraph.io/api/1.1/site/${encodeURIComponent(targetUrl)}?accept_lang=en&use_proxy=true`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.hybridGraph) {
+        // Return synthetic HTML from OG data
+        const og = data.hybridGraph;
+        return `<html><head>
+          <title>${esc(og.title||'')}</title>
+          <meta property="og:title" content="${esc(og.title||'')}">
+          <meta property="og:description" content="${esc(og.description||'')}">
+          <meta property="og:image" content="${esc(og.image||'')}">
+          <meta property="og:url" content="${esc(og.url||targetUrl)}">
+          <meta name="description" content="${esc(og.description||'')}">
+        </head><body></body></html>`;
+      }
+    }
+  } catch {}
+
+  throw new Error('All fetch methods failed. The site may block scrapers, require auth, or be down. Try a different URL.');
+}
+
+// ─── Tech detection ───────────────────────────────────────────────────────────
+
+function detectTech(html, doc) {
+  const tags = [];
+  const h = html.toLowerCase();
+
+  // CMS
+  if (h.includes('wp-content') || h.includes('wp-json')) tags.push({label:'WordPress', cat:'cms'});
+  if (h.includes('shopify') || h.includes('cdn.shopify')) tags.push({label:'Shopify', cat:'cms'});
+  if (h.includes('ghost')) tags.push({label:'Ghost', cat:'cms'});
+  if (h.includes('wix.com')) tags.push({label:'Wix', cat:'cms'});
+  if (h.includes('squarespace')) tags.push({label:'Squarespace', cat:'cms'});
+  if (h.includes('webflow')) tags.push({label:'Webflow', cat:'cms'});
+  if (h.includes('drupal')) tags.push({label:'Drupal', cat:'cms'});
+  if (h.includes('joomla')) tags.push({label:'Joomla', cat:'cms'});
+
+  // Frameworks
+  if (h.includes('next.js') || h.includes('__next') || h.includes('_next/')) tags.push({label:'Next.js', cat:'framework'});
+  if (h.includes('nuxt') || h.includes('__nuxt')) tags.push({label:'Nuxt.js', cat:'framework'});
+  if (h.includes('react') || h.includes('reactdom')) tags.push({label:'React', cat:'framework'});
+  if (h.includes('vue') || h.includes('__vue')) tags.push({label:'Vue', cat:'framework'});
+  if (h.includes('angular')) tags.push({label:'Angular', cat:'framework'});
+  if (h.includes('gatsby')) tags.push({label:'Gatsby', cat:'framework'});
+  if (h.includes('svelte')) tags.push({label:'Svelte', cat:'framework'});
+  if (h.includes('jquery')) tags.push({label:'jQuery', cat:'framework'});
+  if (h.includes('bootstrap')) tags.push({label:'Bootstrap', cat:'framework'});
+  if (h.includes('tailwind')) tags.push({label:'Tailwind', cat:'framework'});
+
+  // Analytics
+  if (h.includes('google-analytics') || h.includes('gtag') || h.includes('googletagmanager')) tags.push({label:'Google Analytics', cat:'analytics'});
+  if (h.includes('hotjar')) tags.push({label:'Hotjar', cat:'analytics'});
+  if (h.includes('segment')) tags.push({label:'Segment', cat:'analytics'});
+  if (h.includes('mixpanel')) tags.push({label:'Mixpanel', cat:'analytics'});
+  if (h.includes('plausible')) tags.push({label:'Plausible', cat:'analytics'});
+  if (h.includes('clarity')) tags.push({label:'MS Clarity', cat:'analytics'});
+  if (h.includes('intercom')) tags.push({label:'Intercom', cat:'analytics'});
+
+  // CDN / Infra
+  if (h.includes('cloudflare')) tags.push({label:'Cloudflare', cat:'generic'});
+  if (h.includes('vercel')) tags.push({label:'Vercel', cat:'generic'});
+  if (h.includes('netlify')) tags.push({label:'Netlify', cat:'generic'});
+
+  // Deduplicate
+  return [...new Map(tags.map(t => [t.label, t])).values()];
+}
+
+// ─── Schema.org detector ──────────────────────────────────────────────────────
+
+function detectSchema(doc) {
+  const types = new Set();
+  doc.querySelectorAll('[itemtype]').forEach(el => {
+    const t = el.getAttribute('itemtype');
+    const m = t.match(/schema\.org\/(.+)/);
+    if (m) types.add(m[1]);
+  });
+  doc.querySelectorAll('script[type="application/ld+json"]').forEach(el => {
+    try {
+      const data = JSON.parse(el.textContent);
+      const collect = d => {
+        if (d['@type']) types.add(Array.isArray(d['@type']) ? d['@type'].join(', ') : d['@type']);
+        Object.values(d).forEach(v => {
+          if (typeof v === 'object' && v !== null) collect(v);
+        });
+      };
+      if (Array.isArray(data)) data.forEach(collect);
+      else collect(data);
+    } catch {}
+  });
+  return [...types];
+}
+
+// ─── SEO Analysis ─────────────────────────────────────────────────────────────
+
+function analyzeSEO(doc, url, html) {
+  const checks = [];
+  let score = 0;
+
+  // Title
+  const title = doc.title || '';
+  if (title) {
+    if (title.length >= 30 && title.length <= 60) {
+      checks.push({ pass: true, label: 'Title tag (good length)', detail: `${title.length} chars — "${truncate(title, 60)}"` });
+      score += 15;
+    } else if (title.length > 0) {
+      const issue = title.length < 30 ? 'too short' : 'too long';
+      checks.push({ warn: true, label: `Title tag (${issue})`, detail: `${title.length} chars — aim for 30–60` });
+      score += 8;
+    }
+  } else {
+    checks.push({ fail: true, label: 'Missing title tag', detail: 'Critical for SEO' });
+  }
+
+  // Meta description
+  const desc = getMeta(doc, ['description', 'og:description']);
+  if (desc) {
+    if (desc.length >= 120 && desc.length <= 160) {
+      checks.push({ pass: true, label: 'Meta description (good length)', detail: `${desc.length} chars` });
+      score += 15;
+    } else {
+      const issue = desc.length < 120 ? 'too short' : 'too long';
+      checks.push({ warn: true, label: `Meta description (${issue})`, detail: `${desc.length} chars — aim for 120–160` });
+      score += 7;
+    }
+  } else {
+    checks.push({ fail: true, label: 'No meta description', detail: 'Hurts click-through rates in search' });
+  }
+
+  // OG tags
+  const ogTitle = getMeta(doc, ['og:title']);
+  const ogDesc = getMeta(doc, ['og:description']);
+  const ogImg = getMeta(doc, ['og:image']);
+  if (ogTitle) { checks.push({ pass: true, label: 'og:title present', detail: truncate(ogTitle, 60) }); score += 8; }
+  else checks.push({ fail: true, label: 'Missing og:title', detail: 'Needed for link previews on Facebook, Slack, etc.' });
+  if (ogDesc) { checks.push({ pass: true, label: 'og:description present' }); score += 5; }
+  else checks.push({ warn: true, label: 'Missing og:description' });
+  if (ogImg) { checks.push({ pass: true, label: 'og:image present', detail: truncate(ogImg, 60) }); score += 10; }
+  else checks.push({ fail: true, label: 'Missing og:image', detail: 'Link previews will look broken' });
+
+  // Twitter card
+  const twCard = getMeta(doc, ['twitter:card']);
+  if (twCard) { checks.push({ pass: true, label: 'twitter:card present', detail: twCard }); score += 7; }
+  else checks.push({ warn: true, label: 'Missing twitter:card' });
+
+  // Canonical
+  const canonical = doc.querySelector('link[rel="canonical"]');
+  if (canonical?.href) { checks.push({ pass: true, label: 'Canonical URL set', detail: truncate(canonical.href, 60) }); score += 8; }
+  else checks.push({ warn: true, label: 'No canonical URL', detail: 'Can cause duplicate content issues' });
+
+  // Headings
+  const h1s = doc.querySelectorAll('h1');
+  if (h1s.length === 1) { checks.push({ pass: true, label: 'Single H1 tag ✓', detail: `"${truncate(h1s[0].textContent.trim(), 60)}"` }); score += 10; }
+  else if (h1s.length === 0) checks.push({ warn: true, label: 'No H1 tag found', detail: 'Include a main H1 heading' });
+  else checks.push({ warn: true, label: `Multiple H1 tags (${h1s.length})`, detail: 'Only one H1 recommended per page' });
+
+  // Viewport
+  const viewport = getMeta(doc, ['viewport']);
+  if (viewport) { checks.push({ pass: true, label: 'Viewport meta tag ✓' }); score += 7; }
+  else checks.push({ fail: true, label: 'Missing viewport meta', detail: 'Essential for mobile rendering' });
+
+  // Lang attr
+  const lang = doc.documentElement.getAttribute('lang');
+  if (lang) { checks.push({ pass: true, label: `Language attribute: "${lang}"` }); score += 5; }
+  else checks.push({ warn: true, label: 'Missing lang attribute on <html>' });
+
+  // Images without alt
+  const imgs = doc.querySelectorAll('img');
+  const noAlt = [...imgs].filter(i => !i.getAttribute('alt')).length;
+  if (imgs.length > 0 && noAlt === 0) { checks.push({ pass: true, label: 'All images have alt text' }); score += 5; }
+  else if (noAlt > 0) checks.push({ warn: true, label: `${noAlt} images missing alt text`, detail: 'Alt text helps SEO & accessibility' });
+
+  score = Math.min(100, score);
+  return { score, checks };
+}
+
+// ─── Link extractor ───────────────────────────────────────────────────────────
+
+function extractLinks(doc, baseUrl) {
+  const internal = [], external = [];
+  const hostname = getHostname(baseUrl);
+  doc.querySelectorAll('a[href]').forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    try {
+      const abs = new URL(href, baseUrl).href;
+      const h = getHostname(abs);
+      if (h === hostname) internal.push(abs);
+      else external.push(abs);
+    } catch {}
+  });
+  return { internal: [...new Set(internal)], external: [...new Set(external)] };
+}
+
+// ─── Build HTML panels ────────────────────────────────────────────────────────
+
+function buildUI(data) {
+  const { url, doc, html, title, desc, image, domain, allMeta, tech, schema, seo, links, canonical, ogRaw, twitterRaw } = data;
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="tabs" id="tabBar">
+      <button class="tab active" onclick="switchTab('overview')">Overview</button>
+      <button class="tab" onclick="switchTab('previews')">Social Previews</button>
+      <button class="tab" onclick="switchTab('seo')">SEO Score</button>
+      <button class="tab" onclick="switchTab('rawmeta')">All Meta Tags</button>
+      <button class="tab" onclick="switchTab('tech')">Tech Stack</button>
+      <button class="tab" onclick="switchTab('links')">Links</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="panel active fadein" id="panel-overview">
+      <div class="grid2">
+        <div class="space-y: 20px">
+          <div class="card fadein">
+            <div class="card-title"><span class="dot2"></span>Core Metadata</div>
+            <div class="meta-field">
+              <div class="meta-label">Page Title</div>
+              <div class="meta-value highlight">${esc(title) || '<span class="empty">Not found</span>'}</div>
+            </div>
+            <div class="meta-field">
+              <div class="meta-label">Description</div>
+              <div class="meta-value">${esc(desc) || '<span class="empty">Not found</span>'}</div>
+            </div>
+            <div class="meta-field">
+              <div class="meta-label">Canonical URL</div>
+              <div class="meta-value mono">${esc(canonical) || '<span class="empty" style="color:var(--text3)">Not set</span>'}</div>
+            </div>
+            <div class="meta-field">
+              <div class="meta-label">Domain</div>
+              <div class="meta-value mono">${esc(domain)}</div>
+            </div>
+          </div>
+
+          <div class="card fadein" style="margin-top:20px">
+            <div class="card-title"><span class="dot2"></span>Open Graph</div>
+            ${buildMetaRows(ogRaw)}
+          </div>
+
+          <div class="card fadein" style="margin-top:20px">
+            <div class="card-title"><span class="dot2"></span>Twitter Card</div>
+            ${buildMetaRows(twitterRaw)}
+          </div>
+        </div>
+
+        <div>
+          <div class="card fadein">
+            <div class="card-title"><span class="dot2"></span>OG Image</div>
+            <div class="og-img-wrap" id="ogImgWrap">
+              ${image !== 'NONE' 
+                ? `<img src="${esc(image)}" onerror="this.parentElement.innerHTML='<div class=\\'no-img\\'>⚠ Image failed to load</div>'" alt="OG Image"><span class="img-badge">${esc(image.split('.').pop().split('?')[0].toUpperCase().slice(0,4))}</span>`
+                : '<div class="no-img">No og:image or twitter:image found</div>'
+              }
+            </div>
+            ${image !== 'NONE' ? `<div class="img-url">${esc(image)}</div>` : ''}
+          </div>
+
+          <div class="card fadein" style="margin-top:20px">
+            <div class="card-title"><span class="dot2"></span>Schema.org Types</div>
+            ${schema.length > 0 
+              ? schema.map(s => `<span class="schema-type">${esc(s)}</span>`).join('') 
+              : '<div class="meta-value empty">No structured data detected</div>'}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOCIAL PREVIEWS -->
+    <div class="panel fadein" id="panel-previews">
+      <div class="grid2">
+        <div>
+          <div class="preview-label"><span>Facebook / LinkedIn style</span></div>
+          <div class="fb-preview">
+            ${image !== 'NONE' 
+              ? `<img src="${esc(image)}" onerror="this.style.display='none'" alt="">`
+              : `<div style="height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:0.8rem">No image</div>`}
+            <div class="fb-body">
+              <div class="fb-domain">${esc(domain.toUpperCase())}</div>
+              <div class="fb-title">${esc(title)}</div>
+              <div class="fb-desc">${esc(desc)}</div>
+            </div>
+          </div>
+          <br>
+          <div class="preview-label"><span>X / Twitter</span></div>
+          <div class="x-preview">
+            ${image !== 'NONE' 
+              ? `<img src="${esc(image)}" onerror="this.style.display='none'" alt="">`
+              : `<div style="height:140px;background:var(--surface2);display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:0.8rem">No image</div>`}
+            <div class="x-body">
+              <div class="x-domain">${esc(domain)}</div>
+              <div class="x-title">${esc(title)}</div>
+              <div class="x-desc">${esc(desc)}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="preview-label"><span>WhatsApp</span></div>
+          <div class="wa-preview">
+            <div class="wa-inner">
+              ${image !== 'NONE' ? `<img src="${esc(image)}" onerror="this.style.display='none'" alt="">` : ''}
+              <div class="wa-title">${esc(title)}</div>
+              <div class="wa-desc">${esc(desc)}</div>
+              <div class="wa-domain">${esc(domain)}</div>
+            </div>
+          </div>
+          <br>
+          <div class="preview-label"><span>Slack</span></div>
+          <div class="slack-preview">
+            <div class="slack-domain">${esc(domain)}</div>
+            <div class="slack-title">${esc(title)}</div>
+            <div class="slack-desc">${esc(desc)}</div>
+            ${image !== 'NONE' ? `<img src="${esc(image)}" onerror="this.style.display='none'" alt="">` : ''}
+          </div>
+          <br>
+          <div class="preview-label"><span>Telegram</span></div>
+          <div class="tg-preview">
+            <div class="tg-inner">
+              ${image !== 'NONE' ? `<img src="${esc(image)}" onerror="this.style.display='none'" alt="">` : ''}
+              <div class="tg-site">${esc(domain)}</div>
+              <div class="tg-title">${esc(title)}</div>
+              <div class="tg-desc">${esc(desc)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEO -->
+    <div class="panel fadein" id="panel-seo">
+      <div class="card">
+        <div class="score-row">
+          <div style="text-align:center">
+            <div class="score-ring ${seo.score>=70?'good':seo.score>=40?'warn':'bad'}">${seo.score}</div>
+            <div style="font-size:0.7rem;color:var(--text3);font-family:'DM Mono',monospace">/100</div>
+          </div>
+          <div style="flex:1">
+            <div class="card-title"><span class="dot2"></span>SEO & Meta Analysis</div>
+            <div class="meta-value" style="font-size:0.82rem">
+              ${seo.score>=70?'Good foundation. A few improvements could push this higher.':seo.score>=40?'Several important issues detected. Address the failures first.':'Critical issues found. This page will underperform in search.'}
+            </div>
+          </div>
+        </div>
+        <div class="score-checks">
+          ${seo.checks.map(c => `
+            <div class="check-item">
+              <span class="check-icon ${c.pass?'pass':c.warn?'warn':'fail'}">${c.pass?'✓':c.warn?'⚠':'✗'}</span>
+              <div>
+                <div class="check-text">${esc(c.label)}</div>
+                ${c.detail ? `<div class="check-detail">${esc(c.detail)}</div>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL META -->
+    <div class="panel fadein" id="panel-rawmeta">
+      <div class="card">
+        <div class="card-title"><span class="dot2"></span>All Meta Tags (${allMeta.length} found)</div>
+        ${allMeta.length > 0 
+          ? `<table class="headers-table">
+              ${allMeta.map(m => `<tr><td class="hkey">${esc(m.name)}</td><td class="hval">${esc(truncate(m.content, 200))}</td></tr>`).join('')}
+            </table>`
+          : '<div class="meta-value empty">No meta tags found.</div>'}
+      </div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="panel fadein" id="panel-tech">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title"><span class="dot2"></span>Detected Technologies</div>
+          ${tech.length > 0 
+            ? tech.map(t => `<span class="tech-tag ${t.cat}">${esc(t.label)}</span>`).join('')
+            : '<div class="meta-value empty">Nothing detected (minified/obfuscated code)</div>'}
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot2"></span>Schema.org Structured Data</div>
+          ${schema.length > 0
+            ? schema.map(s => `<span class="schema-type">${esc(s)}</span>`).join('')
+            : '<div class="meta-value empty">No JSON-LD or microdata found</div>'}
+          <div style="margin-top:16px">
+            <div class="meta-label" style="margin-bottom:8px">Detected scripts count</div>
+            <div class="meta-value mono">${doc.querySelectorAll('script').length} script tags</div>
+          </div>
+          <div style="margin-top:12px">
+            <div class="meta-label" style="margin-bottom:8px">Stylesheets</div>
+            <div class="meta-value mono">${doc.querySelectorAll('link[rel="stylesheet"]').length} stylesheets</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LINKS -->
+    <div class="panel fadein" id="panel-links">
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title"><span class="dot2"></span>Internal Links (${links.internal.length})</div>
+          ${links.internal.length > 0 
+            ? `<div class="links-list">${links.internal.slice(0,100).map(l => `
+                <div class="link-item"><span class="link-dot-in"></span><span class="link-internal">${esc(truncate(l, 80))}</span></div>
+              `).join('')}${links.internal.length>100?`<div style="padding:8px 0;color:var(--text3);font-size:0.75rem;font-family:'DM Mono',monospace">…and ${links.internal.length-100} more</div>`:''}</div>`
+            : '<div class="meta-value empty">No internal links found</div>'}
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="dot2"></span>External Links (${links.external.length})</div>
+          ${links.external.length > 0
+            ? `<div class="links-list">${links.external.slice(0,100).map(l => `
+                <div class="link-item"><span class="link-dot-ex"></span><span class="link-external">${esc(truncate(l, 80))}</span></div>
+              `).join('')}${links.external.length>100?`<div style="padding:8px 0;color:var(--text3);font-size:0.75rem;font-family:'DM Mono',monospace">…and ${links.external.length-100} more</div>`:''}</div>`
+            : '<div class="meta-value empty">No external links found</div>'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buildMetaRows(metas) {
+  if (!metas || metas.length === 0) return '<div class="meta-value empty">None found</div>';
+  return metas.map(m => `
+    <div class="meta-field">
+      <div class="meta-label">${esc(m.name)}</div>
+      <div class="meta-value mono">${esc(truncate(m.content, 200))}</div>
+    </div>
+  `).join('');
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ─── Main entry ───────────────────────────────────────────────────────────────
+
+async function run() {
+  let rawUrl = document.getElementById('urlInput').value.trim();
+  if (!rawUrl) return;
+  if (!/^https?:\/\//i.test(rawUrl)) rawUrl = 'https://' + rawUrl;
+
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing…';
+  setStatus('Initiating fetch…', 'info', true);
+
+  try {
+    const html = await fetchRaw(rawUrl);
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+
+    // Resolve final URL (in case of redirect via allorigins)
+    let url = rawUrl;
+    const ogUrl = getMeta(doc, ['og:url']);
+    if (ogUrl && ogUrl.startsWith('http')) url = ogUrl;
+
+    const domain = getHostname(url);
+
+    const title = getMeta(doc, ['og:title', 'twitter:title']) || doc.title || '(No title)';
+    const desc = getMeta(doc, ['og:description', 'twitter:description', 'description']) || '(No description)';
+    const imgRaw = getMeta(doc, ['og:image', 'twitter:image:src', 'twitter:image', 'image']);
+    const image = imgRaw ? getAbsoluteUrl(url, imgRaw) : 'NONE';
+    const canonical = doc.querySelector('link[rel="canonical"]')?.href || getMeta(doc, ['og:url']) || '';
+
+    const allMeta = getAllMeta(doc);
+    const ogRaw = allMeta.filter(m => m.name.startsWith('og:'));
+    const twitterRaw = allMeta.filter(m => m.name.startsWith('twitter:'));
+    const tech = detectTech(html, doc);
+    const schema = detectSchema(doc);
+    const seo = analyzeSEO(doc, url, html);
+    const links = extractLinks(doc, url);
+
+    buildUI({ url, doc, html, title, desc, image, domain, allMeta, tech, schema, seo, links, canonical, ogRaw, twitterRaw });
+    setStatus(`✓ ${domain} analyzed — ${allMeta.length} meta tags, ${seo.score}/100 SEO score`, 'success');
+
+  } catch (e) {
+    setStatus('Error: ' + e.message, 'error');
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state">
+        <div class="big-icon">⚠</div>
+        <div>${esc(e.message)}</div>
+        <div style="margin-top:12px;font-size:0.75rem;color:var(--text3)">Try adding https:// or check if the site is publicly accessible.</div>
+      </div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Analyze →';
+  }
+}
+
+// Enter key support
+document.getElementById('urlInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') run();
+});
+</script>
+</body>
+</html>

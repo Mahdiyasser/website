@@ -1,158 +1,229 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Tracker Ultimate</title>
+    <title>متتبع اللعبة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* --- CSS STYLING (Mobile First) --- */
         :root {
-            --primary: #0d6efd;
-            --success: #198754;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #0dcaf0;
-            --light: #f8f9fa;
-            --dark: #212529;
+            --bg:        #0e0f11;
+            --surface:   #16181c;
+            --surface2:  #1e2128;
+            --border:    #2a2d36;
+            --accent:    #f0a500;
+            --accent2:   #e05c2a;
+            --text:      #e8e8e8;
+            --muted:     #7a7f8e;
+            --danger:    #c0392b;
+            --success:   #27ae60;
+            --info:      #2980b9;
         }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #eef2f7;
-            color: var(--dark);
-            margin: 0;
-            padding: 10px;
-            line-height: 1.5;
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            direction: rtl;
         }
 
-        .container {
-            max-width: 960px;
-            margin: auto;
-            background: #ffffff;
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            height: 60px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-title {
+            font-size: 1.45rem;
+            font-weight: 900;
+            color: var(--accent);
+        }
+        .topbar-round { font-size: 0.85rem; color: var(--muted); font-weight: 500; }
+        .topbar-round span { color: var(--accent); font-size: 1.1rem; font-weight: 700; }
+        .topbar-actions { display: flex; gap: 8px; }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-tab {
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--muted);
+            padding: 14px 20px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .nav-tab:hover { color: var(--text); }
+        .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .panel { display: none; padding: 28px 24px; max-width: 900px; width: 100%; margin: 0 auto; }
+        .panel.active { display: block; }
+
+        .section-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-label::before { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+        .form-row { margin-bottom: 14px; }
+        .form-row label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--muted);
+            margin-bottom: 6px;
         }
 
-        h1 { color: var(--primary); font-size: 1.6em; margin: 0 0 10px 0; }
-        h2 { color: var(--dark); font-size: 1.2em; margin-top: 25px; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
-        p { margin: 5px 0; color: #666; font-size: 0.9em; }
-
-        /* Inputs */
-        input, select {
+        input[type=text], input[type=number], select, textarea {
             width: 100%;
-            padding: 12px;
-            margin: 5px 0 10px 0;
-            border: 1px solid #ced4da;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 11px 14px;
             border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px; /* Prevents zoom on mobile */
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            appearance: none;
+            text-align: right;
         }
-        input:focus, select:focus { outline: 2px solid var(--primary); border-color: transparent; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+        select option { background: var(--surface2); }
 
-        /* Buttons */
-        button {
-            color: white;
-            padding: 12px 16px;
+        .btn {
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 10px 18px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            margin: 5px 5px 5px 0;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: opacity 0.2s, transform 0.1s;
-            display: inline-block;
+            transition: opacity 0.15s, transform 0.1s;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        button:active { transform: scale(0.98); }
-        button:hover { opacity: 0.9; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn:active { transform: scale(0.97); }
+        .btn:hover { opacity: 0.88; }
+        .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn-accent  { background: var(--accent); color: #111; }
+        .btn-danger  { background: var(--danger); }
+        .btn-ghost   { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); }
+        .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+        .btn-success { background: var(--success); }
+        .btn-info    { background: var(--info); }
+        .btn-sm      { padding: 6px 12px; font-size: 0.78rem; }
+        .btn-row     { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 
-        /* Specific Buttons */
-        #saveFieldBtn { background-color: var(--dark); width: 100%; }
-        #cancelEditBtn { background-color: var(--warning); color: #333; width: 100%; display: none; }
-        
-        #saveRoundBtn { background-color: var(--success); flex-grow: 1; }
-        #clearDataBtn { background-color: var(--danger); }
-        
-        .action-bar { display: flex; gap: 10px; margin-top: 15px; }
-        
-        /* Field Definition Area */
-        #fieldDefinition {
-            background-color: var(--light);
-            padding: 15px;
-            border-radius: 8px;
-            border: 1px solid #dee2e6;
-        }
-
-        /* Active Fields List */
-        #currentFieldsList { margin-top: 15px; }
         .field-item {
-            background: #fff;
-            border: 1px solid #eee;
-            padding: 12px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-right: 3px solid var(--accent);
+            padding: 12px 16px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 8px;
+            animation: slideIn 0.2s ease;
+        }
+        @keyframes slideIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+        .field-name  { font-weight: 700; font-size: 0.95rem; }
+        .field-meta  { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
+        .field-btns  { display: flex; gap: 8px; }
+
+        .round-field {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-right: 3px solid var(--accent2);
+            padding: 14px 16px;
             border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .field-info { font-size: 0.95em; }
-        .field-actions { display: flex; gap: 8px; }
-        .edit-btn { background-color: var(--info); padding: 6px 10px; font-size: 0.8em; color: #000; }
-        .delete-btn { background-color: var(--danger); padding: 6px 10px; font-size: 0.8em; }
-
-        /* Round Input */
-        .input-group {
-            margin-bottom: 12px;
-            padding: 12px;
-            border-left: 4px solid var(--primary);
-            background-color: #fff;
-            border-radius: 0 6px 6px 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-        }
-        .input-group label { font-weight: bold; display: block; margin-bottom: 6px; color: #495057; }
-
-        /* History */
-        details {
             margin-bottom: 10px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background-color: #fff;
-            overflow: hidden;
         }
-        summary {
-            padding: 15px;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .round-data { padding: 15px; border-top: 1px solid #eee; }
-        .round-data ul { list-style: none; padding: 0; margin: 0; }
-        .round-data li { padding: 5px 0; border-bottom: 1px dashed #eee; }
-        .copy-btn { background-color: var(--warning); color: #333; margin-top: 15px; width: 100%; }
+        .round-field label { font-size: 0.8rem; font-weight: 600; color: var(--muted); display: block; margin-bottom: 8px; }
+        .round-field input, .round-field select { background: var(--bg); border-color: #333; }
 
-        /* Calculation */
-        #calculationOutput {
-            background-color: #d1e7dd;
-            color: #0f5132;
-            padding: 15px;
-            margin-top: 10px;
-            border-radius: 6px;
-            font-weight: bold;
-            border: 1px solid #badbcc;
-            word-break: break-word;
-        }
-        .calc-help { font-size: 0.8em; color: #6c757d; background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 10px; }
+        .history-item { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+        .history-header { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.15s; }
+        .history-header:hover { background: rgba(255,255,255,0.03); }
+        .history-round-num { font-weight: 900; font-size: 1.05rem; color: var(--accent); }
+        .history-time { font-size: 0.72rem; color: var(--muted); }
+        .history-chevron { color: var(--muted); transition: transform 0.2s; font-size: 1.1rem; }
+        .history-item.open .history-chevron { transform: rotate(180deg); }
+        .history-body { display: none; padding: 0 18px 16px; border-top: 1px solid var(--border); }
+        .history-item.open .history-body { display: block; }
+        .history-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; padding-top: 14px; }
+        .history-val { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; text-align: center; }
+        .history-val-name { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+        .history-val-num { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-top: 4px; }
 
-        @media (min-width: 600px) {
-            .container { padding: 30px; }
-            #saveFieldBtn, #cancelEditBtn, .copy-btn { width: auto; }
-            .action-bar button { width: auto; }
+        .calc-container { display: flex; gap: 10px; }
+        .calc-container input { flex: 1; text-align: left; direction: ltr; }
+        .calc-result { background: var(--surface2); border: 1px solid var(--border); border-right: 3px solid var(--success); padding: 14px 18px; border-radius: 6px; margin-top: 12px; font-size: 1rem; font-weight: 700; color: var(--success); min-height: 48px; }
+        .calc-mode-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 14px; font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 16px; }
+        .calc-mode-badge::before { content: '●'; color: var(--accent2); font-size: 0.5rem; }
+        .calc-docs { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-top: 20px; }
+        .calc-docs-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); margin-bottom: 12px; }
+        .calc-doc-row { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .calc-doc-row:last-child { border-bottom: none; }
+        .calc-code { font-family: monospace; background: var(--bg); border: 1px solid var(--border); padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; color: var(--accent); white-space: nowrap; direction: ltr; }
+        .calc-doc-desc { color: var(--muted); font-size: 0.82rem; }
+
+        #boardCanvas { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .board-title { font-size: 1.6rem; font-weight: 900; color: var(--accent); margin-bottom: 4px; }
+        .board-subtitle { font-size: 0.78rem; color: var(--muted); margin-bottom: 18px; }
+        .board-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .board-table th { text-align: right; padding: 8px 12px; border-bottom: 2px solid var(--accent); color: var(--accent); font-size: 0.78rem; font-weight: 700; }
+        .board-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text); text-align: right; }
+        .board-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+        .toast { position: fixed; bottom: 24px; left: 24px; background: var(--surface2); border: 1px solid var(--border); border-right: 3px solid var(--accent); color: var(--text); padding: 12px 18px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; z-index: 9999; animation: toastIn 0.3s ease; }
+        @keyframes toastIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .empty-state-icon { font-size: 2.5rem; margin-bottom: 12px; opacity: 0.4; }
+        .empty-state p { font-size: 0.9rem; line-height: 1.8; }
+
+        .danger-zone { border: 1px dashed var(--danger); border-radius: 8px; padding: 16px 20px; margin-top: 32px; }
+        .danger-zone p { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+        @media (max-width: 600px) {
+            .topbar { padding: 0 14px; }
+            .panel { padding: 20px 14px; }
+            .nav-tab { padding: 12px 14px; font-size: 0.82rem; }
         }
     </style>
 </head>
@@ -161,431 +232,437 @@
 <!--cloudflare worker tracking only session IDs no user data-->
 <script>
 (function() {
-  // --- Generate or read a unique session ID (session cookie) ---
   let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
   if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+    sessionID = (crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
+    document.cookie = `sessionID=${sessionID}; path=/`;
   }
-
-  // --- Set these per page/tool ---
-  const type = 'tool';   // 'page' or 'tool'
-  const name = 'game-tracker'; // unique page/tool name
-
-  // --- Send data to Worker ---
   fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
+    body: JSON.stringify({ sessionID, type: 'tool', name: 'game-tracker' })
+  }).catch(() => {});
 })();
 </script>
 <!--worker end-->
 
+<header class="topbar">
+    <div class="topbar-title">🎮 متتبع اللعبة</div>
+    <div class="topbar-round">الجولة <span id="topRoundNum">١</span></div>
+    <div class="topbar-actions">
+        <button class="btn btn-ghost btn-sm" onclick="showTab('share')">📤 مشاركة</button>
+    </div>
+</header>
 
-<div class="container">
-    <h1>Game Tracker</h1>
-    
-    <h2>Define Fields</h2>
-    <div id="fieldDefinition">
-        <input type="hidden" id="editingFieldId"> <label>Field Name:</label>
-        <input type="text" id="fieldName" placeholder="e.g. Score, Health">
+<nav class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('fields')">الحقول</button>
+    <button class="nav-tab" onclick="showTab('round')">الجولة</button>
+    <button class="nav-tab" onclick="showTab('history')">السجل</button>
+    <button class="nav-tab" onclick="showTab('calc')">الحاسبة</button>
+    <button class="nav-tab" onclick="showTab('share')">مشاركة / تصدير</button>
+</nav>
 
-        <label>Default Value (Optional):</label>
-        <input type="text" id="fieldDefault" placeholder="e.g. 0, 100">
+<!-- FIELDS -->
+<section class="panel active" id="panel-fields">
+    <div class="section-label">تعريف الحقول</div>
+    <input type="hidden" id="editingFieldId">
 
-        <label>Type:</label>
+    <div class="form-row">
+        <label>اسم الحقل</label>
+        <input type="text" id="fieldName" placeholder="مثال: النقاط، الصحة، الذهب">
+    </div>
+    <div class="form-row">
+        <label>القيمة الافتراضية <span style="font-size:0.7rem;font-weight:400;">(اختياري)</span></label>
+        <input type="text" id="fieldDefault" placeholder="مثال: 0">
+    </div>
+    <div class="form-row">
+        <label>النوع</label>
         <select id="fieldType">
-            <option value="number">Number</option>
-            <option value="text">Text</option>
-            <option value="choice">Choice (Dropdown)</option>
+            <option value="number">رقم</option>
+            <option value="text">نص</option>
+            <option value="choice">اختيار (قائمة)</option>
         </select>
-
-        <div id="choiceInputArea" style="display: none;">
-            <label>Choices (comma separated):</label>
-            <input type="text" id="fieldChoices" placeholder="e.g. Red, Blue, Green">
-        </div>
-
-        <div style="margin-top:10px;">
-            <button id="saveFieldBtn" onclick="saveFieldDefinition()">+ Add Field</button>
-            <button id="cancelEditBtn" onclick="cancelEdit()">Cancel Edit</button>
-        </div>
-
-        <div id="currentFieldsList"></div>
+    </div>
+    <div id="choiceInputArea" class="form-row" style="display:none;">
+        <label>الاختيارات (افصل بفاصلة)</label>
+        <input type="text" id="fieldChoices" placeholder="مثال: أحمر، أزرق، أخضر">
     </div>
 
-    <h2>Round <span id="currentRoundNumber">1</span></h2>
+    <div class="btn-row">
+        <button class="btn btn-accent" id="saveFieldBtn" onclick="saveFieldDefinition()">+ إضافة حقل</button>
+        <button class="btn btn-ghost" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">✕ إلغاء</button>
+    </div>
+
+    <div style="margin-top:28px;" id="currentFieldsList"></div>
+
+    <div class="danger-zone">
+        <p>⚠️ هيمسح كل البيانات والسجل — مفيش رجعة!</p>
+        <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 مسح كل شيء</button>
+    </div>
+</section>
+
+<!-- ROUND -->
+<section class="panel" id="panel-round">
+    <div class="section-label">الجولة <span id="currentRoundNumber" style="color:var(--accent);">١</span></div>
     <div id="currentRoundInput">
-        <p style="text-align:center; padding:20px;">No fields yet. Add one above!</p>
+        <div class="empty-state">
+            <div class="empty-state-icon">⚙️</div>
+            <p>مفيش حقول متعرفة لسه.<br>روح تبويب <strong>الحقول</strong> وابدأ من هناك.</p>
+        </div>
     </div>
+    <div class="btn-row" style="margin-top:20px;">
+        <button class="btn btn-success" id="saveRoundBtn" onclick="saveRound()">✓ حفظ الجولة</button>
+    </div>
+</section>
 
-    <div class="action-bar">
-        <button id="saveRoundBtn" onclick="saveRound()">Save Round</button>
-        <button id="clearDataBtn" onclick="clearLocalStorage()">Clear All</button>
-    </div>
-
-    <h2>Calculator</h2>
-    <div class="calc-help">
-        <strong>Rules:</strong><br>
-        • <code>(all)_name</code> : Sum of 'name' in all rounds.<br>
-        • <code>(3)_name</code> : Value of 'name' in Round 3.<br>
-        • <code>(1,2,5)_name</code> : Sum of Round 1, 2, and 5.<br>
-        • <code>name</code> : Value in the LAST saved round.
-    </div>
-    <div style="display:flex; gap:5px;">
-        <input type="text" id="calcRule" placeholder="e.g. (all)_score + (3)_bonus" style="margin-bottom:0;">
-        <button onclick="calculateData()" style="margin:0; background-color:var(--primary);">Calculate</button>
-    </div>
-    <div id="calculationOutput">Result: ...</div>
-
-    <h2>History</h2>
+<!-- HISTORY -->
+<section class="panel" id="panel-history">
+    <div class="section-label">سجل الجولات</div>
     <div id="roundsHistory"></div>
-</div>
+</section>
+
+<!-- CALCULATOR -->
+<section class="panel" id="panel-calc">
+    <div class="section-label">الحاسبة</div>
+    <div class="calc-mode-badge">الوضع الكلاسيكي — Legacy</div>
+
+    <div class="form-row">
+        <label>المعادلة</label>
+        <div class="calc-container">
+            <button class="btn btn-accent" onclick="calculateData()">احسب</button>
+            <input type="text" id="calcRule" placeholder="مثال: (all)_score + (3)_bonus">
+        </div>
+    </div>
+
+    <div id="calculationOutput" class="calc-result">النتيجة: —</div>
+
+    <div class="calc-docs">
+        <div class="calc-docs-title">📖 مرجع الصياغة</div>
+        <div class="calc-doc-row">
+            <span class="calc-doc-desc">مجموع الحقل في كل الجولات</span>
+            <span class="calc-code">(all)_field</span>
+        </div>
+        <div class="calc-doc-row">
+            <span class="calc-doc-desc">قيمة الحقل في الجولة رقم 3</span>
+            <span class="calc-code">(3)_field</span>
+        </div>
+        <div class="calc-doc-row">
+            <span class="calc-doc-desc">مجموع الجولات 1 و2 و5</span>
+            <span class="calc-code">(1,2,5)_field</span>
+        </div>
+        <div class="calc-doc-row">
+            <span class="calc-doc-desc">قيمة الحقل في آخر جولة محفوظة</span>
+            <span class="calc-code">field</span>
+        </div>
+    </div>
+</section>
+
+<!-- SHARE -->
+<section class="panel" id="panel-share">
+    <div class="section-label">مشاركة وتصدير</div>
+
+    <div id="boardCanvas">
+        <div class="board-title">🎮 لوحة اللعبة</div>
+        <div class="board-subtitle" id="boardSubtitle">— ٠ جولات —</div>
+        <table class="board-table" id="boardTable">
+            <thead><tr id="boardHead"></tr></thead>
+            <tbody id="boardBody"></tbody>
+        </table>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn btn-accent" onclick="exportPNG()">⬇ تحميل PNG</button>
+        <button class="btn btn-success" onclick="shareWhatsApp()">💬 واتساب</button>
+        <button class="btn btn-ghost" onclick="copyBoardText()">📋 نسخ كنص</button>
+    </div>
+</section>
 
 <script>
-    const STORAGE_KEY = 'gameDataTrackerV4';
+    const STORAGE_KEY = 'gameDataTrackerV5_ar';
     let gameState = { fields: [], rounds: [], currentRound: 1 };
 
-    // --- UTILS ---
+    const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+    function toAr(n) { return String(n).replace(/[0-9]/g, d => AR_DIGITS[d]); }
+
     function nameToId(name) {
-        return name.toLowerCase().replace(/\s/g, '_').replace(/[^a-z0-9_]/g, '');
+        const slug = name.trim().replace(/\s+/g, '_');
+        return slug || 'field_' + Date.now();
     }
 
-    function saveGameState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
-    }
+    function saveGameState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState)); }
 
     function loadGameState() {
         const data = localStorage.getItem(STORAGE_KEY);
-        if (data) {
-            try { gameState = JSON.parse(data); } catch(e) { console.error(e); }
-        }
-        // Update round number based on history
-        gameState.currentRound = (gameState.rounds.length > 0) 
+        if (data) { try { gameState = JSON.parse(data); } catch(e) {} }
+        gameState.currentRound = gameState.rounds.length > 0
             ? gameState.rounds[gameState.rounds.length - 1].number + 1 : 1;
-
-        document.getElementById('currentRoundNumber').textContent = gameState.currentRound;
-        renderFieldList();
-        renderRoundInputs();
-        renderHistory();
+        document.getElementById('currentRoundNumber').textContent = toAr(gameState.currentRound);
+        document.getElementById('topRoundNum').textContent = toAr(gameState.currentRound);
+        renderFieldList(); renderRoundInputs(); renderHistory(); renderBoard();
     }
 
-    // --- FIELD LOGIC (ADD/EDIT/DELETE) ---
+    function toast(msg) {
+        const el = document.createElement('div');
+        el.className = 'toast'; el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2500);
+    }
 
-    document.getElementById('fieldType').addEventListener('change', (e) => {
-        document.getElementById('choiceInputArea').style.display = 
-            (e.target.value === 'choice') ? 'block' : 'none';
+    const TABS = ['fields','round','history','calc','share'];
+    function showTab(id) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('panel-' + id).classList.add('active');
+        document.querySelectorAll('.nav-tab')[TABS.indexOf(id)]?.classList.add('active');
+        if (id === 'share') renderBoard();
+    }
+
+    document.getElementById('fieldType').addEventListener('change', e => {
+        document.getElementById('choiceInputArea').style.display = e.target.value === 'choice' ? 'block' : 'none';
     });
 
     function saveFieldDefinition() {
-        const idInput = document.getElementById('editingFieldId').value; // ID if editing
+        const idInput = document.getElementById('editingFieldId').value;
         const name = document.getElementById('fieldName').value.trim();
         const defVal = document.getElementById('fieldDefault').value.trim();
         const type = document.getElementById('fieldType').value;
         const choices = document.getElementById('fieldChoices').value.trim();
-
-        if (!name) { alert("Name is required"); return; }
-
-        // If adding new, check duplicate ID
+        if (!name) { toast('⚠ اسم الحقل مطلوب'); return; }
         const newId = nameToId(name);
-        if (!idInput && gameState.fields.some(f => f.id === newId)) {
-            alert("Field with this name already exists!"); return;
-        }
-
-        const fieldObj = {
-            id: idInput || newId, // Keep old ID if editing, make new if adding
-            name: name,
-            type: type,
-            defaultValue: defVal,
-            choices: (type === 'choice') ? choices.split(',').map(c => c.trim()).filter(c=>c) : []
-        };
-
+        if (!idInput && gameState.fields.some(f => f.id === newId)) { toast('⚠ الحقل ده موجود بالفعل'); return; }
+        const fieldObj = { id: idInput || newId, name, type, defaultValue: defVal,
+            choices: type === 'choice' ? choices.split(',').map(c => c.trim()).filter(Boolean) : [] };
         if (idInput) {
-            // UPDATE EXISTING
-            const index = gameState.fields.findIndex(f => f.id === idInput);
-            if (index !== -1) gameState.fields[index] = fieldObj;
-        } else {
-            // ADD NEW
-            gameState.fields.push(fieldObj);
-        }
-
-        saveGameState();
-        resetFieldForm();
-        renderFieldList();
-        renderRoundInputs();
+            const idx = gameState.fields.findIndex(f => f.id === idInput);
+            if (idx !== -1) gameState.fields[idx] = fieldObj;
+        } else { gameState.fields.push(fieldObj); }
+        saveGameState(); resetFieldForm(); renderFieldList(); renderRoundInputs();
+        toast('✓ تم حفظ الحقل');
     }
 
     function editField(id) {
-        const field = gameState.fields.find(f => f.id === id);
-        if (!field) return;
-
-        document.getElementById('editingFieldId').value = field.id;
-        document.getElementById('fieldName').value = field.name;
-        document.getElementById('fieldDefault').value = field.defaultValue || '';
-        document.getElementById('fieldType').value = field.type;
-        
-        if (field.type === 'choice') {
+        const f = gameState.fields.find(x => x.id === id); if (!f) return;
+        document.getElementById('editingFieldId').value = f.id;
+        document.getElementById('fieldName').value = f.name;
+        document.getElementById('fieldDefault').value = f.defaultValue || '';
+        document.getElementById('fieldType').value = f.type;
+        if (f.type === 'choice') {
             document.getElementById('choiceInputArea').style.display = 'block';
-            document.getElementById('fieldChoices').value = field.choices.join(', ');
-        } else {
-            document.getElementById('choiceInputArea').style.display = 'none';
-        }
-
-        const saveBtn = document.getElementById('saveFieldBtn');
-        saveBtn.textContent = "💾 Update Field";
-        saveBtn.style.backgroundColor = "#0dcaf0";
-        saveBtn.style.color = "#000";
-        document.getElementById('cancelEditBtn').style.display = "inline-block";
+            document.getElementById('fieldChoices').value = f.choices.join('، ');
+        } else { document.getElementById('choiceInputArea').style.display = 'none'; }
+        document.getElementById('saveFieldBtn').textContent = '✓ تحديث الحقل';
+        document.getElementById('cancelEditBtn').style.display = 'inline-flex';
         document.getElementById('fieldName').focus();
+        showTab('fields');
     }
 
     function deleteField(id) {
-        if(!confirm("Delete this field? Past data will be kept but the input will be gone.")) return;
+        if (!confirm('تمسح الحقل ده؟')) return;
         gameState.fields = gameState.fields.filter(f => f.id !== id);
-        saveGameState();
-        renderFieldList();
-        renderRoundInputs();
+        saveGameState(); renderFieldList(); renderRoundInputs();
+        toast('تم مسح الحقل');
     }
 
-    function cancelEdit() {
-        resetFieldForm();
-    }
+    function cancelEdit() { resetFieldForm(); }
 
     function resetFieldForm() {
-        document.getElementById('editingFieldId').value = '';
-        document.getElementById('fieldName').value = '';
-        document.getElementById('fieldDefault').value = '';
-        document.getElementById('fieldChoices').value = '';
+        ['editingFieldId','fieldName','fieldDefault','fieldChoices'].forEach(id => document.getElementById(id).value = '');
         document.getElementById('fieldType').value = 'number';
         document.getElementById('choiceInputArea').style.display = 'none';
-        
-        const btn = document.getElementById('saveFieldBtn');
-        btn.textContent = "+ Add Field";
-        btn.style.backgroundColor = "#212529";
-        btn.style.color = "#fff";
+        document.getElementById('saveFieldBtn').textContent = '+ إضافة حقل';
         document.getElementById('cancelEditBtn').style.display = 'none';
     }
 
-    function renderFieldList() {
-        const list = document.getElementById('currentFieldsList');
-        list.innerHTML = '';
-        
-        if (gameState.fields.length === 0) {
-             list.innerHTML = '<div style="text-align:center; color:#888; font-style:italic;">No active fields.</div>';
-             return;
-        }
+    const TYPE_LABELS = { number: 'رقم', text: 'نص', choice: 'اختيار' };
 
+    function renderFieldList() {
+        const list = document.getElementById('currentFieldsList'); list.innerHTML = '';
+        if (!gameState.fields.length) {
+            list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>مفيش حقول لسه.<br>ابدأ بإضافة الأول من فوق.</p></div>'; return;
+        }
         gameState.fields.forEach(f => {
-            const div = document.createElement('div');
-            div.className = 'field-item';
+            const div = document.createElement('div'); div.className = 'field-item';
             div.innerHTML = `
-                <div class="field-info">
-                    <strong>${f.name}</strong>
-                    <div style="color:#888; font-size:0.85em; margin-top:2px;">
-                        ID: <code>${f.id}</code> | Def: ${f.defaultValue || '-'}
-                    </div>
+                <div>
+                    <div class="field-name">${f.name}</div>
+                    <div class="field-meta">النوع: ${TYPE_LABELS[f.type] || f.type}${f.defaultValue ? ' · افتراضي: ' + f.defaultValue : ''}</div>
                 </div>
-                <div class="field-actions">
-                    <button class="edit-btn" onclick="editField('${f.id}')">✏️</button>
-                    <button class="delete-btn" onclick="deleteField('${f.id}')">🗑️</button>
-                </div>
-            `;
+                <div class="field-btns">
+                    <button class="btn btn-info btn-sm" onclick="editField('${f.id}')">✏</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteField('${f.id}')">✕</button>
+                </div>`;
             list.appendChild(div);
         });
     }
 
-    // --- ROUND INPUTS ---
-
     function renderRoundInputs() {
-        const container = document.getElementById('currentRoundInput');
-        container.innerHTML = '';
-
-        if (gameState.fields.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color: #666;">No fields defined.</p>';
-            document.getElementById('saveRoundBtn').disabled = true;
-            return;
+        const c = document.getElementById('currentRoundInput'); c.innerHTML = '';
+        document.getElementById('saveRoundBtn').disabled = !gameState.fields.length;
+        if (!gameState.fields.length) {
+            c.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚙️</div><p>مفيش حقول.<br>روح <strong>الحقول</strong> وعرّف الأول.</p></div>'; return;
         }
-        document.getElementById('saveRoundBtn').disabled = false;
-
-        // Get values from last round for auto-fill
         const lastRound = gameState.rounds[gameState.rounds.length - 1];
-
         gameState.fields.forEach(f => {
-            const div = document.createElement('div');
-            div.className = 'input-group';
-            
-            const label = document.createElement('label');
-            label.textContent = f.name;
-            div.appendChild(label);
-
+            const div = document.createElement('div'); div.className = 'round-field';
+            const label = document.createElement('label'); label.textContent = f.name; div.appendChild(label);
+            let val = lastRound && lastRound.values[f.id] !== undefined ? lastRound.values[f.id]
+                : (f.defaultValue !== undefined && f.defaultValue !== '' ? f.defaultValue : '');
             let input;
-            // Logic: Last round value -> Default value -> Empty/Zero
-            let val = lastRound && lastRound.values[f.id] !== undefined 
-                      ? lastRound.values[f.id] 
-                      : (f.defaultValue !== undefined && f.defaultValue !== "" ? f.defaultValue : "");
-
             if (f.type === 'choice') {
                 input = document.createElement('select');
-                f.choices.forEach(c => {
-                    const opt = document.createElement('option');
-                    opt.value = c; 
-                    opt.textContent = c;
-                    input.appendChild(opt);
-                });
-                // Try to set value, if not valid choice, default to first
+                f.choices.forEach(ch => { const o = document.createElement('option'); o.value = ch; o.textContent = ch; input.appendChild(o); });
                 if (f.choices.includes(val)) input.value = val;
-                else if (f.choices.length > 0 && !val) input.value = f.choices[0];
-
             } else {
-                input = document.createElement('input');
-                input.type = f.type;
-                if (f.type === 'number' && val === "") val = 0;
+                input = document.createElement('input'); input.type = f.type;
+                if (f.type === 'number' && val === '') val = 0;
                 input.value = val;
             }
-            
-            input.id = "input_" + f.id; 
-            input.dataset.fieldId = f.id; 
-            
-            div.appendChild(input);
-            container.appendChild(div);
+            input.id = 'input_' + f.id; input.dataset.fieldId = f.id;
+            div.appendChild(input); c.appendChild(div);
         });
     }
-
-    // --- SAVE ROUND ---
 
     function saveRound() {
         const inputs = document.querySelectorAll('#currentRoundInput input, #currentRoundInput select');
         let values = {};
-        
         inputs.forEach(inp => {
-            const realId = inp.dataset.fieldId;
             let v = inp.value;
             if (inp.type === 'number') v = parseFloat(v) || 0;
-            values[realId] = v;
+            values[inp.dataset.fieldId] = v;
         });
-
-        const newRound = {
-            number: gameState.currentRound,
-            timestamp: new Date().toLocaleString(),
-            values: values
-        };
-
-        gameState.rounds.push(newRound);
+        const num = gameState.currentRound;
+        gameState.rounds.push({ number: num, timestamp: new Date().toLocaleString('ar-EG'), values });
         gameState.currentRound++;
         saveGameState();
-        
-        document.getElementById('currentRoundNumber').textContent = gameState.currentRound;
-        renderRoundInputs();
-        renderHistory();
+        document.getElementById('currentRoundNumber').textContent = toAr(gameState.currentRound);
+        document.getElementById('topRoundNum').textContent = toAr(gameState.currentRound);
+        renderRoundInputs(); renderHistory();
+        toast('✓ تم حفظ الجولة ' + toAr(num));
     }
 
-    // --- HISTORY ---
-
     function renderHistory() {
-        const historyDiv = document.getElementById('roundsHistory');
-        historyDiv.innerHTML = '';
-        
-        if (gameState.rounds.length === 0) {
-             historyDiv.innerHTML = '<p style="color:#888; padding:10px;">No history yet.</p>';
-             return;
+        const div = document.getElementById('roundsHistory'); div.innerHTML = '';
+        if (!gameState.rounds.length) {
+            div.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📜</div><p>مفيش جولات محفوظة لسه.</p></div>'; return;
         }
-
         [...gameState.rounds].reverse().forEach(r => {
-            const det = document.createElement('details');
-            const timeShort = r.timestamp.split(',')[1] || ''; 
-            
-            let listHtml = '';
-            // Sort keys to match current field order if possible
-            const sortedKeys = Object.keys(r.values).sort();
-
-            for (let fid of sortedKeys) {
-                const fieldDef = gameState.fields.find(f => f.id === fid);
-                const name = fieldDef ? fieldDef.name : fid;
-                listHtml += `<li><strong>${name}:</strong> ${r.values[fid]}</li>`;
+            const item = document.createElement('div'); item.className = 'history-item';
+            let grid = '';
+            for (const [fid, val] of Object.entries(r.values)) {
+                const fd = gameState.fields.find(f => f.id === fid);
+                grid += `<div class="history-val"><div class="history-val-name">${fd ? fd.name : fid}</div><div class="history-val-num">${val}</div></div>`;
             }
-
-            det.innerHTML = `
-                <summary>Round ${r.number} <span style="font-weight:normal; font-size:0.85em; color:#666;">${timeShort}</span></summary>
-                <div class="round-data">
-                    <ul>${listHtml}</ul>
-                    <button class="copy-btn" onclick="copyRound(${r.number})">Copy to Clipboard</button>
+            item.innerHTML = `
+                <div class="history-header" onclick="this.parentElement.classList.toggle('open')">
+                    <span class="history-round-num">الجولة ${toAr(r.number)}</span>
+                    <span class="history-time">${r.timestamp}</span>
+                    <span class="history-chevron">▾</span>
                 </div>
-            `;
-            historyDiv.appendChild(det);
+                <div class="history-body">
+                    <div class="history-grid">${grid}</div>
+                    <div class="btn-row" style="margin-top:12px;">
+                        <button class="btn btn-ghost btn-sm" onclick="copyRound(${r.number})">📋 نسخ</button>
+                    </div>
+                </div>`;
+            div.appendChild(item);
         });
     }
 
     function copyRound(num) {
-        const r = gameState.rounds.find(x => x.number === num);
-        if (!r) return;
-        let txt = `--- Round ${r.number} ---\n`;
-        for (let [fid, val] of Object.entries(r.values)) {
-            const fieldDef = gameState.fields.find(f => f.id === fid);
-            txt += `${fieldDef ? fieldDef.name : fid}: ${val}\n`;
+        const r = gameState.rounds.find(x => x.number === num); if (!r) return;
+        let txt = `الجولة ${num}\n`;
+        for (const [fid, val] of Object.entries(r.values)) {
+            const fd = gameState.fields.find(f => f.id === fid);
+            txt += `${fd ? fd.name : fid}: ${val}\n`;
         }
-        navigator.clipboard.writeText(txt).then(() => alert("Copied!"));
+        navigator.clipboard.writeText(txt).then(() => toast('تم النسخ!'));
     }
 
-    function clearLocalStorage() {
-        if(confirm("Are you sure? This deletes ALL fields and history.")) {
-            localStorage.removeItem(STORAGE_KEY);
-            location.reload();
-        }
-    }
-
-    // --- NEW CALCULATION ENGINE ---
     function calculateData() {
         let expr = document.getElementById('calcRule').value.toLowerCase().trim();
         const out = document.getElementById('calculationOutput');
-        
-        if (!expr) { out.textContent = "Result: Please enter a rule."; return; }
-        if (gameState.rounds.length === 0) { out.textContent = "Result: No rounds to calculate."; return; }
+        if (!expr) { out.textContent = 'النتيجة: اكتب معادلة الأول.'; return; }
+        if (!gameState.rounds.length) { out.textContent = 'النتيجة: مفيش جولات محفوظة.'; return; }
 
-        // 1. Handle (all)_field -> Sum of that field across ALL rounds
-        expr = expr.replace(/\(all\)_([a-z0-9_]+)/g, (match, fieldId) => {
-            return gameState.rounds.reduce((sum, r) => sum + (parseFloat(r.values[fieldId]) || 0), 0);
+        expr = expr.replace(/\(all\)_([^\s+\-*/()]+)/g, (_, fid) =>
+            gameState.rounds.reduce((s, r) => s + (parseFloat(r.values[fid]) || 0), 0));
+        expr = expr.replace(/\(([\d,]+)\)_([^\s+\-*/()]+)/g, (_, nums, fid) => {
+            const targets = nums.split(',').map(n => parseInt(n.trim()));
+            return gameState.rounds.filter(r => targets.includes(r.number)).reduce((s, r) => s + (parseFloat(r.values[fid]) || 0), 0);
         });
-
-        // 2. Handle (x,y,z)_field -> Sum of specific rounds (covers single (x)_field too)
-        expr = expr.replace(/\(([\d,]+)\)_([a-z0-9_]+)/g, (match, nums, fieldId) => {
-            const targetRounds = nums.split(',').map(n => parseInt(n.trim()));
-            let sum = 0;
-            gameState.rounds.forEach(r => {
-                if (targetRounds.includes(r.number)) {
-                    sum += (parseFloat(r.values[fieldId]) || 0);
-                }
-            });
-            return sum;
-        });
-
-        // 3. Handle plain 'field' -> Value from LAST round
-        const lastRound = gameState.rounds[gameState.rounds.length - 1];
-        if (lastRound) {
-            for (const [id, val] of Object.entries(lastRound.values)) {
-                // Only replace whole word matches that haven't been replaced yet
-                // (Simple approach: check if ID exists in string)
-                if (typeof val === 'number' || !isNaN(parseFloat(val))) {
-                     expr = expr.replace(new RegExp(`\\b${id}\\b`, 'g'), parseFloat(val));
-                }
+        const last = gameState.rounds[gameState.rounds.length - 1];
+        if (last) {
+            for (const [id, val] of Object.entries(last.values)) {
+                if (!isNaN(parseFloat(val))) expr = expr.replace(new RegExp(`\\b${id}\\b`, 'g'), parseFloat(val));
             }
         }
-
-        // 4. Evaluate
         try {
-            // Safe-ish evaluation
             const res = new Function('return ' + expr)();
-            if (isNaN(res)) throw new Error("Result is NaN");
-            out.textContent = "Result: " + (Number.isInteger(res) ? res : res.toFixed(2));
-        } catch(e) {
-            out.textContent = `Error parsing: ${expr} (Check your syntax)`;
+            if (isNaN(res)) throw new Error();
+            out.textContent = 'النتيجة: ' + (Number.isInteger(res) ? res : res.toFixed(2));
+            out.style.borderRightColor = 'var(--success)'; out.style.color = 'var(--success)';
+        } catch {
+            out.textContent = 'خطأ: مقدرتش أحسب المعادلة دي. تأكد من الصياغة.';
+            out.style.borderRightColor = 'var(--danger)'; out.style.color = 'var(--danger)';
         }
     }
 
-    // Init
-    document.addEventListener('DOMContentLoaded', loadGameState);
+    function arabicRoundsText(n) {
+        if (n === 0) return '٠ جولات';
+        if (n === 1) return 'جولة واحدة';
+        if (n === 2) return 'جولتين';
+        return toAr(n) + ' جولات';
+    }
 
+    function renderBoard() {
+        const head = document.getElementById('boardHead'), body = document.getElementById('boardBody');
+        head.innerHTML = ''; body.innerHTML = '';
+        document.getElementById('boardSubtitle').textContent = `— ${arabicRoundsText(gameState.rounds.length)} —`;
+        if (!gameState.rounds.length || !gameState.fields.length) return;
+        const rth = document.createElement('th'); rth.textContent = 'الجولة'; head.appendChild(rth);
+        gameState.fields.forEach(f => { const th = document.createElement('th'); th.textContent = f.name; head.appendChild(th); });
+        gameState.rounds.forEach(r => {
+            const tr = document.createElement('tr');
+            const ntd = document.createElement('td'); ntd.textContent = toAr(r.number); ntd.style.color = 'var(--accent)'; ntd.style.fontWeight = '700';
+            tr.appendChild(ntd);
+            gameState.fields.forEach(f => { const td = document.createElement('td'); td.textContent = r.values[f.id] !== undefined ? r.values[f.id] : '—'; tr.appendChild(td); });
+            body.appendChild(tr);
+        });
+    }
+
+    function exportPNG() {
+        renderBoard();
+        html2canvas(document.getElementById('boardCanvas'), { backgroundColor: '#16181c', scale: 2, useCORS: true }).then(canvas => {
+            const a = document.createElement('a'); a.download = 'لوحة-اللعبة.png'; a.href = canvas.toDataURL('image/png'); a.click();
+            toast('✓ تم تحميل الصورة');
+        });
+    }
+
+    function shareWhatsApp() {
+        if (!gameState.rounds.length) { toast('مفيش جولات للمشاركة'); return; }
+        let text = '🎮 *لوحة اللعبة*\n';
+        gameState.rounds.forEach(r => {
+            text += `\n*الجولة ${r.number}*\n`;
+            gameState.fields.forEach(f => { text += `  ${f.name}: ${r.values[f.id] !== undefined ? r.values[f.id] : '—'}\n`; });
+        });
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
+
+    function copyBoardText() {
+        if (!gameState.rounds.length) { toast('مفيش جولات للنسخ'); return; }
+        let text = 'لوحة اللعبة\n' + '='.repeat(28) + '\n';
+        gameState.rounds.forEach(r => {
+            text += `\nالجولة ${r.number} (${r.timestamp})\n`;
+            gameState.fields.forEach(f => { text += `  ${f.name}: ${r.values[f.id] !== undefined ? r.values[f.id] : '—'}\n`; });
+        });
+        navigator.clipboard.writeText(text).then(() => toast('📋 تم نسخ اللوحة!'));
+    }
+
+    function clearAll() {
+        if (confirm('هتمسح كل الحقول والسجل. مفيش رجعة — متأكد؟')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadGameState);
 </script>
 </body>
 </html>

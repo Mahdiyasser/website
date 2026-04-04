@@ -229,23 +229,6 @@
 </head>
 <body>
 
-<!--cloudflare worker tracking only session IDs no user data-->
-<script>
-(function() {
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = (crypto.randomUUID ? crypto.randomUUID() : ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));
-    document.cookie = `sessionID=${sessionID}; path=/`;
-  }
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type: 'tool', name: 'game-tracker' })
-  }).catch(() => {});
-})();
-</script>
-<!--worker end-->
-
 <header class="topbar">
     <div class="topbar-title">🎮 متتبع اللعبة</div>
     <div class="topbar-round">الجولة <span id="topRoundNum">١</span></div>

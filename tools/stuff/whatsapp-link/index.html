@@ -1,71 +1,1246 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp Link Generator</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
-    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WA Link — WhatsApp Link Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@1/index.js"></script>
+
+<style>
+/* ═══════════════════════════════════════════
+   THEME TOKENS
+═══════════════════════════════════════════ */
+:root {
+  --bg:          #070b0f;
+  --surface:     #0e1318;
+  --surface2:    #141b22;
+  --border:      #1e2a35;
+  --border2:     #263445;
+  --accent:      #00e676;
+  --accent-dim:  #00c85a;
+  --accent-glow: rgba(0,230,118,0.12);
+  --accent2:     #29b6f6;
+  --accent2-glow:rgba(41,182,246,0.12);
+  --text:        #e8f0f7;
+  --text-muted:  #5a7a96;
+  --text-dim:    #3a5570;
+  --danger:      #ff5252;
+  --warn:        #ffd740;
+  --mono:        'Space Mono', monospace;
+  --sans:        'DM Sans', sans-serif;
+  --radius:      10px;
+  --radius-sm:   6px;
+  --transition:  0.2s cubic-bezier(0.4,0,0.2,1);
+}
+[data-theme="light"] {
+  --bg:          #f0f4f8;
+  --surface:     #ffffff;
+  --surface2:    #f7f9fb;
+  --border:      #d6e0ea;
+  --border2:     #c0cdd8;
+  --accent:      #00a855;
+  --accent-dim:  #008f48;
+  --accent-glow: rgba(0,168,85,0.10);
+  --accent2:     #0277bd;
+  --accent2-glow:rgba(2,119,189,0.10);
+  --text:        #111d2b;
+  --text-muted:  #4a6278;
+  --text-dim:    #8fabbe;
+  --danger:      #d32f2f;
+  --warn:        #f57c00;
+}
+
+/* ═══════════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 0;
+  overflow-x: hidden;
+  transition: background var(--transition), color var(--transition);
+}
+
+/* Noise texture overlay */
+body::before {
+  content:'';
+  position:fixed;inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:0.4;
+}
+
+/* Grid lines bg */
+body::after {
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size:40px 40px;
+  opacity:0.18;
+  pointer-events:none;z-index:0;
+}
+[data-theme="light"] body::after{opacity:0.06}
+
+/* ═══════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════ */
+.app-wrapper {
+  position:relative;z-index:1;
+  max-width:960px;
+  margin:0 auto;
+  padding:24px 20px 60px;
+}
+
+/* ═══════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════ */
+header {
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 0 28px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:32px;
+}
+.logo {
+  display:flex;align-items:center;gap:12px;
+}
+.logo-icon {
+  width:40px;height:40px;
+  background:var(--accent);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  box-shadow:0 0 20px var(--accent-glow);
+  flex-shrink:0;
+}
+.logo-text {
+  display:flex;flex-direction:column;
+}
+.logo-title {
+  font-family:var(--mono);font-size:1.1rem;font-weight:700;
+  letter-spacing:-0.02em;color:var(--text);line-height:1;
+}
+.logo-sub {
+  font-size:0.72rem;color:var(--text-muted);
+  font-family:var(--mono);letter-spacing:0.08em;text-transform:uppercase;
+  margin-top:3px;
+}
+.header-actions{display:flex;gap:8px;align-items:center;}
+
+.btn-ghost {
+  background:transparent;border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  width:38px;height:38px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);font-size:1rem;
+  transition:all var(--transition);
+}
+.btn-ghost:hover{border-color:var(--border2);background:var(--surface2);color:var(--text);}
+.dark-icon,.light-icon{display:none;font-size:1.1rem;}
+[data-theme="dark"] .dark-icon{display:block;}
+[data-theme="light"] .light-icon{display:block;}
+
+/* ═══════════════════════════════════════════
+   TABS
+═══════════════════════════════════════════ */
+.tabs {
+  display:flex;gap:2px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:4px;
+  margin-bottom:28px;
+}
+.tab-btn {
+  flex:1;padding:10px 16px;
+  background:transparent;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:0.85rem;font-weight:500;
+  color:var(--text-muted);border-radius:var(--radius-sm);
+  transition:all var(--transition);white-space:nowrap;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.tab-btn:hover{color:var(--text);background:var(--surface2);}
+.tab-btn.active{
+  background:var(--surface2);color:var(--text);
+  box-shadow:0 1px 4px rgba(0,0,0,0.3);
+}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ═══════════════════════════════════════════
+   MAIN GRID
+═══════════════════════════════════════════ */
+.main-grid {
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:20px;
+  align-items:start;
+}
+@media(max-width:740px){
+  .main-grid{grid-template-columns:1fr;}
+  .sidebar{order:-1;}
+}
+
+/* ═══════════════════════════════════════════
+   CARD
+═══════════════════════════════════════════ */
+.card {
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:24px;
+  margin-bottom:16px;
+  position:relative;
+  overflow:hidden;
+}
+.card::before {
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),transparent);
+}
+.card-title {
+  font-family:var(--mono);font-size:0.78rem;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-muted);margin-bottom:16px;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title .dot {
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 6px var(--accent);
+  flex-shrink:0;
+}
+
+/* ═══════════════════════════════════════════
+   FORM ELEMENTS
+═══════════════════════════════════════════ */
+.form-group{margin-bottom:20px;}
+label {
+  display:block;margin-bottom:8px;
+  font-size:0.82rem;font-weight:600;
+  color:var(--text-muted);letter-spacing:0.03em;
+}
+label span.req{color:var(--accent);margin-left:2px;}
+
+input[type="tel"], textarea, input[type="text"] {
+  width:100%;padding:12px 14px;
+  background:var(--surface2);
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  font-size:0.95rem;font-family:var(--sans);
+  transition:border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  -webkit-appearance:none;
+}
+input[type="tel"]:focus, textarea:focus, input[type="text"]:focus {
+  border-color:var(--accent);outline:none;
+  box-shadow:0 0 0 3px var(--accent-glow);
+  background:var(--bg);
+}
+
+.textarea-wrapper{position:relative;}
+textarea {
+  resize:vertical;min-height:130px;
+  padding-bottom:44px;line-height:1.6;
+}
+.textarea-footer {
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:6px 8px;
+  background:var(--surface2);
+  border-top:1px solid var(--border);
+  border-radius:0 0 var(--radius-sm) var(--radius-sm);
+}
+#emojiTriggerBtn {
+  background:transparent;border:none;
+  font-size:1.3rem;cursor:pointer;
+  opacity:0.6;transition:opacity var(--transition),transform var(--transition);padding:2px;
+}
+#emojiTriggerBtn:hover{opacity:1;transform:scale(1.15);}
+.char-count {
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text-muted);
+}
+.char-count.warn{color:var(--warn);}
+.char-count.over{color:var(--danger);}
+
+/* ITI overrides */
+.iti{width:100%;}
+.iti__country-list {
+  background:var(--surface2) !important;
+  border:1px solid var(--border2) !important;
+  color:var(--text) !important;
+  z-index:200 !important;
+  border-radius:var(--radius-sm) !important;
+  box-shadow:0 8px 30px rgba(0,0,0,0.5) !important;
+}
+.iti__country{padding:9px 12px !important;border-bottom:1px solid rgba(255,255,255,0.03);}
+.iti__country.iti__highlight{background:var(--border) !important;color:var(--text) !important;}
+.iti__dial-code{color:var(--text-muted) !important;}
+.iti__country-name{color:var(--text) !important;}
+.iti__divider{border-bottom-color:var(--border) !important;}
+
+/* ═══════════════════════════════════════════
+   TOGGLE SWITCH
+═══════════════════════════════════════════ */
+.toggle-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid var(--border);
+}
+.toggle-row:last-child{border-bottom:none;}
+.toggle-label{
+  display:flex;flex-direction:column;gap:2px;
+}
+.toggle-label strong{font-size:0.88rem;font-weight:500;}
+.toggle-label small{font-size:0.75rem;color:var(--text-muted);}
+.switch {position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.slider {
+  position:absolute;cursor:pointer;inset:0;
+  background:var(--border2);border-radius:24px;
+  transition:background var(--transition);
+}
+.slider::before {
+  content:'';position:absolute;
+  width:18px;height:18px;left:3px;bottom:3px;
+  background:white;border-radius:50%;
+  transition:transform var(--transition);
+}
+input:checked + .slider{background:var(--accent);}
+input:checked + .slider::before{transform:translateX(18px);}
+
+/* ═══════════════════════════════════════════
+   TEMPLATES
+═══════════════════════════════════════════ */
+.templates-grid {
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;
+}
+.template-chip {
+  padding:10px 12px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);cursor:pointer;
+  font-size:0.8rem;line-height:1.4;
+  color:var(--text-muted);
+  transition:all var(--transition);text-align:left;font-family:var(--sans);
+}
+.template-chip:hover {
+  border-color:var(--accent);color:var(--text);
+  background:var(--accent-glow);
+}
+.template-chip strong{display:block;color:var(--text);margin-bottom:2px;font-size:0.82rem;}
+
+/* ═══════════════════════════════════════════
+   GENERATE BUTTON
+═══════════════════════════════════════════ */
+.btn-generate {
+  width:100%;padding:15px 24px;
+  background:var(--accent);color:#050f08;
+  border:none;border-radius:var(--radius-sm);
+  font-family:var(--mono);font-size:0.95rem;font-weight:700;
+  letter-spacing:0.04em;
+  cursor:pointer;
+  transition:all var(--transition);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 20px var(--accent-glow);
+}
+.btn-generate::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.15) 50%,transparent 100%);
+  transform:translateX(-100%);transition:transform 0.5s;
+}
+.btn-generate:hover{background:var(--accent-dim);transform:translateY(-1px);box-shadow:0 4px 24px var(--accent-glow);}
+.btn-generate:hover::after{transform:translateX(100%);}
+.btn-generate:active{transform:translateY(0);}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR
+═══════════════════════════════════════════ */
+.sidebar{}
+
+/* Preview */
+.preview-phone {
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.preview-topbar {
+  background:#1a2a20;padding:10px 14px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+[data-theme="light"] .preview-topbar{background:#e8f5e9;border-bottom:1px solid #c8e6c9;}
+.preview-avatar {
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#00e676,#00acc1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.preview-contact{flex:1;}
+.preview-name{font-size:0.88rem;font-weight:600;color:#00e676;}
+[data-theme="light"] .preview-name{color:#2e7d32;}
+.preview-status{font-size:0.7rem;color:var(--text-muted);}
+.preview-body {
+  padding:16px;
+  background:url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='20' height='20' fill='none'/%3E%3Ccircle cx='10' cy='10' r='1' fill='%23ffffff08'/%3E%3C/svg%3E");
+  min-height:120px;
+}
+.preview-bubble {
+  background:#005c2e;
+  color:#fff;
+  padding:10px 12px;
+  border-radius:10px 10px 2px 10px;
+  font-size:0.85rem;line-height:1.5;
+  max-width:85%;margin-left:auto;
+  word-break:break-word;white-space:pre-wrap;
+  position:relative;
+}
+[data-theme="light"] .preview-bubble{background:#dcf8c6;color:#111;}
+.preview-bubble time{
+  display:block;text-align:right;
+  font-size:0.65rem;color:rgba(255,255,255,0.5);margin-top:4px;
+}
+[data-theme="light"] .preview-bubble time{color:rgba(0,0,0,0.4);}
+.preview-empty {
+  text-align:center;padding:24px 16px;
+  color:var(--text-dim);font-size:0.8rem;
+}
+.preview-number-display {
+  padding:8px 14px;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text-muted);
+  display:flex;align-items:center;gap:6px;
+}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+
+/* ═══════════════════════════════════════════
+   OUTPUT CARD
+═══════════════════════════════════════════ */
+.output-card {
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  animation:slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+  margin-bottom:16px;
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.output-header {
+  padding:14px 20px;
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.output-label {
+  font-family:var(--mono);font-size:0.72rem;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);
+}
+.output-body{padding:16px 20px;}
+.url-display {
+  font-family:var(--mono);font-size:0.82rem;
+  color:var(--accent2);word-break:break-all;line-height:1.6;
+  padding:12px;background:var(--surface2);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  margin-bottom:12px;
+}
+.output-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.btn-sm {
+  padding:8px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--surface2);
+  color:var(--text);font-family:var(--sans);font-size:0.82rem;font-weight:500;
+  cursor:pointer;transition:all var(--transition);
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.btn-sm:hover{border-color:var(--border2);background:var(--border);color:var(--text);}
+.btn-sm.accent{background:var(--accent);color:#050f08;border-color:var(--accent);font-weight:700;}
+.btn-sm.accent:hover{background:var(--accent-dim);}
+.btn-sm.copied{background:var(--accent);color:#050f08;border-color:var(--accent);}
+
+/* QR */
+.qr-wrapper {
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  padding:16px;
+}
+#qrcode {
+  background:#fff;padding:12px;border-radius:8px;
+  display:inline-block;
+}
+#qrcode canvas,#qrcode img{display:block;}
+.qr-note{font-size:0.75rem;color:var(--text-muted);text-align:center;}
+
+/* ═══════════════════════════════════════════
+   HISTORY
+═══════════════════════════════════════════ */
+.history-list{display:flex;flex-direction:column;gap:8px;}
+.history-item {
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:12px 14px;
+  display:flex;align-items:center;gap:12px;
+  animation:slideUp 0.2s ease;
+}
+.history-item:hover{border-color:var(--border2);}
+.history-num {
+  font-family:var(--mono);font-size:0.82rem;
+  color:var(--accent);font-weight:700;flex-shrink:0;
+}
+.history-msg {
+  flex:1;font-size:0.8rem;color:var(--text-muted);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.history-time{font-size:0.7rem;color:var(--text-dim);flex-shrink:0;font-family:var(--mono);}
+.history-actions{display:flex;gap:4px;flex-shrink:0;}
+.btn-xs {
+  padding:4px 8px;border-radius:4px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);font-size:0.72rem;cursor:pointer;
+  transition:all var(--transition);font-family:var(--sans);
+}
+.btn-xs:hover{border-color:var(--accent);color:var(--accent);}
+.btn-xs.del:hover{border-color:var(--danger);color:var(--danger);}
+.history-empty {
+  text-align:center;padding:32px;
+  color:var(--text-dim);font-size:0.85rem;
+}
+
+/* ═══════════════════════════════════════════
+   BULK TAB
+═══════════════════════════════════════════ */
+.bulk-input {
+  width:100%;min-height:120px;padding:12px 14px;
+  background:var(--surface2);color:var(--text);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-family:var(--mono);font-size:0.85rem;line-height:1.8;
+  resize:vertical;transition:border-color var(--transition),box-shadow var(--transition);
+}
+.bulk-input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px var(--accent-glow);}
+.bulk-results{display:flex;flex-direction:column;gap:6px;margin-top:16px;}
+.bulk-row {
+  display:flex;align-items:center;gap:10px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
+  font-family:var(--mono);font-size:0.8rem;
+}
+.bulk-row .bnum{color:var(--accent);flex-shrink:0;min-width:120px;}
+.bulk-row .blink{color:var(--accent2);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bulk-row .bcopy{
+  padding:4px 10px;border-radius:4px;
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-muted);font-size:0.72rem;cursor:pointer;
+  transition:all var(--transition);flex-shrink:0;
+}
+.bulk-row .bcopy:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ═══════════════════════════════════════════
+   EMOJI PICKER
+═══════════════════════════════════════════ */
+emoji-picker {
+  position:fixed;z-index:9000;display:none;
+  box-shadow:0 16px 40px rgba(0,0,0,0.6);
+  border-radius:12px;max-width:95vw;
+  --background:var(--surface2);
+  --border-color:var(--border);
+  --input-border-color:var(--border);
+  --input-font-color:var(--text);
+  --outline-color:var(--accent);
+}
+
+/* ═══════════════════════════════════════════
+   STATUS BADGE
+═══════════════════════════════════════════ */
+.badge {
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 8px;border-radius:20px;
+  font-size:0.7rem;font-family:var(--mono);font-weight:700;
+  letter-spacing:0.06em;
+}
+.badge-success{background:rgba(0,230,118,0.12);color:var(--accent);}
+.badge-info{background:rgba(41,182,246,0.12);color:var(--accent2);}
+
+/* ═══════════════════════════════════════════
+   MISC UTILITIES
+═══════════════════════════════════════════ */
+.section-gap{height:16px;}
+.flex-center{display:flex;align-items:center;justify-content:center;}
+.hidden{display:none!important;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.text-muted{color:var(--text-muted);font-size:0.82rem;}
+.w-full{width:100%;}
+
+/* Scroll bar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:600px){
+  .app-wrapper{padding:16px 14px 40px;}
+  .card{padding:16px;}
+  header{padding:16px 0 20px;}
+  .templates-grid{grid-template-columns:1fr;}
+  .output-actions{flex-direction:column;}
+  .btn-sm{justify-content:center;}
+  .tabs{flex-wrap:wrap;}
+  .tab-btn{font-size:0.78rem;}
+}
+
+/* ═══════════════════════════════════════════
+   COPY TOAST
+═══════════════════════════════════════════ */
+.toast {
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--text);padding:10px 20px;border-radius:8px;
+  font-size:0.85rem;font-weight:500;
+  box-shadow:0 8px 24px rgba(0,0,0,0.4);
+  z-index:99999;transition:transform 0.3s cubic-bezier(0.4,0,0.2,1),opacity 0.3s;
+  opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:8px;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <header>
-            <h1>WhatsApp Link</h1>
-            <button id="themeToggle" title="Toggle light/dark theme">
-                <span class="dark-icon">🌙</span>
-                <span class="light-icon">☀️</span>
-            </button>
-        </header>
+<div class="app-wrapper">
 
-        <form id="whatsappForm">
-            <div class="form-group">
-                <label for="phone">Phone Number</label>
-                <div class="input-wrapper">
-                    <input id="phone" type="tel" name="phone">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="message">Message</label>
-                <div class="textarea-wrapper">
-                    <textarea id="message" rows="5" placeholder="Type your message here..."></textarea>
-                    <button type="button" id="emojiTriggerBtn" title="Insert Emoji">
-                        😀
-                    </button>
-                </div>
-            </div>
-
-            <button type="button" id="encodeButton" class="btn-primary">Generate Link</button>
-        </form>
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">💬</div>
+      <div class="logo-text">
+        <span class="logo-title">WA Link</span>
+        <span class="logo-sub">WhatsApp Link Generator</span>
+      </div>
     </div>
+    <div class="header-actions">
+      <button class="btn-ghost" id="themeToggle" title="Toggle theme">
+        <span class="dark-icon">🌙</span>
+        <span class="light-icon">☀️</span>
+      </button>
+    </div>
+  </header>
 
-    <div id="resultModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Link Generated</h2>
-                <span class="close-button">&times;</span>
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="single">⚡ Single Link</button>
+    <button class="tab-btn" data-tab="bulk">📋 Bulk Generate</button>
+    <button class="tab-btn" data-tab="history">🕒 History</button>
+  </div>
+
+  <!-- ═══ TAB: SINGLE ═══ -->
+  <div class="tab-panel active" id="tab-single">
+    <div class="main-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="left-col">
+
+        <!-- Phone -->
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Contact</div>
+          <div class="form-group" style="margin-bottom:0">
+            <label for="phone">Phone Number <span class="req">*</span></label>
+            <div class="input-wrapper">
+              <input id="phone" type="tel" name="phone" placeholder="Enter number">
             </div>
-            <p class="modal-subtitle">Share this link to start a chat instantly.</p>
-            
-            <div class="url-container">
-                <div class="url-scroll-box">
-                    <p id="generatedUrl"></p>
-                </div>
-                <button id="copyButton" class="btn-icon" title="Copy to clipboard">
-                    📋
-                </button>
-            </div>
-            <p class="copy-status" id="copyStatus"></p>
+          </div>
         </div>
-    </div>
-    
-    <emoji-picker id="emojiPicker" class="dark"></emoji-picker>
 
-    <script src="script.js"></script>
+        <!-- Message -->
+        <div class="card">
+          <div class="card-title"><span class="dot"></span>Message</div>
+          <div class="form-group">
+            <label for="message">Pre-filled message</label>
+            <div class="textarea-wrapper">
+              <textarea id="message" rows="5" placeholder="Type your message..."></textarea>
+              <div class="textarea-footer">
+                <button type="button" id="emojiTriggerBtn" title="Insert Emoji">😀</button>
+                <span class="char-count" id="charCount">0 / 1000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Templates -->
+          <div class="card-title" style="margin-top:4px"><span class="dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></span>Quick Templates</div>
+          <div class="templates-grid">
+            <button class="template-chip" data-msg="Hi! I saw your listing and I'm interested. Can we discuss?">
+              <strong>🏷️ Inquiry</strong>
+              Interested in your listing
+            </button>
+            <button class="template-chip" data-msg="Hi! I'd like to schedule an appointment. What times work for you?">
+              <strong>📅 Appointment</strong>
+              Schedule a meeting
+            </button>
+            <button class="template-chip" data-msg="Hello! I'm following up on our previous conversation. Have you had a chance to look into it?">
+              <strong>🔁 Follow-up</strong>
+              Check in on progress
+            </button>
+            <button class="template-chip" data-msg="Hi there! I need support with an issue I'm experiencing. Can you help?">
+              <strong>🛟 Support</strong>
+              Request assistance
+            </button>
+            <button class="template-chip" data-msg="Hello! I'd like to place an order. Please let me know availability and pricing.">
+              <strong>🛒 Order</strong>
+              Place an order
+            </button>
+            <button class="template-chip" data-msg="Hi! Just wanted to send a quick hello and see how you're doing. Hope all is well! 😊">
+              <strong>👋 Hello</strong>
+              Simple greeting
+            </button>
+          </div>
+        </div>
+
+        <!-- Options -->
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></span>Options</div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <strong>Use wa.me shortlink</strong>
+              <small>wa.me/... instead of api.whatsapp.com/send</small>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="useWame" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <strong>Save to history</strong>
+              <small>Remember this link locally</small>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="saveHistory" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <button class="btn-generate" id="encodeButton">
+          <span>⚡</span> Generate Link
+        </button>
+
+        <!-- Output -->
+        <div id="outputArea" class="hidden">
+          <div class="section-gap"></div>
+          <div class="output-card">
+            <div class="output-header">
+              <span class="output-label">Generated Link</span>
+              <span class="badge badge-success">✓ Ready</span>
+            </div>
+            <div class="output-body">
+              <div class="url-display" id="generatedUrl"></div>
+              <div class="output-actions">
+                <button class="btn-sm accent" id="copyButton">📋 Copy Link</button>
+                <button class="btn-sm" id="openButton">↗ Open Chat</button>
+                <button class="btn-sm" id="shareButton">⬆ Share</button>
+                <button class="btn-sm" id="qrToggle">▣ QR Code</button>
+              </div>
+              <div id="qrArea" class="hidden">
+                <div class="divider"></div>
+                <div class="qr-wrapper">
+                  <div id="qrcode"></div>
+                  <p class="qr-note">Scan with any camera app to open WhatsApp chat</p>
+                  <button class="btn-sm" id="downloadQr">⬇ Download QR</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div class="card-title" style="padding:14px 16px 0;margin-bottom:12px">
+            <span class="dot"></span>Live Preview
+          </div>
+          <div class="preview-phone">
+            <div class="preview-topbar">
+              <div class="preview-avatar">👤</div>
+              <div class="preview-contact">
+                <div class="preview-name" id="previewName">+_ _ _ _ _ _ _ _ _ _</div>
+                <div class="preview-status">online</div>
+              </div>
+            </div>
+            <div class="preview-body" id="previewBody">
+              <div class="preview-empty">Your message preview will appear here as you type...</div>
+            </div>
+            <div class="preview-number-display">
+              <span class="online-dot"></span>
+              <span id="previewUrl" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">No link generated yet</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats card -->
+        <div class="card">
+          <div class="card-title"><span class="dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></span>Link Stats</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <div style="font-family:var(--mono);font-size:1.6rem;font-weight:700;color:var(--accent)" id="statChars">0</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">Characters</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <div style="font-family:var(--mono);font-size:1.6rem;font-weight:700;color:var(--accent2)" id="statWords">0</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">Words</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <div style="font-family:var(--mono);font-size:1.6rem;font-weight:700;color:var(--accent)" id="statLinks">0</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">Generated</div>
+            </div>
+            <div style="text-align:center;padding:12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm)">
+              <div style="font-family:var(--mono);font-size:1.6rem;font-weight:700;color:var(--accent2)" id="statUrlLen">0</div>
+              <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px">URL Length</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /sidebar -->
+    </div>
+  </div>
+
+  <!-- ═══ TAB: BULK ═══ -->
+  <div class="tab-panel" id="tab-bulk">
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Bulk Number Input</div>
+      <div class="form-group">
+        <label>Phone Numbers <small class="text-muted">— one per line, with country code</small></label>
+        <textarea class="bulk-input" id="bulkNumbers" placeholder="+1 555 123 4567&#10;+44 20 7946 0958&#10;+49 30 12345678&#10;..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Shared Message <small class="text-muted">— applied to all numbers</small></label>
+        <textarea id="bulkMessage" rows="3" placeholder="Type a message to apply to all numbers..." style="padding:12px 14px"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-generate" id="bulkGenerate" style="flex:1">⚡ Generate All Links</button>
+        <button class="btn-sm" id="bulkCopyAll" style="padding:15px 20px">📋 Copy All</button>
+      </div>
+      <div class="bulk-results" id="bulkResults"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: HISTORY ═══ -->
+  <div class="tab-panel" id="tab-history">
+    <div class="card">
+      <div class="card-title" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px"><span class="dot"></span>Link History</div>
+        <button class="btn-sm" id="clearHistory" style="padding:4px 10px;font-size:0.75rem">🗑 Clear All</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <div class="history-empty">No links generated yet. Create your first link!</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-wrapper -->
+
+<!-- Emoji picker -->
+<emoji-picker id="emojiPicker" class="dark"></emoji-picker>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// GLOBALS
+// ═══════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const $q = sel => document.querySelector(sel);
+
+let currentUrl = '';
+let qrInstance = null;
+let history_data = JSON.parse(localStorage.getItem('wa-link-history') || '[]');
+let totalGenerated = parseInt(localStorage.getItem('wa-link-count') || '0');
+
+// ═══════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════
+const html = document.documentElement;
+const themeToggle = $('themeToggle');
+const emojiPicker = $('emojiPicker');
+
+function applyTheme(t) {
+  html.setAttribute('data-theme', t);
+  localStorage.setItem('wa-theme', t);
+  emojiPicker.className = t;
+}
+
+const savedTheme = localStorage.getItem('wa-theme');
+if (savedTheme) applyTheme(savedTheme);
+
+themeToggle.addEventListener('click', () => {
+  applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+
+// ═══════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'history') renderHistory();
+  });
+});
+
+// ═══════════════════════════════════════════
+// PHONE INPUT
+// ═══════════════════════════════════════════
+const phoneField = $('phone');
+const phoneInput = window.intlTelInput(phoneField, {
+  initialCountry: 'auto',
+  geoIpLookup: cb => {
+    fetch('https://ipapi.co/json/')
+      .then(r => r.json())
+      .then(d => cb(d.country_code))
+      .catch(() => cb('us'));
+  },
+  utilsScript: 'https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js'
+});
+
+// ═══════════════════════════════════════════
+// MESSAGE & PREVIEW
+// ═══════════════════════════════════════════
+const msgArea = $('message');
+const charCount = $('charCount');
+const previewBody = $('previewBody');
+const previewName = $('previewName');
+const previewUrl = $('previewUrl');
+
+function updateStats() {
+  const txt = msgArea.value;
+  const len = txt.length;
+  charCount.textContent = `${len} / 1000`;
+  charCount.className = 'char-count' + (len > 1000 ? ' over' : len > 800 ? ' warn' : '');
+  $('statChars').textContent = len;
+  $('statWords').textContent = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+
+  // Preview
+  if (txt.trim()) {
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    previewBody.innerHTML = `<div class="preview-bubble">${escapeHtml(txt)}<time>${timeStr} ✓✓</time></div>`;
+  } else {
+    previewBody.innerHTML = `<div class="preview-empty">Your message preview will appear here as you type...</div>`;
+  }
+}
+
+function updatePreviewNumber() {
+  try {
+    const n = phoneInput.getNumber();
+    previewName.textContent = n || '+_ _ _ _ _ _ _ _ _ _';
+  } catch(e) {}
+}
+
+msgArea.addEventListener('input', updateStats);
+phoneField.addEventListener('input', updatePreviewNumber);
+phoneField.addEventListener('countrychange', updatePreviewNumber);
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// ═══════════════════════════════════════════
+// TEMPLATES
+// ═══════════════════════════════════════════
+document.querySelectorAll('.template-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    msgArea.value = chip.dataset.msg;
+    updateStats();
+    msgArea.focus();
+  });
+});
+
+// ═══════════════════════════════════════════
+// GENERATE
+// ═══════════════════════════════════════════
+$('encodeButton').addEventListener('click', generateLink);
+
+function generateLink() {
+  if (typeof intlTelInputUtils === 'undefined') {
+    showToast('⏳ Phone utils still loading, try again in a moment');
+    return;
+  }
+
+  const fullNumber = phoneInput.getNumber(intlTelInputUtils.numberFormat.E164);
+  if (!fullNumber || !phoneInput.isValidNumber()) {
+    showToast('⚠️ Please enter a valid phone number');
+    phoneField.focus();
+    return;
+  }
+
+  const clean = fullNumber.replace('+', '');
+  const msg = msgArea.value;
+  const encoded = encodeURIComponent(msg);
+  const useWame = $('useWame').checked;
+
+  currentUrl = useWame
+    ? `https://wa.me/${clean}${msg ? '?text=' + encoded : ''}`
+    : `https://api.whatsapp.com/send?phone=${clean}${msg ? '&text=' + encoded : ''}`;
+
+  $('generatedUrl').textContent = currentUrl;
+  $('outputArea').classList.remove('hidden');
+  previewUrl.textContent = currentUrl;
+
+  // Stats
+  totalGenerated++;
+  localStorage.setItem('wa-link-count', totalGenerated);
+  $('statLinks').textContent = totalGenerated;
+  $('statUrlLen').textContent = currentUrl.length;
+
+  // History
+  if ($('saveHistory').checked) {
+    addToHistory(fullNumber, msg, currentUrl);
+  }
+
+  // Reset QR
+  $('qrArea').classList.add('hidden');
+  qrInstance = null;
+  $('qrcode').innerHTML = '';
+
+  showToast('✅ Link generated!');
+  $('outputArea').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+// ═══════════════════════════════════════════
+// COPY / OPEN / SHARE
+// ═══════════════════════════════════════════
+$('copyButton').addEventListener('click', () => {
+  if (!currentUrl) return;
+  navigator.clipboard.writeText(currentUrl).then(() => {
+    const btn = $('copyButton');
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('copied');
+    showToast('📋 Link copied to clipboard!');
+    setTimeout(() => { btn.innerHTML = '📋 Copy Link'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => showToast('❌ Copy failed'));
+});
+
+$('openButton').addEventListener('click', () => {
+  if (currentUrl) window.open(currentUrl, '_blank');
+});
+
+$('shareButton').addEventListener('click', () => {
+  if (!currentUrl) return;
+  if (navigator.share) {
+    navigator.share({ title: 'WhatsApp Chat Link', url: currentUrl })
+      .catch(() => {});
+  } else {
+    navigator.clipboard.writeText(currentUrl);
+    showToast('📋 Link copied (Share API not available)');
+  }
+});
+
+// ═══════════════════════════════════════════
+// QR CODE
+// ═══════════════════════════════════════════
+$('qrToggle').addEventListener('click', () => {
+  const area = $('qrArea');
+  const isHidden = area.classList.toggle('hidden');
+
+  if (!isHidden && !qrInstance && currentUrl) {
+    $('qrcode').innerHTML = '';
+    qrInstance = new QRCode($('qrcode'), {
+      text: currentUrl,
+      width: 200, height: 200,
+      colorDark: '#000000', colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.H
+    });
+  }
+});
+
+$('downloadQr').addEventListener('click', () => {
+  const canvas = $('qrcode').querySelector('canvas');
+  if (!canvas) return;
+  const a = document.createElement('a');
+  a.href = canvas.toDataURL('image/png');
+  a.download = 'wa-link-qr.png';
+  a.click();
+  showToast('⬇ QR code downloaded!');
+});
+
+// ═══════════════════════════════════════════
+// EMOJI PICKER
+// ═══════════════════════════════════════════
+const emojiTrigger = $('emojiTriggerBtn');
+
+emojiTrigger.addEventListener('click', e => {
+  e.stopPropagation();
+  const vis = emojiPicker.style.display === 'block';
+  emojiPicker.style.display = vis ? 'none' : 'block';
+  if (!vis) positionEmojiPicker();
+});
+
+function positionEmojiPicker() {
+  const tr = emojiTrigger.getBoundingClientRect();
+  const pr = emojiPicker.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let top = tr.top - pr.height - 8;
+  if (top < 10) top = tr.bottom + 8;
+  let left = tr.left;
+  if (left + pr.width > vw) left = vw - pr.width - 12;
+  if (left < 8) left = 8;
+  emojiPicker.style.top = top + 'px';
+  emojiPicker.style.left = left + 'px';
+}
+
+document.addEventListener('click', e => {
+  if (!emojiPicker.contains(e.target) && e.target !== emojiTrigger) {
+    emojiPicker.style.display = 'none';
+  }
+});
+
+emojiPicker.addEventListener('emoji-click', ev => {
+  const emoji = ev.detail.unicode;
+  const s = msgArea.selectionStart, end = msgArea.selectionEnd;
+  msgArea.value = msgArea.value.slice(0, s) + emoji + msgArea.value.slice(end);
+  msgArea.selectionStart = msgArea.selectionEnd = s + emoji.length;
+  msgArea.focus();
+  updateStats();
+});
+
+// ═══════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════
+function addToHistory(number, msg, url) {
+  history_data.unshift({
+    number, msg, url,
+    time: new Date().toISOString(),
+    id: Date.now()
+  });
+  if (history_data.length > 50) history_data = history_data.slice(0, 50);
+  localStorage.setItem('wa-link-history', JSON.stringify(history_data));
+}
+
+function renderHistory() {
+  const list = $('historyList');
+  if (!history_data.length) {
+    list.innerHTML = '<div class="history-empty">No links generated yet. Create your first link!</div>';
+    return;
+  }
+  list.innerHTML = history_data.map(item => {
+    const date = new Date(item.time);
+    const timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const msgPreview = item.msg ? item.msg.slice(0, 60) + (item.msg.length > 60 ? '…' : '') : '(no message)';
+    return `<div class="history-item" data-id="${item.id}">
+      <div class="history-num">${item.number}</div>
+      <div class="history-msg">${escapeHtml(msgPreview)}</div>
+      <div class="history-time">${timeStr}</div>
+      <div class="history-actions">
+        <button class="btn-xs" onclick="copyHistoryItem(${item.id})">Copy</button>
+        <button class="btn-xs" onclick="openHistoryItem(${item.id})">Open</button>
+        <button class="btn-xs del" onclick="deleteHistoryItem(${item.id})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.copyHistoryItem = id => {
+  const item = history_data.find(h => h.id === id);
+  if (!item) return;
+  navigator.clipboard.writeText(item.url).then(() => showToast('📋 Link copied!'));
+};
+
+window.openHistoryItem = id => {
+  const item = history_data.find(h => h.id === id);
+  if (item) window.open(item.url, '_blank');
+};
+
+window.deleteHistoryItem = id => {
+  history_data = history_data.filter(h => h.id !== id);
+  localStorage.setItem('wa-link-history', JSON.stringify(history_data));
+  renderHistory();
+};
+
+$('clearHistory').addEventListener('click', () => {
+  if (!history_data.length) return;
+  history_data = [];
+  localStorage.setItem('wa-link-history', JSON.stringify([]));
+  renderHistory();
+  showToast('🗑 History cleared');
+});
+
+// ═══════════════════════════════════════════
+// BULK GENERATE
+// ═══════════════════════════════════════════
+$('bulkGenerate').addEventListener('click', () => {
+  const raw = $('bulkNumbers').value;
+  const msg = $('bulkMessage').value;
+  const encoded = encodeURIComponent(msg);
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+
+  if (!lines.length) { showToast('⚠️ Enter at least one number'); return; }
+
+  const results = $('bulkResults');
+  const useWame = $('useWame').checked;
+
+  results.innerHTML = lines.map(line => {
+    const clean = line.replace(/[\s\-\(\)\+]/g, '');
+    if (!/^\d{7,15}$/.test(clean)) {
+      return `<div class="bulk-row"><span class="bnum" style="color:var(--danger)">${escapeHtml(line)}</span><span class="blink" style="color:var(--danger)">Invalid number</span></div>`;
+    }
+    const url = useWame
+      ? `https://wa.me/${clean}${msg ? '?text=' + encoded : ''}`
+      : `https://api.whatsapp.com/send?phone=${clean}${msg ? '&text=' + encoded : ''}`;
+    return `<div class="bulk-row">
+      <span class="bnum">+${clean}</span>
+      <span class="blink" title="${url}">${url}</span>
+      <button class="bcopy" onclick="copyText('${url.replace(/'/g,"\\'")}')">Copy</button>
+    </div>`;
+  }).join('');
+
+  showToast(`✅ Generated ${lines.length} link(s)`);
+});
+
+$('bulkCopyAll').addEventListener('click', () => {
+  const raw = $('bulkNumbers').value;
+  const msg = $('bulkMessage').value;
+  const encoded = encodeURIComponent(msg);
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const useWame = $('useWame').checked;
+
+  const all = lines.filter(l => /^\d{7,15}$/.test(l.replace(/[\s\-\(\)\+]/g, ''))).map(line => {
+    const clean = line.replace(/[\s\-\(\)\+]/g, '');
+    return useWame
+      ? `https://wa.me/${clean}${msg ? '?text=' + encoded : ''}`
+      : `https://api.whatsapp.com/send?phone=${clean}${msg ? '&text=' + encoded : ''}`;
+  }).join('\n');
+
+  if (!all) { showToast('⚠️ No valid numbers to copy'); return; }
+  navigator.clipboard.writeText(all).then(() => showToast('📋 All links copied!'));
+});
+
+window.copyText = t => navigator.clipboard.writeText(t).then(() => showToast('📋 Copied!'));
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+$('statLinks').textContent = totalGenerated;
+updateStats();
+renderHistory();
+</script>
 </body>
 </html>

@@ -5,173 +5,713 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure Hash Generator</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0d0d0f;
+            --surface: #16161a;
+            --surface2: #1e1e24;
+            --border: #2a2a35;
+            --accent: #7c6fff;
+            --accent2: #ff6b9d;
+            --accent3: #00d4aa;
+            --text: #e8e8f0;
+            --muted: #6b6b80;
+            --success: #00d4aa;
+            --warn: #ffb347;
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Syne', sans-serif;
+        }
+
         body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
             min-height: 100vh;
-            padding: 20px;
-            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px 80px;
         }
 
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-            max-width: 550px;
+        /* Subtle grid bg */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(124,111,255,0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,111,255,0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrapper {
+            position: relative;
+            z-index: 1;
             width: 100%;
-            text-align: center;
+            max-width: 680px;
         }
 
-        h1 {
-            color: #1e3c72;
-            font-size: 2em;
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header .eyebrow {
+            font-family: var(--mono);
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            line-height: 1.1;
+            background: linear-gradient(135deg, var(--text) 30%, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-top: 10px;
+            font-weight: 400;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 24px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--surface2);
+            color: var(--text);
+            box-shadow: 0 0 0 1px var(--border);
+        }
+
+        .tab:hover:not(.active) { color: var(--text); }
+
+        /* Panels */
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* Card */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .card-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--muted);
             margin-bottom: 10px;
         }
 
-        p {
-            color: #666;
-            font-size: 1.1em;
-            margin-bottom: 30px;
-        }
-
-        input[type="text"] {
-            width: calc(100% - 24px);
-            padding: 15px 12px;
+        /* Algorithm selector */
+        .algo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 20px;
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1.1em;
-            transition: border-color 0.3s;
         }
 
-        input[type="text"]:focus {
-            border-color: #2a5298;
+        .algo-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface2);
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .algo-btn:hover { color: var(--text); border-color: var(--accent); }
+
+        .algo-btn.active {
+            background: rgba(124,111,255,0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Textarea */
+        .input-wrap { position: relative; }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            padding: 14px 16px;
+            resize: none;
+            transition: border-color 0.2s;
             outline: none;
         }
 
-        button {
-            background-color: #5cb85c;
-            color: white;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 8px;
+        textarea:focus, input[type="text"]:focus {
+            border-color: var(--accent);
+        }
+
+        textarea { min-height: 100px; }
+
+        .char-count {
+            position: absolute;
+            bottom: 10px;
+            right: 14px;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        /* Options row */
+        .options-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.3s;
-            width: 100%;
+            font-size: 0.82rem;
+            color: var(--muted);
+            user-select: none;
         }
 
-        button:hover {
-            background-color: #4cae4c;
+        .toggle-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+            cursor: pointer;
         }
 
-        #resultBox {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            display: none;
-            text-align: left;
-            word-wrap: break-word;
-        }
+        .toggle-label:hover { color: var(--text); }
 
-        #hashOutput {
-            font-size: 1em;
-            color: #d9534f;
-            font-weight: bold;
-            user-select: all;
-        }
-
-        .label {
+        /* Generate button */
+        .btn-generate {
             display: block;
-            margin-bottom: 10px;
-            color: #1e3c72;
-            font-weight: bold;
+            width: 100%;
+            padding: 15px;
+            margin-top: 16px;
+            border: none;
+            border-radius: 12px;
+            background: var(--accent);
+            color: #fff;
+            font-family: var(--sans);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-generate::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.1));
+            pointer-events: none;
+        }
+
+        .btn-generate:hover { background: #9b8fff; transform: translateY(-1px); }
+        .btn-generate:active { transform: translateY(0); }
+
+        /* Result */
+        .result-block {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .result-row {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .result-row .algo-tag {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 5px;
+            background: rgba(124,111,255,0.15);
+            color: var(--accent);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .result-row .hash-text {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--accent3);
+            word-break: break-all;
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            flex-shrink: 0;
+            padding: 6px 12px;
+            border-radius: 7px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+        .copy-btn.copied { color: var(--success); border-color: var(--success); }
+
+        /* Comparison panel */
+        .compare-result {
+            margin-top: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .compare-result.match {
+            background: rgba(0,212,170,0.1);
+            border: 1px solid rgba(0,212,170,0.3);
+            color: var(--success);
+        }
+
+        .compare-result.no-match {
+            background: rgba(255,107,157,0.1);
+            border: 1px solid rgba(255,107,157,0.3);
+            color: var(--accent2);
+        }
+
+        .compare-icon { font-size: 1.3rem; margin-right: 8px; }
+
+        /* Batch panel */
+        .batch-output {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .batch-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .batch-row:last-child { border-bottom: none; }
+
+        .batch-input-label {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--muted);
+            min-width: 120px;
+            max-width: 160px;
+            word-break: break-all;
+            flex-shrink: 0;
+        }
+
+        .batch-hash {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            color: var(--accent3);
+            word-break: break-all;
+            flex: 1;
+        }
+
+        /* Info section */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .info-tile {
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 16px;
+        }
+
+        .info-tile .it-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+        .info-tile .it-value { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; color: var(--accent); margin-top: 4px; }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: var(--mono);
+        }
+
+        @media (max-width: 500px) {
+            .header h1 { font-size: 1.9rem; }
+            .info-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-<!--cloudflare worker tracking only session IDs no user data-->
-<script>
-(function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
-  }
-
-  // --- Set these per page/tool ---
-  const type = 'tool';   // 'page' or 'tool'
-  const name = 'hash'; // unique page/tool name
-
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
-})();
-</script>
-<!--worker end-->
-
-
-<div class="container">
-    <h1>🔑 Secure SHA-256 Hash Generator</h1>
-    <p>
-        Enter the secret access code (the original password) below to generate the secure hash required for your paywall.
-    </p>
-
-    <input type="text" id="secretCode" placeholder="Enter the Secret Code (e.g., ClientAccess123)">
-    
-    <button onclick="generateHash()">Generate Hash</button>
-
-    <div id="resultBox">
-        <span class="label">Generated Hash (Copy this entire string):</span>
-        <code id="hashOutput"></code>
+<div class="wrapper">
+    <div class="header">
+        <div class="eyebrow">Cryptographic Toolkit</div>
+        <h1>Hash Generator</h1>
+        <p>Generate, compare, and batch-process secure cryptographic hashes</p>
     </div>
+
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('generate')">Generate</button>
+        <button class="tab" onclick="switchTab('compare')">Compare</button>
+        <button class="tab" onclick="switchTab('batch')">Batch</button>
+    </div>
+
+    <!-- GENERATE PANEL -->
+    <div class="panel active" id="panel-generate">
+        <div class="card">
+            <div class="card-label">Algorithm</div>
+            <div class="algo-grid" id="algoGrid">
+                <button class="algo-btn active" data-algo="SHA256" onclick="selectAlgo(this)">SHA-256</button>
+                <button class="algo-btn" data-algo="SHA512" onclick="selectAlgo(this)">SHA-512</button>
+                <button class="algo-btn" data-algo="SHA1" onclick="selectAlgo(this)">SHA-1</button>
+                <button class="algo-btn" data-algo="SHA3" onclick="selectAlgo(this)">SHA-3</button>
+                <button class="algo-btn" data-algo="MD5" onclick="selectAlgo(this)">MD5</button>
+                <button class="algo-btn" data-algo="RIPEMD160" onclick="selectAlgo(this)">RIPEMD-160</button>
+            </div>
+
+            <div class="card-label">Input</div>
+            <div class="input-wrap">
+                <textarea id="mainInput" placeholder="Enter text to hash..." oninput="updateCharCount()"></textarea>
+                <span class="char-count" id="charCount">0 chars</span>
+            </div>
+
+            <div class="options-row">
+                <label class="toggle-label">
+                    <input type="checkbox" id="optLower" checked> Lowercase output
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="optAllAlgos"> Show all algorithms
+                </label>
+                <label class="toggle-label">
+                    <input type="checkbox" id="optHmac"> HMAC mode
+                </label>
+            </div>
+
+            <div id="hmacKeyWrap" style="display:none; margin-top:12px;">
+                <div class="card-label">HMAC Secret Key</div>
+                <input type="text" id="hmacKey" placeholder="Enter secret key...">
+            </div>
+
+            <button class="btn-generate" onclick="generateHash()">Generate Hash →</button>
+        </div>
+
+        <div class="result-block" id="generateResult">
+            <div id="resultRows"></div>
+            <div id="infoGrid" class="info-grid"></div>
+        </div>
+    </div>
+
+    <!-- COMPARE PANEL -->
+    <div class="panel" id="panel-compare">
+        <div class="card">
+            <div class="card-label">Algorithm</div>
+            <div class="algo-grid" id="algoGridCmp">
+                <button class="algo-btn active" data-algo="SHA256" onclick="selectAlgoCmp(this)">SHA-256</button>
+                <button class="algo-btn" data-algo="SHA512" onclick="selectAlgoCmp(this)">SHA-512</button>
+                <button class="algo-btn" data-algo="SHA1" onclick="selectAlgoCmp(this)">SHA-1</button>
+                <button class="algo-btn" data-algo="SHA3" onclick="selectAlgoCmp(this)">SHA-3</button>
+                <button class="algo-btn" data-algo="MD5" onclick="selectAlgoCmp(this)">MD5</button>
+                <button class="algo-btn" data-algo="RIPEMD160" onclick="selectAlgoCmp(this)">RIPEMD-160</button>
+            </div>
+
+            <div class="card-label" style="margin-top:8px;">Original Text</div>
+            <div class="input-wrap">
+                <input type="text" id="cmpInput" placeholder="Enter the original text...">
+            </div>
+
+            <div class="card-label" style="margin-top:16px;">Hash to Verify</div>
+            <div class="input-wrap">
+                <input type="text" id="cmpHash" placeholder="Paste the hash to compare against..." style="font-family: var(--mono); font-size: 0.82rem;">
+            </div>
+
+            <button class="btn-generate" onclick="compareHash()" style="background: var(--accent2);">Compare →</button>
+
+            <div class="compare-result" id="compareResult"></div>
+        </div>
+    </div>
+
+    <!-- BATCH PANEL -->
+    <div class="panel" id="panel-batch">
+        <div class="card">
+            <div class="card-label">Algorithm</div>
+            <div class="algo-grid" id="algoGridBatch">
+                <button class="algo-btn active" data-algo="SHA256" onclick="selectAlgoBatch(this)">SHA-256</button>
+                <button class="algo-btn" data-algo="SHA512" onclick="selectAlgoCmp(this)">SHA-512</button>
+                <button class="algo-btn" data-algo="SHA1" onclick="selectAlgoBatch(this)">SHA-1</button>
+                <button class="algo-btn" data-algo="SHA3" onclick="selectAlgoBatch(this)">SHA-3</button>
+                <button class="algo-btn" data-algo="MD5" onclick="selectAlgoBatch(this)">MD5</button>
+            </div>
+
+            <div class="card-label" style="margin-top:8px;">Inputs — one per line</div>
+            <div class="input-wrap">
+                <textarea id="batchInput" placeholder="password1&#10;password2&#10;ClientAccess123&#10;..." style="min-height: 140px;"></textarea>
+            </div>
+
+            <button class="btn-generate" onclick="generateBatch()" style="background: var(--accent3); color: #0d0d0f;">Process Batch →</button>
+        </div>
+
+        <div class="batch-output card" id="batchOutput"></div>
+    </div>
+
+    <div class="footer">crypto-js 4.2.0 · client-side only · no data transmitted</div>
 </div>
 
 <script>
-    function generateHash() {
-        const secretCode = document.getElementById('secretCode').value.trim();
-        const resultBox = document.getElementById('resultBox');
-        const hashOutput = document.getElementById('hashOutput');
-        
-        if (secretCode === "") {
-            hashOutput.textContent = "Please enter the code first.";
-            resultBox.style.display = 'block';
-            resultBox.style.backgroundColor = '#fceaea';
-            return;
-        }
+    let selectedAlgo = 'SHA256';
+    let selectedAlgoCmp = 'SHA256';
+    let selectedAlgoBatch = 'SHA256';
 
-        try {
-            // Use CryptoJS instead of the restrictive native Web Crypto API
-            const hash = CryptoJS.SHA256(secretCode).toString(CryptoJS.enc.Hex);
+    const ALGOS = {
+        SHA256: (t, key) => key ? CryptoJS.HmacSHA256(t, key) : CryptoJS.SHA256(t),
+        SHA512: (t, key) => key ? CryptoJS.HmacSHA512(t, key) : CryptoJS.SHA512(t),
+        SHA1:   (t, key) => key ? CryptoJS.HmacSHA1(t, key)   : CryptoJS.SHA1(t),
+        SHA3:   (t, key) => CryptoJS.SHA3(t),
+        MD5:    (t, key) => key ? CryptoJS.HmacMD5(t, key)    : CryptoJS.MD5(t),
+        RIPEMD160: (t)   => CryptoJS.RIPEMD160(t),
+    };
 
-            hashOutput.textContent = hash;
-            resultBox.style.display = 'block';
-            resultBox.style.backgroundColor = '#f0f0f0';
+    const ALGO_LABELS = { SHA256:'SHA-256', SHA512:'SHA-512', SHA1:'SHA-1', SHA3:'SHA-3', MD5:'MD5', RIPEMD160:'RIPEMD-160' };
 
-        } catch (e) {
-            hashOutput.textContent = "Error: Hashing failed. Ensure the CDN script is loaded.";
-            resultBox.style.display = 'block';
-            resultBox.style.backgroundColor = '#fceaea';
-        }
+    function switchTab(name) {
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('panel-' + name).classList.add('active');
+        event.target.classList.add('active');
     }
-</script>
 
+    function selectAlgo(btn) {
+        document.querySelectorAll('#algoGrid .algo-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedAlgo = btn.dataset.algo;
+    }
+
+    function selectAlgoCmp(btn) {
+        btn.closest('.algo-grid').querySelectorAll('.algo-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedAlgoCmp = btn.dataset.algo;
+    }
+
+    function selectAlgoBatch(btn) {
+        document.querySelectorAll('#algoGridBatch .algo-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedAlgoBatch = btn.dataset.algo;
+    }
+
+    document.getElementById('optHmac').addEventListener('change', function() {
+        document.getElementById('hmacKeyWrap').style.display = this.checked ? 'block' : 'none';
+    });
+
+    function updateCharCount() {
+        const v = document.getElementById('mainInput').value;
+        document.getElementById('charCount').textContent = v.length + ' char' + (v.length !== 1 ? 's' : '');
+    }
+
+    function hashIt(text, algo, key) {
+        let result = ALGOS[algo](text, key || undefined);
+        let hex = result.toString(CryptoJS.enc.Hex);
+        return document.getElementById('optLower') && !document.getElementById('optLower').checked
+            ? hex.toUpperCase() : hex;
+    }
+
+    function makeResultRow(algoKey, hash) {
+        const row = document.createElement('div');
+        row.className = 'result-row';
+        row.innerHTML = `
+            <span class="algo-tag">${ALGO_LABELS[algoKey]}</span>
+            <span class="hash-text">${hash}</span>
+            <button class="copy-btn" onclick="copyHash(this, '${hash}')">copy</button>`;
+        return row;
+    }
+
+    function generateHash() {
+        const text = document.getElementById('mainInput').value.trim();
+        if (!text) { return; }
+
+        const hmacOn = document.getElementById('optHmac').checked;
+        const key = hmacOn ? document.getElementById('hmacKey').value : null;
+        const allAlgos = document.getElementById('optAllAlgos').checked;
+
+        const resultEl = document.getElementById('generateResult');
+        const rowsEl = document.getElementById('resultRows');
+        const infoEl = document.getElementById('infoGrid');
+        rowsEl.innerHTML = '';
+        infoEl.innerHTML = '';
+
+        const algosToRun = allAlgos ? Object.keys(ALGOS) : [selectedAlgo];
+
+        algosToRun.forEach(algo => {
+            const hash = hashIt(text, algo, key);
+            rowsEl.appendChild(makeResultRow(algo, hash));
+        });
+
+        const mainHash = hashIt(text, selectedAlgo, key);
+        const entropy = calcEntropy(text);
+
+        infoEl.innerHTML = `
+            <div class="info-tile"><div class="it-label">Hash length</div><div class="it-value">${mainHash.length} hex chars</div></div>
+            <div class="info-tile"><div class="it-label">Bits</div><div class="it-value">${mainHash.length * 4} bits</div></div>
+            <div class="info-tile"><div class="it-label">Input bytes</div><div class="it-value">${new TextEncoder().encode(text).length}</div></div>
+            <div class="info-tile"><div class="it-label">Entropy</div><div class="it-value">${entropy.toFixed(2)} bits/char</div></div>`;
+
+        resultEl.style.display = 'block';
+    }
+
+    function calcEntropy(str) {
+        const freq = {};
+        for (const c of str) freq[c] = (freq[c] || 0) + 1;
+        return Object.values(freq).reduce((acc, n) => {
+            const p = n / str.length;
+            return acc - p * Math.log2(p);
+        }, 0);
+    }
+
+    function copyHash(btn, hash) {
+        navigator.clipboard.writeText(hash).then(() => {
+            btn.textContent = 'copied!';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+        }).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = hash; document.body.appendChild(ta);
+            ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+            btn.textContent = 'copied!'; btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 1800);
+        });
+    }
+
+    function compareHash() {
+        const text = document.getElementById('cmpInput').value.trim();
+        const knownHash = document.getElementById('cmpHash').value.trim().toLowerCase();
+        const resultEl = document.getElementById('compareResult');
+        if (!text || !knownHash) return;
+
+        const computed = ALGOS[selectedAlgoCmp](text).toString(CryptoJS.enc.Hex).toLowerCase();
+        const match = computed === knownHash;
+
+        resultEl.className = 'compare-result ' + (match ? 'match' : 'no-match');
+        resultEl.innerHTML = match
+            ? `<span class="compare-icon">✓</span> Hashes match — the input is verified`
+            : `<span class="compare-icon">✗</span> No match<br><small style="opacity:0.7">Computed: ${computed}</small>`;
+        resultEl.style.display = 'block';
+    }
+
+    function generateBatch() {
+        const lines = document.getElementById('batchInput').value.split('\n').map(l => l.trim()).filter(Boolean);
+        if (!lines.length) return;
+
+        const out = document.getElementById('batchOutput');
+        out.innerHTML = `<div class="card-label" style="margin-bottom:8px;">${lines.length} result${lines.length !== 1 ? 's' : ''} · ${ALGO_LABELS[selectedAlgoBatch]}</div>`;
+
+        lines.forEach(line => {
+            const hash = ALGOS[selectedAlgoBatch](line).toString(CryptoJS.enc.Hex);
+            const row = document.createElement('div');
+            row.className = 'batch-row';
+            row.innerHTML = `
+                <div class="batch-input-label">${escHtml(line)}</div>
+                <div class="batch-hash">${hash}</div>
+                <button class="copy-btn" onclick="copyHash(this,'${hash}')">copy</button>`;
+            out.appendChild(row);
+        });
+
+        // Download CSV button
+        const csvBtn = document.createElement('button');
+        csvBtn.className = 'btn-generate';
+        csvBtn.style.marginTop = '16px';
+        csvBtn.style.background = 'var(--accent3)';
+        csvBtn.style.color = '#0d0d0f';
+        csvBtn.textContent = 'Download CSV';
+        csvBtn.onclick = () => downloadCSV(lines);
+        out.appendChild(csvBtn);
+
+        out.style.display = 'block';
+    }
+
+    function downloadCSV(lines) {
+        const rows = [['input', 'hash']];
+        lines.forEach(l => rows.push([l, ALGOS[selectedAlgoBatch](l).toString(CryptoJS.enc.Hex)]));
+        const csv = rows.map(r => r.map(c => `"${c.replace(/"/g,'""')}"`).join(',')).join('\n');
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+        a.download = 'hashes.csv';
+        a.click();
+    }
+
+    function escHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    // Enter key support
+    document.getElementById('mainInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.ctrlKey) generateHash();
+    });
+</script>
 </body>
 </html>

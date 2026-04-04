@@ -65,32 +65,6 @@
 </head>
 <body>
 
-<!--cloudflare worker tracking only session IDs no user data-->
-<script>
-(function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
-  }
-
-  // --- Set these per page/tool ---
-  const type = 'tool';   // 'page' or 'tool'
-  const name = 'coming-soon-1'; // unique page/tool name
-
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
-})();
-</script>
-<!--worker end-->
-
   <h1>🚧 Project Coming Soon</h1>
   <p>Something cool is under construction.<br>Check back soon to see what’s cookin’ 👀</p>
   <div class="loader"></div>

@@ -1,226 +1,1084 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>High-Res Circle Cropper</title>
-    <style>
-        :root { --primary: #8b5cf6; --bg: #0f172a; --card-bg: #1e293b; --text: #f8fafc; --accent: #10b981; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow: hidden; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 24px; width: 95vw; max-width: 450px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        
-        #stage { 
-            position: relative; width: 100%; aspect-ratio: 1/1; background: #000; 
-            border-radius: 12px; overflow: hidden; display: none; cursor: move; touch-action: none;
-        }
-        #preview-img { position: absolute; transform-origin: center; pointer-events: none; visibility: hidden; }
-        
-        .mask { position: absolute; inset: 0; background: rgba(0,0,0,0.7); pointer-events: none; -webkit-mask: radial-gradient(circle 140px, transparent 99%, #000 100%); mask: radial-gradient(circle 140px, transparent 99%, #000 100%); z-index: 10; }
-        .border { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 280px; height: 280px; border: 2px solid var(--primary); border-radius: 50%; pointer-events: none; z-index: 11; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Circlr — Circle Crop Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,500;0,700;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        #upload-area { border: 2px dashed #475569; padding: 60px 20px; border-radius: 20px; cursor: pointer; }
-        .controls { display: none; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .slider-box { display: flex; align-items: center; gap: 12px; background: #0f172a; padding: 12px; border-radius: 12px; }
-        input[type="range"] { flex: 1; accent-color: var(--primary); }
-        
-        button { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        
-        #modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { background: #1e293b; padding: 25px; border-radius: 24px; width: 85%; max-width: 350px; }
-        .row { display: flex; justify-content: space-between; align-items: center; background: #334155; padding: 12px; margin: 8px 0; border-radius: 10px; }
-        input[type="text"] { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; color: white; border-radius: 10px; margin-bottom: 15px; box-sizing: border-box; }
-    </style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #1a1a24;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.15);
+      --text: #f0f0f8;
+      --muted: #6b6b80;
+      --accent: #c8ff40;
+      --accent-dim: rgba(200,255,64,0.12);
+      --accent2: #7c6aff;
+      --danger: #ff4f4f;
+      --radius: 20px;
+      --radius-sm: 12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* Subtle ambient glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,106,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── HEADER ── */
+    header {
+      width: 100%;
+      max-width: 900px;
+      padding: 28px 24px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    .badge {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 100px;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .app {
+      width: 100%;
+      max-width: 900px;
+      padding: 24px 16px 48px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 720px) {
+      .app { grid-template-columns: 1fr; }
+    }
+
+    /* ── CANVAS PANEL ── */
+    .canvas-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Upload drop zone */
+    #drop-zone {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+      z-index: 5;
+    }
+    #drop-zone:hover, #drop-zone.drag-over {
+      background: rgba(200,255,64,0.03);
+    }
+    .upload-icon {
+      width: 64px; height: 64px;
+      border: 1.5px solid var(--border-bright);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      background: var(--surface2);
+      transition: all 0.2s;
+    }
+    #drop-zone:hover .upload-icon, #drop-zone.drag-over .upload-icon {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .upload-title { font-size: 17px; font-weight: 500; }
+    .upload-sub { font-size: 13px; color: var(--muted); }
+
+    /* Stage / Cropper */
+    #stage {
+      position: absolute;
+      inset: 0;
+      cursor: grab;
+      touch-action: none;
+      display: none;
+      overflow: hidden;
+    }
+    #stage.grabbing { cursor: grabbing; }
+
+    #preview-img {
+      position: absolute;
+      transform-origin: center;
+      pointer-events: none;
+      visibility: hidden;
+      max-width: none;
+    }
+
+    .crop-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Rule of thirds grid (toggleable) */
+    .grid-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 12;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .grid-lines.visible { opacity: 1; }
+
+    /* ── SIDE PANEL ── */
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .panel-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* Slider rows */
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .slider-row:last-child { margin-bottom: 0; }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .slider-label span:last-child {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--surface2);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,255,64,0.2);
+      cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 6px rgba(200,255,64,0.25);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Toggle switches */
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .toggle-row:last-child { margin-bottom: 0; }
+    .toggle-label { font-size: 13px; }
+    .toggle {
+      width: 38px; height: 22px;
+      background: var(--surface2);
+      border: 1px solid var(--border-bright);
+      border-radius: 100px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle.on { background: var(--accent); border-color: var(--accent); }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: white;
+      top: 2px; left: 2px;
+      transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(16px); }
+
+    /* Action buttons */
+    .btn {
+      width: 100%;
+      padding: 13px 18px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.2px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #0a0a0f;
+    }
+    .btn-primary:hover { background: #d8ff60; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    .btn-ghost:hover { border-color: var(--border-bright); color: var(--text); }
+
+    /* Rotate buttons */
+    .rotate-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .btn-icon {
+      padding: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-icon:hover { border-color: var(--border-bright); background: #22222f; }
+
+    /* Filter color buttons */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+    .filter-btn {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      font-size: 9px;
+      font-family: 'DM Mono', monospace;
+      color: white;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      font-weight: 600;
+      transition: all 0.15s;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+      letter-spacing: 0.3px;
+    }
+    .filter-btn:hover { transform: scale(1.05); }
+    .filter-btn.active { border-color: var(--accent); }
+
+    /* ── EXPORT MODAL ── */
+    #modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      padding: 16px;
+    }
+    #modal.open { display: flex; }
+
+    .modal-card {
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 420px;
+      padding: 28px;
+      animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes modalIn {
+      from { transform: scale(0.9) translateY(20px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; }
+    .modal-close {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      transition: all 0.15s;
+    }
+    .modal-close:hover { color: var(--text); border-color: var(--border-bright); }
+
+    .filename-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .filename-input {
+      flex: 1;
+      padding: 11px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .filename-input:focus { border-color: var(--accent); }
+
+    /* Preview in modal */
+    #modal-preview-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    #modal-preview {
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--border-bright);
+    }
+
+    .format-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .format-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      transition: border-color 0.15s;
+    }
+    .format-row:hover { border-color: var(--border-bright); }
+    .format-info { display: flex; flex-direction: column; gap: 2px; }
+    .format-name { font-weight: 700; font-size: 14px; }
+    .format-meta { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+    .btn-save {
+      padding: 7px 14px;
+      background: var(--accent-dim);
+      border: 1px solid rgba(200,255,64,0.3);
+      border-radius: 8px;
+      color: var(--accent);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-save:hover { background: var(--accent); color: #0a0a0f; }
+
+    .modal-footer { display: flex; gap: 10px; }
+    .modal-footer .btn { flex: 1; }
+
+    /* Size selector pills */
+    .size-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .size-pill {
+      padding: 6px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--muted);
+    }
+    .size-pill:hover { border-color: var(--border-bright); color: var(--text); }
+    .size-pill.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    /* Hidden canvas */
+    #out-canvas { display: none; }
+
+    /* Loading state for stage */
+    #stage-loading {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      z-index: 20;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Flip/mirror badge */
+    #info-bar {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      background: rgba(10,10,15,0.7);
+      padding: 4px 10px;
+      border-radius: 100px;
+      pointer-events: none;
+      z-index: 15;
+      white-space: nowrap;
+      display: none;
+    }
+
+    /* Pinch zoom hint on mobile */
+    @media (pointer: coarse) {
+      .upload-sub::after { content: ' · Pinch to zoom'; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="card">
-        <div id="upload-area" onclick="document.getElementById('file-input').click()">
-            <h2>Upload Image</h2>
-            <p>Tap to choose photo</p>
-        </div>
-        <input type="file" id="file-input" hidden accept="image/*">
+  <header>
+    <div class="logo">Circ<span>lr</span></div>
+    <div class="badge">CIRCLE CROP STUDIO</div>
+  </header>
 
-        <div id="stage">
-            <img id="preview-img">
-            <div class="mask"></div>
-            <div class="border"></div>
-        </div>
+  <div class="app" id="app-grid">
+    <!-- ── CANVAS PANEL ── -->
+    <div class="canvas-panel" id="canvas-panel">
+      <!-- Upload -->
+      <div id="drop-zone" onclick="triggerUpload()">
+        <div class="upload-icon">⊕</div>
+        <div class="upload-title">Drop image here</div>
+        <div class="upload-sub">or tap to browse · PNG, JPG, WEBP</div>
+      </div>
 
-        <div class="controls" id="ui-controls">
-            <div class="slider-box">
-                <span style="font-size: 12px;">Zoom</span>
-                <input type="range" id="zoom" min="0.01" max="5" step="0.001" value="1">
-            </div>
-            <button onclick="showModal()">Make & Download</button>
-            <button onclick="resetTool()" style="background:transparent; color:#94a3b8; font-size: 13px;">Clear & Change</button>
-        </div>
+      <!-- Stage -->
+      <div id="stage">
+        <img id="preview-img" alt="">
+        <!-- Overlay drawn by canvas for accuracy -->
+        <canvas id="overlay-canvas" class="crop-overlay"></canvas>
+        <!-- Grid lines SVG -->
+        <svg class="grid-lines" id="grid-svg" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- thirds -->
+          <line x1="33.3" y1="0" x2="33.3" y2="100" stroke="rgba(255,255,255,0.25)" stroke-width="0.3"/>
+          <line x1="66.6" y1="0" x2="66.6" y2="100" stroke="rgba(255,255,255,0.25)" stroke-width="0.3"/>
+          <line x1="0" y1="33.3" x2="100" y2="33.3" stroke="rgba(255,255,255,0.25)" stroke-width="0.3"/>
+          <line x1="0" y1="66.6" x2="100" y2="66.6" stroke="rgba(255,255,255,0.25)" stroke-width="0.3"/>
+        </svg>
+        <div id="info-bar"></div>
+      </div>
+
+      <div id="stage-loading">
+        <div class="spinner"></div>
+      </div>
     </div>
 
-    <div id="modal">
-        <div class="modal-content">
-            <h3 style="margin:0 0 15px 0">Download Results</h3>
-            <input type="text" id="filename" value="my-circle-image">
-            <div id="options"></div>
-            <button onclick="downloadAll()" style="width:100%; margin-top:10px;">Download All</button>
-            <button onclick="closeModal()" style="background:transparent; width:100%; margin-top:10px; color:#94a3b8;">Cancel</button>
+    <!-- ── SIDE PANEL ── -->
+    <div class="side-panel" id="side-panel">
+
+      <!-- Transform -->
+      <div class="panel-block">
+        <div class="panel-title">Transform</div>
+
+        <div class="slider-row">
+          <div class="slider-label"><span>Zoom</span><span id="zoom-val">1.00×</span></div>
+          <input type="range" id="zoom" min="0.01" max="10" step="0.001" value="1">
         </div>
+
+        <div class="slider-row">
+          <div class="slider-label"><span>Rotate</span><span id="rotate-val">0°</span></div>
+          <input type="range" id="rotate-slider" min="-180" max="180" step="0.5" value="0">
+        </div>
+
+        <div class="rotate-row">
+          <button class="btn-icon" onclick="nudgeRotate(-90)">↺ 90° L</button>
+          <button class="btn-icon" onclick="nudgeRotate(90)">↻ 90° R</button>
+        </div>
+
+        <div class="rotate-row">
+          <button class="btn-icon" onclick="flipH()">⇔ Flip H</button>
+          <button class="btn-icon" onclick="flipV()">⇕ Flip V</button>
+        </div>
+      </div>
+
+      <!-- Adjust -->
+      <div class="panel-block">
+        <div class="panel-title">Adjust</div>
+
+        <div class="slider-row">
+          <div class="slider-label"><span>Brightness</span><span id="bright-val">0</span></div>
+          <input type="range" id="brightness" min="-100" max="100" step="1" value="0">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Contrast</span><span id="contrast-val">0</span></div>
+          <input type="range" id="contrast" min="-100" max="100" step="1" value="0">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Saturation</span><span id="sat-val">0</span></div>
+          <input type="range" id="saturation" min="-100" max="100" step="1" value="0">
+        </div>
+        <div class="slider-row">
+          <div class="slider-label"><span>Blur</span><span id="blur-val">0px</span></div>
+          <input type="range" id="blur" min="0" max="20" step="0.5" value="0">
+        </div>
+      </div>
+
+      <!-- Options -->
+      <div class="panel-block">
+        <div class="panel-title">Options</div>
+        <div class="toggle-row">
+          <span class="toggle-label">Show grid (rule of thirds)</span>
+          <div class="toggle" id="grid-toggle" onclick="toggleGrid()"></div>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Transparent background (PNG)</span>
+          <div class="toggle on" id="transp-toggle" onclick="toggleTransp()"></div>
+        </div>
+      </div>
+
+      <!-- Export -->
+      <div class="panel-block">
+        <div class="panel-title">Export</div>
+        <button class="btn btn-primary" id="export-btn" onclick="showModal()">
+          Export Image →
+        </button>
+        <button class="btn btn-ghost" onclick="resetTool()">← Clear & Start Over</button>
+      </div>
+
     </div>
+  </div>
 
-    <canvas id="out-canvas" style="display:none;"></canvas>
+  <!-- EXPORT MODAL -->
+  <div id="modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title">Export</div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
 
-    <script>
-        const fileInput = document.getElementById('file-input');
-        const stage = document.getElementById('stage');
-        const img = document.getElementById('preview-img');
-        const zoom = document.getElementById('zoom');
-        const controls = document.getElementById('ui-controls');
-        
-        let x = 0, y = 0, scale = 1, isDragging = false, startX, startY;
+      <div id="modal-preview-wrap">
+        <img id="modal-preview" alt="Preview">
+      </div>
 
-        fileInput.onchange = (e) => {
-            const file = e.target.files[0];
-            if(!file) return;
-            const reader = new FileReader();
-            reader.onload = (re) => {
-                img.src = re.target.result;
-                img.onload = () => {
-                    document.getElementById('upload-area').style.display = 'none';
-                    stage.style.display = 'block';
-                    controls.style.display = 'flex';
-                    img.style.visibility = 'visible';
-                    
-                    x = stage.clientWidth / 2;
-                    y = stage.clientHeight / 2;
-                    
-                    // Autofit: make sure the shortest side fills the 280px circle
-                    const stageCircleSize = 280;
-                    const ratio = img.naturalWidth / img.naturalHeight;
-                    if (ratio > 1) { // Landscape
-                        scale = stageCircleSize / (stage.clientHeight * (img.naturalHeight / img.naturalWidth));
-                    } else { // Portrait
-                        scale = stageCircleSize / stage.clientWidth;
-                    }
-                    
-                    zoom.value = scale;
-                    render();
-                };
-            };
-            reader.readAsDataURL(file);
+      <div class="section-label">Output Size</div>
+      <div class="size-pills">
+        <div class="size-pill active" data-size="1000" onclick="selectSize(this)">1000px</div>
+        <div class="size-pill" data-size="1500" onclick="selectSize(this)">1500px</div>
+        <div class="size-pill" data-size="2000" onclick="selectSize(this)">2000px</div>
+        <div class="size-pill" data-size="3000" onclick="selectSize(this)">3000px</div>
+        <div class="size-pill" data-size="4000" onclick="selectSize(this)">4000px</div>
+      </div>
+
+      <div class="section-label" style="margin-bottom:10px;">Filename</div>
+      <div class="filename-row">
+        <input type="text" class="filename-input" id="filename" value="circle-crop" placeholder="filename">
+      </div>
+
+      <div class="section-label">Format</div>
+      <div class="format-list" id="format-list"></div>
+
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="downloadAll()">Download All</button>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="out-canvas"></canvas>
+  <input type="file" id="file-input" hidden accept="image/*">
+
+  <script>
+    // ── State ──
+    let imgLoaded = false;
+    let px = 0, py = 0; // image center position on stage
+    let scale = 1;
+    let rotation = 0;
+    let flipHoriz = false, flipVert = false;
+    let brightness = 0, contrast = 0, saturation = 0, blurVal = 0;
+    let showGrid = false;
+    let transpBg = true;
+    let exportSize = 1000;
+    let isDragging = false, lastX, lastY;
+    let lastDist = null; // pinch zoom
+
+    // ── DOM refs ──
+    const fileInput   = document.getElementById('file-input');
+    const dropZone    = document.getElementById('drop-zone');
+    const stage       = document.getElementById('stage');
+    const img         = document.getElementById('preview-img');
+    const overlayC    = document.getElementById('overlay-canvas');
+    const gridSvg     = document.getElementById('grid-svg');
+    const infoBar     = document.getElementById('info-bar');
+    const zoomSlider  = document.getElementById('zoom');
+    const rotSlider   = document.getElementById('rotate-slider');
+    const brightSlider= document.getElementById('brightness');
+    const contSlider  = document.getElementById('contrast');
+    const satSlider   = document.getElementById('saturation');
+    const blurSlider  = document.getElementById('blur');
+    const outCanvas   = document.getElementById('out-canvas');
+    const stageLoad   = document.getElementById('stage-loading');
+
+    // ── File input ──
+    function triggerUpload() { fileInput.click(); }
+
+    fileInput.onchange = (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadFile(file);
+    };
+
+    // Drag & drop
+    const canvasPanel = document.getElementById('canvas-panel');
+    canvasPanel.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    canvasPanel.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    canvasPanel.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) loadFile(file);
+    });
+
+    function loadFile(file) {
+      stageLoad.style.display = 'flex';
+      const reader = new FileReader();
+      reader.onload = re => {
+        img.src = re.target.result;
+        img.onload = () => {
+          dropZone.style.display = 'none';
+          stage.style.display = 'block';
+          img.style.visibility = 'visible';
+          stageLoad.style.display = 'none';
+          imgLoaded = true;
+
+          // Reset transforms
+          rotation = 0; flipHoriz = false; flipVert = false;
+          brightness = 0; contrast = 0; saturation = 0; blurVal = 0;
+          rotSlider.value = 0; brightSlider.value = 0;
+          contSlider.value = 0; satSlider.value = 0; blurSlider.value = 0;
+          updateLabels();
+
+          // Center & fit
+          const stageW = stage.clientWidth;
+          const stageH = stage.clientHeight;
+          px = stageW / 2;
+          py = stageH / 2;
+
+          // Fit so image covers the circle
+          const circleD = Math.min(stageW, stageH) * 0.8;
+          const shortSide = Math.min(img.naturalWidth, img.naturalHeight);
+          scale = circleD / shortSide;
+          zoomSlider.value = scale;
+          updateZoomLabel();
+          renderImage();
+          drawOverlay();
+          sizeOverlay();
         };
+      };
+      reader.readAsDataURL(file);
+    }
 
-        function resetTool() {
-            fileInput.value = ""; img.src = "";
-            stage.style.display = 'none'; controls.style.display = 'none';
-            document.getElementById('upload-area').style.display = 'block';
-        }
+    // ── Render ──
+    function renderImage() {
+      if (!imgLoaded) return;
+      img.style.left = px + 'px';
+      img.style.top  = py + 'px';
+      const scaleX = flipHoriz ? -scale : scale;
+      const scaleY = flipVert  ? -scale : scale;
+      img.style.transform = `translate(-50%, -50%) rotate(${rotation}deg) scale(${scaleX}, ${scaleY})`;
 
-        function render() {
-            img.style.left = `${x}px`;
-            img.style.top = `${y}px`;
-            img.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        }
+      const b = brightness, c = contrast, s = saturation, bl = blurVal;
+      img.style.filter = `brightness(${1 + b/100}) contrast(${1 + c/100}) saturate(${1 + s/100}) blur(${bl}px)`;
+    }
 
-        // Mouse Wheel Zoom
-        stage.onwheel = (e) => {
-            e.preventDefault();
-            scale *= (e.deltaY > 0 ? 0.95 : 1.05);
-            zoom.value = scale;
-            render();
-        };
+    function drawOverlay() {
+      if (!overlayC) return;
+      const w = overlayC.width, h = overlayC.height;
+      const ctx = overlayC.getContext('2d');
+      ctx.clearRect(0, 0, w, h);
 
-        zoom.oninput = () => { scale = parseFloat(zoom.value); render(); };
-        
-        // Panning
-        const dStart = (e) => {
-            isDragging = true;
-            const ev = e.touches ? e.touches[0] : e;
-            startX = ev.clientX - x; startY = ev.clientY - y;
-        };
-        const dMove = (e) => {
-            if(!isDragging) return;
-            const ev = e.touches ? e.touches[0] : e;
-            x = ev.clientX - startX; y = ev.clientY - startY;
-            render();
-        };
-        const dEnd = () => isDragging = false;
+      const cx = w / 2, cy = h / 2;
+      const r = Math.min(w, h) * 0.4;
 
-        stage.addEventListener('mousedown', dStart);
-        stage.addEventListener('touchstart', dStart);
-        window.addEventListener('mousemove', dMove);
-        window.addEventListener('touchmove', dMove);
-        window.addEventListener('mouseup', dEnd);
-        window.addEventListener('touchend', dEnd);
+      // Dark mask outside circle
+      ctx.fillStyle = 'rgba(10,10,15,0.72)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
 
-        // --- THE FIXED EXPORT ENGINE ---
-        const canvas = document.getElementById('out-canvas');
-        function getBlob(type) {
-            const exportSize = 2000; // Force High Quality
-            canvas.width = exportSize;
-            canvas.height = exportSize;
-            const ctx = canvas.getContext('2d');
-            
-            if(type === 'jpeg') { ctx.fillStyle = 'white'; ctx.fillRect(0,0,exportSize,exportSize); }
-            
-            // 1. Create the Circle Clip
-            ctx.beginPath();
-            ctx.arc(exportSize/2, exportSize/2, exportSize/2, 0, Math.PI*2);
-            ctx.clip();
+      // Circle border
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(200,255,64,0.7)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
 
-            // 2. Math for exact cropping
-            // We need to find how many natural pixels are inside the 280px screen circle
-            const circleRadiusOnScreen = 140; 
-            const naturalPixelsPerScreenPixel = img.naturalWidth / (img.width * scale);
-            
-            // The diameter of the crop in natural image pixels
-            const cropWidthInNaturalPixels = (circleRadiusOnScreen * 2) * (img.naturalWidth / (img.width * scale));
+    function sizeOverlay() {
+      overlayC.width  = stage.clientWidth;
+      overlayC.height = stage.clientHeight;
+      drawOverlay();
+    }
 
-            // Calculate where the center of the screen circle is relative to the image center
-            const dx = (stage.clientWidth / 2 - x) * (img.naturalWidth / (img.width * scale));
-            const dy = (stage.clientHeight / 2 - y) * (img.naturalHeight / (img.height * scale));
+    window.addEventListener('resize', () => {
+      if (imgLoaded) sizeOverlay();
+    });
 
-            // Source coordinates on the original image
-            const sx = (img.naturalWidth / 2) + dx - (cropWidthInNaturalPixels / 2);
-            const sy = (img.naturalHeight / 2) + dy - (cropWidthInNaturalPixels / 2);
+    // ── Sliders ──
+    zoomSlider.oninput = () => { scale = parseFloat(zoomSlider.value); updateZoomLabel(); renderImage(); };
+    rotSlider.oninput  = () => { rotation = parseFloat(rotSlider.value); document.getElementById('rotate-val').textContent = rotation.toFixed(1) + '°'; renderImage(); };
+    brightSlider.oninput = () => { brightness = parseFloat(brightSlider.value); document.getElementById('bright-val').textContent = brightness; renderImage(); };
+    contSlider.oninput   = () => { contrast = parseFloat(contSlider.value); document.getElementById('contrast-val').textContent = contrast; renderImage(); };
+    satSlider.oninput    = () => { saturation = parseFloat(satSlider.value); document.getElementById('sat-val').textContent = saturation; renderImage(); };
+    blurSlider.oninput   = () => { blurVal = parseFloat(blurSlider.value); document.getElementById('blur-val').textContent = blurVal + 'px'; renderImage(); };
 
-            ctx.drawImage(
-                img, 
-                sx, sy, cropWidthInNaturalPixels, cropWidthInNaturalPixels, // Source
-                0, 0, exportSize, exportSize // Destination
-            );
+    function updateZoomLabel() { document.getElementById('zoom-val').textContent = scale.toFixed(2) + '×'; }
+    function updateLabels() {
+      document.getElementById('zoom-val').textContent = scale.toFixed(2) + '×';
+      document.getElementById('rotate-val').textContent = '0°';
+      document.getElementById('bright-val').textContent = '0';
+      document.getElementById('contrast-val').textContent = '0';
+      document.getElementById('sat-val').textContent = '0';
+      document.getElementById('blur-val').textContent = '0px';
+    }
 
-            return canvas.toDataURL(type === 'jpeg' ? 'image/jpeg' : 'image/png');
-        }
+    function nudgeRotate(deg) {
+      rotation = ((rotation + deg + 180) % 360) - 180;
+      rotSlider.value = rotation;
+      document.getElementById('rotate-val').textContent = rotation.toFixed(1) + '°';
+      renderImage();
+    }
+    function flipH() { flipHoriz = !flipHoriz; renderImage(); flashInfo('Flipped horizontal'); }
+    function flipV() { flipVert = !flipVert; renderImage(); flashInfo('Flipped vertical'); }
 
-        function showModal() {
-            const container = document.getElementById('options');
-            container.innerHTML = '';
-            ['png', 'jpeg', 'ico'].forEach(t => {
-                const data = getBlob(t);
-                const kb = Math.round((data.length * 3/4) / 1024);
-                container.innerHTML += `
-                    <div class="row">
-                        <div style="text-align:left">
-                            <strong>${t === 'jpeg' ? 'JPG' : t.toUpperCase()}</strong>
-                            <div style="font-size:10px; color:#94a3b8">${kb} KB</div>
-                        </div>
-                        <button onclick="downloadOne('${t}')" style="padding:6px 12px; font-size:12px; background:var(--accent)">Save</button>
-                    </div>`;
-            });
-            document.getElementById('modal').style.display = 'flex';
-        }
+    function flashInfo(msg) {
+      infoBar.textContent = msg;
+      infoBar.style.display = 'block';
+      clearTimeout(infoBar._t);
+      infoBar._t = setTimeout(() => infoBar.style.display = 'none', 1500);
+    }
 
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
-        
-        function downloadOne(t) {
-            const a = document.createElement('a');
-            a.download = `${document.getElementById('filename').value || 'crop'}.${t === 'jpeg' ? 'jpg' : t}`;
-            a.href = getBlob(t);
-            a.click();
-        }
+    // ── Toggles ──
+    function toggleGrid() {
+      showGrid = !showGrid;
+      document.getElementById('grid-toggle').classList.toggle('on', showGrid);
+      gridSvg.classList.toggle('visible', showGrid);
+    }
+    function toggleTransp() {
+      transpBg = !transpBg;
+      document.getElementById('transp-toggle').classList.toggle('on', transpBg);
+    }
 
-        function downloadAll() {
-            ['png', 'jpeg', 'ico'].forEach((t, i) => setTimeout(() => downloadOne(t), i * 500));
-        }
-    </script>
+    // ── Panning (mouse + touch) ──
+    stage.addEventListener('mousedown', e => {
+      if (!imgLoaded) return;
+      isDragging = true;
+      stage.classList.add('grabbing');
+      lastX = e.clientX; lastY = e.clientY;
+    });
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      px += e.clientX - lastX;
+      py += e.clientY - lastY;
+      lastX = e.clientX; lastY = e.clientY;
+      renderImage();
+    });
+    window.addEventListener('mouseup', () => { isDragging = false; stage.classList.remove('grabbing'); });
+
+    // Touch
+    stage.addEventListener('touchstart', e => {
+      if (!imgLoaded) return;
+      if (e.touches.length === 1) {
+        isDragging = true;
+        lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+      }
+    }, { passive: true });
+
+    stage.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (e.touches.length === 1 && isDragging) {
+        px += e.touches[0].clientX - lastX;
+        py += e.touches[0].clientY - lastY;
+        lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+        renderImage();
+      } else if (e.touches.length === 2 && lastDist !== null) {
+        const newDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        scale *= newDist / lastDist;
+        scale = Math.min(Math.max(scale, 0.05), 20);
+        lastDist = newDist;
+        zoomSlider.value = scale;
+        updateZoomLabel();
+        renderImage();
+      }
+    }, { passive: false });
+
+    stage.addEventListener('touchend', () => { isDragging = false; lastDist = null; });
+
+    // Mouse wheel zoom
+    stage.addEventListener('wheel', e => {
+      e.preventDefault();
+      scale *= e.deltaY > 0 ? 0.95 : 1.05;
+      scale = Math.min(Math.max(scale, 0.05), 20);
+      zoomSlider.value = scale;
+      updateZoomLabel();
+      renderImage();
+    }, { passive: false });
+
+    // ── Reset ──
+    function resetTool() {
+      imgLoaded = false;
+      fileInput.value = '';
+      img.src = '';
+      img.style.visibility = 'hidden';
+      stage.style.display = 'none';
+      dropZone.style.display = 'flex';
+      const ctx = overlayC.getContext('2d');
+      ctx.clearRect(0, 0, overlayC.width, overlayC.height);
+    }
+
+    // ── Export Engine ──
+    function getExportBlob(type) {
+      const size = exportSize;
+      outCanvas.width  = size;
+      outCanvas.height = size;
+      const ctx = outCanvas.getContext('2d');
+
+      // Background
+      if (type === 'jpeg' || !transpBg) {
+        ctx.fillStyle = type === 'jpeg' ? 'white' : 'white';
+        ctx.fillRect(0, 0, size, size);
+      }
+
+      // Clip circle
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+      ctx.clip();
+
+      // Figure out mapping from screen to natural pixels
+      const stageW = stage.clientWidth;
+      const stageH = stage.clientHeight;
+      const circleR = Math.min(stageW, stageH) * 0.4;
+      const circleCX = stageW / 2, circleCY = stageH / 2;
+
+      // Crop diameter in natural pixels
+      const naturalPerScreen = img.naturalWidth / (img.width * scale);
+      const cropNatural = circleR * 2 * naturalPerScreen;
+
+      const dxScreen = circleCX - px;
+      const dyScreen = circleCY - py;
+      const dxNat = dxScreen * naturalPerScreen;
+      const dyNat = dyScreen * naturalPerScreen;
+
+      const sx = img.naturalWidth  / 2 + dxNat - cropNatural / 2;
+      const sy = img.naturalHeight / 2 + dyNat - cropNatural / 2;
+
+      // Apply filters via offscreen canvas
+      const offC = document.createElement('canvas');
+      offC.width = img.naturalWidth;
+      offC.height = img.naturalHeight;
+      const offCtx = offC.getContext('2d');
+
+      // For rotation / flip - draw transformed
+      offCtx.save();
+      offCtx.translate(img.naturalWidth / 2, img.naturalHeight / 2);
+      offCtx.rotate(rotation * Math.PI / 180);
+      offCtx.scale(flipHoriz ? -1 : 1, flipVert ? -1 : 1);
+      offCtx.filter = `brightness(${1 + brightness/100}) contrast(${1 + contrast/100}) saturate(${1 + saturation/100}) blur(${blurVal}px)`;
+      offCtx.drawImage(img, -img.naturalWidth/2, -img.naturalHeight/2);
+      offCtx.restore();
+
+      ctx.drawImage(offC, sx, sy, cropNatural, cropNatural, 0, 0, size, size);
+      ctx.restore();
+
+      return outCanvas.toDataURL(type === 'jpeg' ? 'image/jpeg' : 'image/png', 0.97);
+    }
+
+    // ── Modal ──
+    let modalData = {};
+
+    function selectSize(el) {
+      document.querySelectorAll('.size-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      exportSize = parseInt(el.dataset.size);
+      refreshModalFormats();
+    }
+
+    function showModal() {
+      if (!imgLoaded) return;
+      document.getElementById('modal').classList.add('open');
+      refreshModalFormats();
+      // Preview
+      const pngData = getExportBlob('png');
+      document.getElementById('modal-preview').src = pngData;
+    }
+
+    function refreshModalFormats() {
+      const container = document.getElementById('format-list');
+      container.innerHTML = '';
+      const formats = [
+        { type: 'png',  label: 'PNG',  note: 'Lossless · transparent bg' },
+        { type: 'jpeg', label: 'JPG',  note: 'Compressed · white bg' },
+        { type: 'ico',  label: 'ICO',  note: 'Favicon / icon format' },
+      ];
+      formats.forEach(f => {
+        const data = getExportBlob(f.type);
+        const kb = Math.round((data.length * 3/4) / 1024);
+        const row = document.createElement('div');
+        row.className = 'format-row';
+        row.innerHTML = `
+          <div class="format-info">
+            <div class="format-name">${f.label}</div>
+            <div class="format-meta">${exportSize}×${exportSize}px · ~${kb} KB · ${f.note}</div>
+          </div>
+          <button class="btn-save" onclick="downloadOne('${f.type}')">Save</button>
+        `;
+        container.appendChild(row);
+        modalData[f.type] = data;
+      });
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+    function downloadOne(type) {
+      const a = document.createElement('a');
+      const fname = document.getElementById('filename').value || 'circle-crop';
+      a.download = `${fname}.${type === 'jpeg' ? 'jpg' : type}`;
+      a.href = getExportBlob(type);
+      a.click();
+    }
+
+    function downloadAll() {
+      ['png', 'jpeg', 'ico'].forEach((t, i) => setTimeout(() => downloadOne(t), i * 600));
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    // Keyboard shortcuts
+    window.addEventListener('keydown', e => {
+      if (!imgLoaded) return;
+      if (e.key === 'ArrowLeft')  { px -= 5; renderImage(); }
+      if (e.key === 'ArrowRight') { px += 5; renderImage(); }
+      if (e.key === 'ArrowUp')    { py -= 5; renderImage(); }
+      if (e.key === 'ArrowDown')  { py += 5; renderImage(); }
+      if (e.key === '+') { scale *= 1.05; zoomSlider.value = scale; updateZoomLabel(); renderImage(); }
+      if (e.key === '-') { scale *= 0.95; zoomSlider.value = scale; updateZoomLabel(); renderImage(); }
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Initial overlay (empty)
+    sizeOverlay();
+  </script>
 </body>
 </html>

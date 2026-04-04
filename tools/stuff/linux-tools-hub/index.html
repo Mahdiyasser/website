@@ -1,76 +1,1381 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linux Tools Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/pbkdf2.min.js"></script>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="p-4 md:p-8">
-
-<!--cloudflare worker tracking only session IDs no user data-->
-<script>
-(function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Tools Hub</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/pbkdf2.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b0f;
+    --surface: #0d1218;
+    --surface2: #111820;
+    --border: #1e2a38;
+    --border2: #243040;
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --accent3: #ff6b35;
+    --text: #c8d8e8;
+    --text-dim: #5a7a9a;
+    --text-bright: #eef4ff;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
   }
 
-  // --- Set these per page/tool ---
-  const type = 'tool';   // 'page' or 'tool'
-  const name = 'linux-tools-hub'; // unique page/tool name
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
-})();
-</script>
-<!--worker end-->
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
+  /* Subtle grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-    <div class="max-w-6xl mx-auto">
-        <header class="mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-4xl font-extrabold text-[#2ea043] flex items-center">
-                <svg class="w-8 h-8 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 000 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                </svg>
-                Linux Tools Hub
-            </h1>
-            <p class="text-gray-400 mt-2">A tiny collection of common Linux utilities, right in your browser.</p>
-        </header>
+  .layout {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100vh;
+  }
 
-        <div class="flex flex-col lg:flex-row gap-8">
-            <nav class="w-full lg:w-64 bg-[#161b22] p-4 rounded-xl shadow-lg border border-gray-700 h-fit">
-                <h2 class="text-xl font-semibold mb-4 text-white">Tools</h2>
-                <div id="nav-container" class="space-y-2">
-                    </div>
-            </nav>
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
 
-            <main class="flex-1">
-                <div id="tool-content" class="terminal-box p-6 rounded-xl">
-                    <div class="text-center py-20 text-gray-500">Select a tool from the sidebar to begin.</div>
-                </div>
-            </main>
-        </div>
+  .sidebar-header {
+    padding: 28px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+    flex-shrink: 0;
+  }
+
+  .sidebar-subtitle {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .nav-section {
+    padding: 16px 12px;
+    flex: 1;
+  }
+
+  .nav-label {
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 0 8px;
+    margin-bottom: 8px;
+  }
+
+  .nav-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    margin-bottom: 2px;
+  }
+
+  .nav-btn:hover {
+    background: var(--surface2);
+    color: var(--text);
+  }
+
+  .nav-btn.active {
+    background: rgba(0, 212, 170, 0.08);
+    color: var(--accent);
+    border: 1px solid rgba(0, 212, 170, 0.2);
+  }
+
+  .nav-icon {
+    font-size: 0.85rem;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* ─── MAIN ─── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .topbar {
+    height: 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 16px;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .topbar-prompt {
+    color: var(--accent);
+    font-size: 0.75rem;
+  }
+
+  .topbar-path {
+    color: var(--text-dim);
+    font-size: 0.75rem;
+  }
+
+  .topbar-cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: var(--accent);
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .content-area {
+    flex: 1;
+    padding: 32px;
+    overflow-y: auto;
+  }
+
+  /* ─── TOOL PANELS ─── */
+  .tool-header {
+    margin-bottom: 28px;
+  }
+
+  .tool-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    color: var(--text-bright);
+    margin-bottom: 6px;
+  }
+
+  .tool-desc {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    letter-spacing: 0.3px;
+    line-height: 1.6;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--border) 60%);
+    margin-bottom: 28px;
+    opacity: 0.5;
+  }
+
+  /* ─── INPUTS ─── */
+  textarea, input[type="text"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    border-radius: 6px;
+    padding: 12px 14px;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.15s;
+    line-height: 1.6;
+  }
+
+  textarea:focus, input[type="text"]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,170,0.08);
+  }
+
+  ::placeholder { color: var(--text-dim); }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-primary:hover { background: #00f0c0; box-shadow: 0 0 20px rgba(0,212,170,0.3); }
+
+  .btn-secondary {
+    background: rgba(0,153,255,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(0,153,255,0.25);
+  }
+  .btn-secondary:hover { background: rgba(0,153,255,0.2); }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border2);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--border2); background: #1a2535; }
+
+  .btn-danger {
+    background: rgba(255, 107, 53, 0.1);
+    color: var(--accent3);
+    border: 1px solid rgba(255,107,53,0.25);
+  }
+  .btn-danger:hover { background: rgba(255,107,53,0.2); }
+
+  .btn-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  /* ─── TERMINAL OUTPUT ─── */
+  .terminal {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .terminal-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-dot-r { background: #ff5f57; }
+  .t-dot-y { background: #febc2e; }
+  .t-dot-g { background: #28c840; }
+
+  .terminal-label {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    margin-left: auto;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .terminal-body {
+    padding: 16px;
+    min-height: 80px;
+    position: relative;
+  }
+
+  .terminal-prompt {
+    color: var(--accent);
+    font-size: 0.7rem;
+    margin-bottom: 8px;
+  }
+
+  .terminal-output {
+    font-size: 0.75rem;
+    color: var(--text);
+    word-break: break-all;
+    white-space: pre-wrap;
+    line-height: 1.7;
+  }
+
+  .terminal-output.error { color: var(--red); }
+
+  /* ─── COPY BUTTON ─── */
+  .copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    color: var(--text-dim);
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 0.65rem;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    transition: all 0.15s;
+    opacity: 0;
+  }
+  .terminal:hover .copy-btn { opacity: 1; }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  .copy-btn.copied { color: var(--green); border-color: var(--green); opacity: 1; }
+
+  /* ─── TABLE ─── */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.73rem;
+  }
+  .data-table th {
+    color: var(--accent);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.65rem;
+  }
+  .data-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(30,42,56,0.5);
+    color: var(--text);
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .td-right { text-align: right; }
+  .usage-critical { color: var(--red); font-weight: 700; }
+  .usage-warn { color: var(--yellow); }
+  .usage-ok { color: var(--green); }
+
+  /* ─── QUIZ ─── */
+  .quiz-progress {
+    height: 3px;
+    background: var(--border2);
+    border-radius: 99px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+
+  .quiz-question {
+    font-size: 0.95rem;
+    color: var(--text-bright);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .quiz-option {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    padding: 12px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: left;
+    line-height: 1.4;
+  }
+  .quiz-option:hover { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.05); }
+  .quiz-option.correct { border-color: var(--green); color: var(--green); background: rgba(34,197,94,0.08); }
+  .quiz-option.wrong { border-color: var(--red); color: var(--red); background: rgba(239,68,68,0.08); }
+  .quiz-option:disabled { cursor: default; }
+
+  .quiz-meta {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .score-card {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+  }
+
+  .score-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .score-label { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 24px; }
+
+  .review-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 10px;
+    text-align: left;
+  }
+
+  .review-q { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 6px; }
+  .review-correct { font-size: 0.8rem; color: var(--green); }
+  .review-wrong { font-size: 0.8rem; color: var(--red); text-decoration: line-through; opacity: 0.7; }
+
+  /* ─── CODE BLOCK ─── */
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-size: 0.72rem;
+    color: var(--accent2);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .code-block code {
+    white-space: pre;
+    line-height: 1.7;
+    flex: 1;
+  }
+
+  /* ─── INFO SECTION ─── */
+  .info-card {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .info-card summary {
+    padding: 14px 18px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    color: var(--text);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .info-card summary:hover { color: var(--accent); }
+
+  .info-card-body {
+    padding: 0 18px 16px;
+    font-size: 0.73rem;
+    color: var(--text-dim);
+    line-height: 1.8;
+    border-top: 1px solid var(--border);
+  }
+
+  .info-card-body h4 {
+    color: var(--text);
+    font-size: 0.78rem;
+    margin: 14px 0 8px;
+  }
+
+  .info-list { padding-left: 16px; }
+  .info-list li { margin-bottom: 6px; }
+  .info-list strong { color: var(--accent2); }
+
+  /* ─── SYSTEM INFO ─── */
+  .sys-category {
+    margin-bottom: 20px;
+  }
+  .sys-cat-title {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border2);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+  .sys-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+    margin-bottom: 10px;
+  }
+  .sys-key {
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+  .sys-val {
+    font-size: 0.78rem;
+    color: var(--text-bright);
+    padding-left: 10px;
+    border-left: 2px solid var(--accent2);
+  }
+
+  /* ─── HASH SPINNER ─── */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spin { animation: spin 0.8s linear infinite; display: inline-block; }
+
+  /* ─── VERIFICATION CODE ─── */
+  .ver-code {
+    font-size: 0.65rem;
+    overflow-x: auto;
+    white-space: pre;
+    color: #7ec8e3;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 768px) {
+    .layout { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; border-right: none; border-bottom: 1px solid var(--border); }
+    .sidebar-header { border-bottom: none; padding: 14px 16px; }
+    .nav-section { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px; }
+    .nav-btn { width: auto; }
+    .content-area { padding: 20px; }
+    .quiz-options { grid-template-columns: 1fr; }
+  }
+
+  /* ─── LOADING PULSE ─── */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .loading-pulse { animation: pulse 1.5s ease infinite; }
+
+  /* ─── SCROLL ─── */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+  /* answer flash */
+  @keyframes flashIn { from{opacity:0.3} to{opacity:1} }
+  .flash { animation: flashIn 0.25s ease; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-text">
+        <div class="logo-dot"></div>
+        linux-tools
+      </div>
+      <div class="sidebar-subtitle">v2.0.0 — hub</div>
     </div>
+    <div class="nav-section">
+      <div class="nav-label">Tools</div>
+      <div id="nav-container"></div>
+    </div>
+  </aside>
 
+  <!-- ─── MAIN ─── -->
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-prompt">$</span>
+      <span class="topbar-path" id="topbar-path">~/select-a-tool</span>
+      <span class="topbar-cursor"></span>
+    </div>
+    <div class="content-area">
+      <div id="tool-content">
+        <div style="text-align:center;padding:80px 0;color:var(--text-dim);font-size:0.8rem;">
+          Select a tool from the sidebar
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <script src="tools/base64.js"></script>
-    <script src="tools/hash.js"></script>
-    <script src="tools/disk.js"></script>
-    <script src="tools/system.js"></script>
-    <script src="tools/quiz.js"></script>
-    <script src="tools/maquiz.js"></script>
-    <script src="script.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// CORE UTILS
+// ═══════════════════════════════════════════════
+
+function resetToolContent(title, desc) {
+  document.getElementById('tool-content').innerHTML = `
+    <div class="tool-header">
+      <h1 class="tool-title">${title}</h1>
+      <p class="tool-desc">${desc}</p>
+    </div>
+    <div class="divider"></div>
+  `;
+}
+
+function copyText(text, btnEl) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+  if (btnEl) {
+    const orig = btnEl.textContent;
+    btnEl.textContent = '✓ copied';
+    btnEl.classList.add('copied');
+    setTimeout(() => { btnEl.textContent = orig; btnEl.classList.remove('copied'); }, 1400);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+
+const TOOLS = {
+  'base64': { label: 'Base64 Encoder', icon: '⬡', fn: renderBase64Tool },
+  'hash':   { label: 'Hash Generator', icon: '⟳', fn: renderHashGenerator },
+  'disk':   { label: 'Disk Analyzer',  icon: '◈', fn: renderDiskTool },
+  'system': { label: 'System Info',    icon: '◎', fn: renderSystemInfoLoader },
+  'quiz':   { label: 'Linux Quiz',     icon: '◆', fn: renderFastquiz },
+  'realquiz':{ label: 'Live Quiz',     icon: '◇', fn: renderRealquiz },
+};
+
+function navigateTo(key) {
+  const tool = TOOLS[key];
+  if (!tool) return;
+  tool.fn();
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.key === key);
+  });
+  document.getElementById('topbar-path').textContent = `~/tools/${key}`;
+}
+
+function initNav() {
+  const nav = document.getElementById('nav-container');
+  Object.entries(TOOLS).forEach(([key, t]) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-btn';
+    btn.dataset.key = key;
+    btn.innerHTML = `<span class="nav-icon">${t.icon}</span>${t.label}`;
+    btn.onclick = () => navigateTo(key);
+    nav.appendChild(btn);
+  });
+  navigateTo('base64');
+}
+
+window.onload = initNav;
+
+// ═══════════════════════════════════════════════
+// BASE64 TOOL (9-Layer Obfuscation)
+// ═══════════════════════════════════════════════
+
+const ENCODING_SEQUENCE = ['CUSTOM_B64','ADD_PADDING','REVERSE_WORDS','HEX_SWAP','CHAR_OFFSET','CHAR_SUBTRACT','DIGIT_REPLACE','BASE_N_CONVERT','BASE64_VARIANT'];
+const PADDING_STRING = "XYZ_", PADDING_INTERVAL = 10, CHAR_SHIFT_OFFSET = 3, CHAR_SUB_KEY = 1;
+const DIGIT_MAP = {'0':'!','1':'@','2':'#','3':'$','4':'%','5':'^','6':'&','7':'*','8':'(','9':')'};
+const BASE64_VARIANT_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+
+function utf8ToCustomBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let r = ''; for (let i = 0; i < bytes.length; i++) r += String.fromCharCode(bytes[i]);
+  return btoa(r);
+}
+function customBase64ToUtf8(str) {
+  const b = atob(str), bytes = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) bytes[i] = b.charCodeAt(i);
+  return new TextDecoder("utf-8").decode(bytes);
+}
+function base64Variant(str) {
+  const s = utf8ToCustomBase64(str), sa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let r = ''; for(const c of s){const i=sa.indexOf(c); r+=(i>=0)?BASE64_VARIANT_ALPHABET[i]:c;} return r;
+}
+function unBase64Variant(str) {
+  const sa = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let r = ''; for(const c of str){const i=BASE64_VARIANT_ALPHABET.indexOf(c); r+=(i>=0)?sa[i]:c;} return customBase64ToUtf8(r);
+}
+function addPadding(str) { let r=''; for(let i=0;i<str.length;i+=PADDING_INTERVAL) r+=str.substring(i,i+PADDING_INTERVAL)+PADDING_STRING; return r; }
+function removePadding(str) { return str.replaceAll(PADDING_STRING,''); }
+function reverseWords(str) { return str.split(/\s+/).reverse().join(' '); }
+function hexSwap(str) {
+  let r='', p=(str.length%2!==0)?str+' ':str;
+  for(let i=0;i<p.length;i+=2) r+=p[i+1]+p[i];
+  return (str.length%2!==0)?r.substring(0,r.length-1):r;
+}
+function charOffset(str) { return str.split('').map(c=>String.fromCharCode(c.charCodeAt(0)+CHAR_SHIFT_OFFSET)).join(''); }
+function unCharOffset(str) { return str.split('').map(c=>String.fromCharCode(c.charCodeAt(0)-CHAR_SHIFT_OFFSET)).join(''); }
+function charSubtract(str) { return str.split('').map(c=>String.fromCharCode(c.charCodeAt(0)-CHAR_SUB_KEY)).join(''); }
+function unCharSubtract(str) { return str.split('').map(c=>String.fromCharCode(c.charCodeAt(0)+CHAR_SUB_KEY)).join(''); }
+function digitReplace(str) { let r=str; for(const[d,s] of Object.entries(DIGIT_MAP)) r=r.replace(new RegExp(d,'g'),s); return r; }
+function unDigitReplace(str) { let r=str; for(const[d,s] of Object.entries(DIGIT_MAP)) r=r.replace(new RegExp('\\'+s,'g'),d); return r; }
+function baseNConvert(str) { return str.replace(/(\d+)/g,m=>`[B16:${parseInt(m,10).toString(16).toUpperCase()}]`); }
+function unBaseNConvert(str) { return str.replace(/\[B16:([0-9A-F]+)\]/g,(_,h)=>parseInt(h,16).toString(10)); }
+
+const PROCESSORS = {
+  'CUSTOM_B64':{encode:utf8ToCustomBase64,decode:customBase64ToUtf8},
+  'ADD_PADDING':{encode:addPadding,decode:removePadding},
+  'REVERSE_WORDS':{encode:reverseWords,decode:reverseWords},
+  'HEX_SWAP':{encode:hexSwap,decode:hexSwap},
+  'CHAR_OFFSET':{encode:charOffset,decode:unCharOffset},
+  'CHAR_SUBTRACT':{encode:charSubtract,decode:unCharSubtract},
+  'DIGIT_REPLACE':{encode:digitReplace,decode:unDigitReplace},
+  'BASE_N_CONVERT':{encode:baseNConvert,decode:unBaseNConvert},
+  'BASE64_VARIANT':{encode:base64Variant,decode:unBase64Variant}
+};
+
+function processLayers(input, dir) {
+  let result = input, seq = dir==='decode'?[...ENCODING_SEQUENCE].reverse():ENCODING_SEQUENCE;
+  for(const step of seq) result = PROCESSORS[step][dir](result);
+  return result;
+}
+
+function renderBase64Tool() {
+  resetToolContent('Base64 Encoder / Decoder', '9-layer custom obfuscation — UTF-8 safe, multi-language text support.');
+  document.getElementById('tool-content').innerHTML += `
+    <textarea id="b64-in" rows="5" placeholder="Enter text to encode, or obfuscated string to decode…"></textarea>
+    <div class="btn-group" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="doBase64('encode')">⬆ Encode (9 layers)</button>
+      <button class="btn btn-secondary" onclick="doBase64('decode')">⬇ Decode (9 layers)</button>
+    </div>
+    <div class="terminal">
+      <div class="terminal-titlebar">
+        <span class="t-dot t-dot-r"></span>
+        <span class="t-dot t-dot-y"></span>
+        <span class="t-dot t-dot-g"></span>
+        <span class="terminal-label">output</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-prompt">$ result</div>
+        <pre id="b64-out" class="terminal-output" style="color:var(--text-dim)">Waiting for input…</pre>
+        <button class="copy-btn" id="b64-copy" onclick="copyText(document.getElementById('b64-out').textContent, this)">copy</button>
+      </div>
+    </div>
+    <div style="margin-top:14px;font-size:0.65rem;color:var(--text-dim)">
+      Layers: CUSTOM_B64 → ADD_PADDING → REVERSE_WORDS → HEX_SWAP → CHAR_OFFSET → CHAR_SUBTRACT → DIGIT_REPLACE → BASE_N_CONVERT → BASE64_VARIANT
+    </div>
+  `;
+}
+
+function doBase64(action) {
+  const input = document.getElementById('b64-in').value;
+  const out = document.getElementById('b64-out');
+  if (!input.trim()) { out.textContent = 'Error: input is empty.'; out.className='terminal-output error'; return; }
+  try {
+    const result = processLayers(input, action);
+    out.textContent = result;
+    out.className = 'terminal-output';
+  } catch(e) {
+    out.textContent = 'Error: ' + e.message;
+    out.className = 'terminal-output error';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// HASH GENERATOR (PBKDF2-SHA256)
+// ═══════════════════════════════════════════════
+
+const ITERATION_COUNT = 600000, KEY_LENGTH_WORDS = 8, SALT_LENGTH_BYTES = 16;
+
+function renderHashGenerator() {
+  resetToolContent('Secure Hash Generator', 'PBKDF2-SHA256 via CryptoJS — salted, 600k iterations, highly crack-resistant.');
+  document.getElementById('tool-content').innerHTML += `
+    <textarea id="hash-in" rows="3" placeholder="Enter password or secret text to hash…"></textarea>
+    <div style="font-size:0.65rem;color:var(--text-dim);margin:10px 0 16px;line-height:1.8">
+      <span style="color:var(--accent)">Algorithm:</span> PBKDF2-SHA256 &nbsp;|&nbsp;
+      <span style="color:var(--accent)">Iterations:</span> ${ITERATION_COUNT.toLocaleString()} &nbsp;|&nbsp;
+      <span style="color:var(--accent)">Salt:</span> Random 16-byte per hash
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-primary" id="hash-btn" onclick="doHash()">⟳ Generate Secure Hash</button>
+      <button class="btn btn-ghost" id="hash-spinner" disabled style="display:none">
+        <span class="spin">⟳</span> Computing…
+      </button>
+    </div>
+    <div class="terminal">
+      <div class="terminal-titlebar">
+        <span class="t-dot t-dot-r"></span><span class="t-dot t-dot-y"></span><span class="t-dot t-dot-g"></span>
+        <span class="terminal-label">hash output — format: [iterations]:[salt]:[key]</span>
+      </div>
+      <div class="terminal-body">
+        <div class="terminal-prompt">$ PBKDF2-SHA256</div>
+        <pre id="hash-out" class="terminal-output" style="color:var(--text-dim)">Waiting for input…</pre>
+        <button class="copy-btn" id="hash-copy" onclick="copyText(document.getElementById('hash-out').textContent, this)">copy</button>
+      </div>
+    </div>
+    <div id="ver-section" style="display:none;margin-top:24px">
+      <div style="font-size:0.8rem;color:var(--text);margin-bottom:8px;font-weight:700">Verification Code</div>
+      <div style="font-size:0.7rem;color:var(--text-dim);margin-bottom:12px">Drop this into your app to verify passwords against the generated hash.</div>
+      <div class="terminal">
+        <div class="terminal-titlebar">
+          <span class="t-dot t-dot-r"></span><span class="t-dot t-dot-y"></span><span class="t-dot t-dot-g"></span>
+          <span class="terminal-label">verify.js</span>
+        </div>
+        <div class="terminal-body">
+          <pre id="ver-code" class="ver-code"></pre>
+          <button class="copy-btn" id="ver-copy" onclick="copyText(document.getElementById('ver-code').textContent, this)">copy</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function doHash() {
+  const input = document.getElementById('hash-in').value;
+  if (!input.trim()) return;
+  document.getElementById('hash-btn').style.display = 'none';
+  document.getElementById('hash-spinner').style.display = '';
+  document.getElementById('hash-out').textContent = 'Computing… (this takes a few seconds)';
+  document.getElementById('hash-out').className = 'terminal-output loading-pulse';
+
+  setTimeout(() => {
+    try {
+      const saltHex = CryptoJS.lib.WordArray.random(SALT_LENGTH_BYTES).toString(CryptoJS.enc.Hex);
+      const saltWords = CryptoJS.enc.Hex.parse(saltHex);
+      const dk = CryptoJS.PBKDF2(input, saltWords, { keySize: KEY_LENGTH_WORDS, iterations: ITERATION_COUNT, hasher: CryptoJS.algo.SHA256 });
+      const finalHash = `${ITERATION_COUNT}:${saltHex}:${dk.toString(CryptoJS.enc.Hex)}`;
+      const out = document.getElementById('hash-out');
+      out.textContent = finalHash;
+      out.className = 'terminal-output';
+      showVerCode(finalHash);
+    } catch(e) {
+      const out = document.getElementById('hash-out');
+      out.textContent = 'Error: ' + e.message;
+      out.className = 'terminal-output error';
+    }
+    document.getElementById('hash-btn').style.display = '';
+    document.getElementById('hash-spinner').style.display = 'none';
+  }, 50);
+}
+
+function showVerCode(hash) {
+  const code = `// Requires CryptoJS loaded
+const STORED_HASH = "${hash}";
+
+function verifyPassword(inputPassword, storedHash) {
+  const [iter, saltHex, storedKey] = storedHash.split(':');
+  const salt = CryptoJS.enc.Hex.parse(saltHex);
+  const reKey = CryptoJS.PBKDF2(inputPassword, salt, {
+    keySize: 8,
+    iterations: parseInt(iter),
+    hasher: CryptoJS.algo.SHA256
+  });
+  return reKey.toString(CryptoJS.enc.Hex) === storedKey;
+}`;
+  document.getElementById('ver-code').textContent = code;
+  document.getElementById('ver-section').style.display = '';
+}
+
+// ═══════════════════════════════════════════════
+// DISK ANALYZER
+// ═══════════════════════════════════════════════
+
+function renderDiskTool() {
+  resetToolContent('Disk Space Analyzer', 'Paste `df -h` output — color-coded table with usage warnings.');
+  document.getElementById('tool-content').innerHTML += `
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:16px">Run this in your terminal:</div>
+    <div class="code-block">
+      <code>df -h</code>
+      <button class="btn btn-ghost" style="font-size:0.65rem;padding:5px 10px;flex-shrink:0" onclick="copyText('df -h', this)">copy</button>
+    </div>
+    <textarea id="df-in" rows="8" placeholder="Paste full df -h output here (including header row)…"></textarea>
+    <div class="btn-group" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="doDisk()">◈ Analyze Output</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('df-in').value='';document.getElementById('df-out').innerHTML='<span style=color:var(--text-dim)>Table cleared.</span>'">Clear</button>
+    </div>
+    <div class="terminal" style="margin-top:4px">
+      <div class="terminal-titlebar">
+        <span class="t-dot t-dot-r"></span><span class="t-dot t-dot-y"></span><span class="t-dot t-dot-g"></span>
+        <span class="terminal-label">disk usage table</span>
+      </div>
+      <div class="terminal-body" style="overflow-x:auto">
+        <div id="df-out" style="font-size:0.75rem;color:var(--text-dim)">Paste output above and click Analyze.</div>
+      </div>
+    </div>
+    <details class="info-card" style="margin-top:20px">
+      <summary>◈ Column & Filesystem Reference</summary>
+      <div class="info-card-body">
+        <h4>Columns</h4>
+        <ul class="info-list">
+          <li><strong>Filesystem</strong> — storage source identifier</li>
+          <li><strong>Size</strong> — total capacity</li>
+          <li><strong>Used</strong> — occupied space</li>
+          <li><strong>Avail</strong> — free space for new data</li>
+          <li><strong>Use%</strong> — utilization (<span style="color:var(--red)">red ≥90%</span>, <span style="color:var(--yellow)">yellow ≥75%</span>)</li>
+          <li><strong>Mounted on</strong> — directory path in the filesystem tree</li>
+        </ul>
+        <h4>Filesystem Types</h4>
+        <ul class="info-list">
+          <li><strong>/dev/sdaX</strong> — physical hard drive partition (main OS/data)</li>
+          <li><strong>tmpfs</strong> — RAM-based temp filesystem, lost on reboot</li>
+          <li><strong>/dev/mapper/...</strong> — LVM or encrypted volume</li>
+          <li><strong>/dev/loopX</strong> — loop device, often Snap packages</li>
+          <li><strong>/media/user/...</strong> — removable media (USB, external HDD)</li>
+        </ul>
+      </div>
+    </details>
+  `;
+}
+
+function doDisk() {
+  const raw = document.getElementById('df-in').value.trim();
+  const out = document.getElementById('df-out');
+  if (!raw) { out.innerHTML = '<span style="color:var(--text-dim)">No input provided.</span>'; return; }
+  const lines = raw.split('\n').filter(l => l.trim());
+  if (lines.length < 2) { out.innerHTML = '<span style="color:var(--yellow)">Not enough lines — paste the full df -h output.</span>'; return; }
+
+  const headers = ['Filesystem','Size','Used','Avail','Use%','Mounted on'];
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].trim().split(/\s+/);
+    if (vals.length < headers.length) continue;
+    const row = {};
+    headers.forEach((h, j) => row[h] = vals[j] || 'N/A');
+    rows.push(row);
+  }
+
+  if (!rows.length) { out.innerHTML = '<span style="color:var(--yellow)">No valid rows found.</span>'; return; }
+
+  const rightCols = new Set(['Size','Used','Avail','Use%']);
+  let html = '<table class="data-table"><thead><tr>';
+  headers.forEach(h => html += `<th class="${rightCols.has(h)?'td-right':''}">${h}</th>`);
+  html += '</tr></thead><tbody>';
+  rows.forEach(row => {
+    html += '<tr>';
+    headers.forEach(h => {
+      let cls = '';
+      let val = row[h];
+      if (h === 'Use%') {
+        const pct = parseInt(val);
+        cls = pct >= 90 ? 'usage-critical' : pct >= 75 ? 'usage-warn' : 'usage-ok';
+      }
+      html += `<td class="${rightCols.has(h)?'td-right':''} ${cls}">${val}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  out.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════
+// SYSTEM INFO LOADER
+// ═══════════════════════════════════════════════
+
+function renderSystemInfoLoader() {
+  resetToolContent('System Info Loader', 'Paste multi-command output — parsed and displayed as structured categories.');
+  const cmds = `uname -a\ncat /etc/os-release\nhostnamectl\nlscpu\nfree -h\nlshw -short`;
+  document.getElementById('tool-content').innerHTML += `
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:10px">Run all these commands and paste the combined output:</div>
+    <div class="code-block">
+      <code>${cmds}</code>
+      <button class="btn btn-ghost" style="font-size:0.65rem;padding:5px 10px;flex-shrink:0;align-self:flex-start" onclick="copyText('${cmds.replace(/\n/g,'\\n')}', this)">copy</button>
+    </div>
+    <textarea id="sys-in" rows="10" placeholder="Paste the combined output of all commands here…"></textarea>
+    <div class="btn-group" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="doSysInfo()">◎ Parse System Info</button>
+    </div>
+    <div id="sys-out" style="font-size:0.75rem;color:var(--text-dim);margin-top:8px">
+      Output will appear here.
+    </div>
+  `;
+}
+
+function doSysInfo() {
+  const raw = document.getElementById('sys-in').value;
+  if (!raw.trim()) return;
+  const info = parseSystemInfo(raw);
+  const out = document.getElementById('sys-out');
+  if (!Object.keys(info).length) {
+    out.innerHTML = '<span style="color:var(--yellow)">No recognizable system info found.</span>';
+    return;
+  }
+  const order = ['OS/HOST','CPU','MEMORY','HARDWARE','OTHER DETAILS'];
+  const cats = Object.keys(info).sort((a,b)=>{
+    const ia=order.indexOf(a), ib=order.indexOf(b);
+    if(ia>=0&&ib>=0) return ia-ib;
+    if(ia>=0) return -1; if(ib>=0) return 1;
+    return a.localeCompare(b);
+  });
+  let html = '';
+  cats.forEach(cat => {
+    const d = info[cat];
+    if (!Object.keys(d).length) return;
+    html += `<div class="sys-category"><div class="sys-cat-title">${cat.replace('/',' / ')}</div>`;
+    Object.keys(d).forEach(k => {
+      html += `<div class="sys-row"><div class="sys-key">${k}</div><div class="sys-val">${d[k]}</div></div>`;
+    });
+    html += '</div>';
+  });
+  out.innerHTML = `<div class="terminal"><div class="terminal-titlebar"><span class="t-dot t-dot-r"></span><span class="t-dot t-dot-y"></span><span class="t-dot t-dot-g"></span><span class="terminal-label">system info</span></div><div class="terminal-body">${html}</div></div>`;
+}
+
+function parseSystemInfo(rawText) {
+  const info = {};
+  const lines = rawText.trim().split('\n');
+  lines.forEach(line => {
+    let m = line.match(/^(\w+)=["']?([^"']+)["']?$/);
+    if (m) { info[m[1].trim().toUpperCase().replace(/_/g,' ')] = m[2].trim(); return; }
+    m = line.match(/^([^:\s]+):\s+(.*)$/);
+    if (m) { info[m[1].trim().toUpperCase().replace(/ /g,'_')] = m[2].trim(); return; }
+    m = line.match(/^(Distributor ID|Description|Release|Codename):\s+(.*)$/i);
+    if (m) { info[m[1].trim().toUpperCase().replace(/ /g,'_')] = m[2].trim(); }
+  });
+  const ul = lines.find(l => l.toLowerCase().includes('gnu/linux')||l.toLowerCase().includes('darwin'));
+  if (ul) {
+    const p = ul.split(/\s+/).filter(Boolean);
+    if (p.length >= 2) {
+      if (!info['SYSTEM_NAME']) info['SYSTEM_NAME'] = p[0];
+      if (!info['KERNEL_VERSION']) info['KERNEL_VERSION'] = p[2];
+      if (!info['ARCHITECTURE']) info['ARCHITECTURE'] = p[p.length-1];
+    }
+  }
+  const ml = lines.find(l => l.match(/^Mem:\s+/));
+  if (ml) { const p=ml.split(/\s+/).filter(Boolean); if(p.length>=4){info['MEMORY_TOTAL']=p[1];info['MEMORY_USED']=p[2];} }
+
+  const finalInfo = {};
+  const add = (cat, key, val) => {
+    if (!val||val==='N/A'||!val.trim()) return;
+    if (!finalInfo[cat]) finalInfo[cat] = {};
+    finalInfo[cat][key.replace(/[()]/g,'').replace(/_/g,' ')] = val;
+  };
+  const osName = info['NAME']||info['DISTRIBUTOR_ID']||info['OPERATING_SYSTEM_IS'];
+  const osVer = info['VERSION_ID']||info['RELEASE']||info['VERSION'];
+  let osStr = osName||'';
+  if (osVer && osVer!==osName) osStr += osStr?` (${osVer})`:osVer;
+  add('OS/HOST','OPERATING SYSTEM',osStr);
+  add('OS/HOST','HOSTNAME',info['HOSTNAME']||info['STATIC_HOSTNAME']);
+  add('OS/HOST','VIRTUALIZATION',info['VIRTUALIZATION']);
+  add('OS/HOST','KERNEL VERSION',info['KERNEL_VERSION']);
+  add('OS/HOST','ARCHITECTURE',info['ARCHITECTURE']);
+  add('CPU','CPU MODEL',info['MODEL_NAME']);
+  add('CPU','LOGICAL CORES',info['CPU(S)']);
+  add('CPU','PHYSICAL CORES',info['CORE(S)_PER_SOCKET']);
+  add('CPU','VENDOR ID',info['VENDOR_ID']);
+  add('MEMORY','TOTAL RAM',info['MEMORY_TOTAL']);
+  add('MEMORY','USED RAM',info['MEMORY_USED']);
+  const classified = new Set(Object.values(finalInfo).flatMap(o=>Object.keys(o).map(k=>k.toUpperCase().replace(/ /g,'_'))));
+  Object.keys(info).forEach(key => {
+    const kc = key.toUpperCase().replace(/ /g,'_'), val = info[key];
+    if (!classified.has(kc) && val && val.trim() && val!=='N/A') add('OTHER DETAILS', key, val);
+  });
+  return finalInfo;
+}
+
+// ═══════════════════════════════════════════════
+// LINUX QUIZ (Local questions)
+// ═══════════════════════════════════════════════
+
+const zotQuizLinux = [
+  { id:1,  question:"Who created the Linux kernel?", options:["Linus Torvalds","Richard Stallman","Ken Thompson","Dennis Ritchie"], answer:"Linus Torvalds" },
+  { id:2,  question:"What does GNU stand for?", options:["GNU's Not Unix","Great New Utility","General Network Unix","Global Node Unit"], answer:"GNU's Not Unix" },
+  { id:3,  question:"Which license is famous for open source?", options:["GPL","MIT","Apache","All of the above"], answer:"All of the above" },
+  { id:4,  question:"What is the package manager for Debian?", options:["apt","yum","pacman","dnf"], answer:"apt" },
+  { id:5,  question:"Which command shows the current directory?", options:["pwd","cd","ls","dir"], answer:"pwd" },
+  { id:6,  question:"Which Linux distro uses rolling releases?", options:["Arch Linux","Ubuntu","Debian","Fedora"], answer:"Arch Linux" },
+  { id:7,  question:"Who founded the Free Software Foundation?", options:["Richard Stallman","Linus Torvalds","Bill Gates","Steve Jobs"], answer:"Richard Stallman" },
+  { id:8,  question:"Which shell is default in most Linux distros?", options:["Bash","Zsh","Fish","Tcsh"], answer:"Bash" },
+  { id:9,  question:"Which command is used to change file permissions?", options:["chmod","chown","cp","mv"], answer:"chmod" },
+  { id:10, question:"What is the mascot of Linux?", options:["Tux","Duke","Beastie","Pingu"], answer:"Tux" },
+  { id:11, question:"Which command shows disk usage?", options:["df","du","ls","diskinfo"], answer:"df" },
+  { id:12, question:"Which distro is known for security testing?", options:["Kali Linux","Ubuntu","Debian","Manjaro"], answer:"Kali Linux" },
+  { id:13, question:"Which command moves files?", options:["mv","cp","rm","mkdir"], answer:"mv" },
+  { id:14, question:"Which command removes files?", options:["rm","delete","erase","clear"], answer:"rm" },
+  { id:15, question:"Which command shows manual pages?", options:["man","help","doc","guide"], answer:"man" },
+  { id:16, question:"What year was Linux first released?", options:["1991","1985","2000","1995"], answer:"1991" },
+  { id:17, question:"Which license is copyleft?", options:["GPL","MIT","Apache","BSD"], answer:"GPL" },
+  { id:18, question:"Which command searches text in files?", options:["grep","find","search","look"], answer:"grep" },
+  { id:19, question:"Which command compresses files?", options:["tar","zip","gzip","All of the above"], answer:"All of the above" },
+  { id:20, question:"Which command shows CPU architecture?", options:["uname -m","arch","cpuinfo","lscpu"], answer:"uname -m" },
+  { id:21, question:"Which desktop environment is default in Ubuntu?", options:["GNOME","KDE","XFCE","LXDE"], answer:"GNOME" },
+  { id:22, question:"Which command counts lines, words, and characters?", options:["wc","count","line","stat"], answer:"wc" },
+  { id:23, question:"Which command shows the last lines of a log in real time?", options:["tail -f","head -f","cat -f","view -f"], answer:"tail -f" },
+  { id:24, question:"Which command displays block devices?", options:["lsblk","blklist","df","fdisk"], answer:"lsblk" },
+  { id:25, question:"Which Linux founder also created Git?", options:["Linus Torvalds","Richard Stallman","Ken Thompson","Brian Kernighan"], answer:"Linus Torvalds" },
+];
+
+let zibIndex = 0, zibScore = 0, zibSet = [], zibAnswers = [];
+
+function shuffleArr(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+
+function renderFastquiz() {
+  document.getElementById('tool-content').innerHTML = `
+    <div id="quiz-wrapper"></div>
+  `;
+  zibResetLinux();
+}
+
+function zibResetLinux() {
+  zibSet = shuffleArr([...zotQuizLinux]).slice(0, 10);
+  zibIndex = 0; zibScore = 0; zibAnswers = [];
+  zibRenderQ();
+}
+
+function zibRenderQ() {
+  const q = zibSet[zibIndex];
+  const opts = shuffleArr([...q.options]);
+  const pct = (zibIndex / zibSet.length) * 100;
+  document.getElementById('quiz-wrapper').innerHTML = `
+    <div class="tool-header">
+      <h1 class="tool-title">Linux Quiz</h1>
+      <p class="tool-desc">Test your Linux, GNU, and Open Source knowledge.</p>
+    </div>
+    <div class="divider"></div>
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quiz-meta">Question ${zibIndex+1} / ${zibSet.length} &nbsp;·&nbsp; Score: ${zibScore}</div>
+    <div class="quiz-question flash">${q.question}</div>
+    <div class="quiz-options" id="q-opts">
+      ${opts.map(o=>`<button class="quiz-option" onclick="zibAnswer('${o.replace(/'/g,"\\'")}', this)">${o}</button>`).join('')}
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-ghost" onclick="zibSkip()">Skip</button>
+      <button class="btn btn-ghost" onclick="zibResetLinux()">Restart</button>
+    </div>
+  `;
+}
+
+function zibAnswer(ans, btn) {
+  const q = zibSet[zibIndex];
+  const correct = ans === q.answer;
+  if (correct) zibScore++;
+  zibAnswers.push({ question: q.question, correct: q.answer, chosen: ans });
+  // Show feedback on buttons briefly
+  document.querySelectorAll('.quiz-option').forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.answer) b.classList.add('correct');
+    else if (b === btn && !correct) b.classList.add('wrong');
+  });
+  setTimeout(() => { zibIndex++; if(zibIndex < zibSet.length) zibRenderQ(); else zibShowScore(); }, 600);
+}
+
+function zibSkip() {
+  const q = zibSet[zibIndex];
+  zibAnswers.push({ question: q.question, correct: q.answer, chosen: null });
+  zibIndex++;
+  if (zibIndex < zibSet.length) zibRenderQ(); else zibShowScore();
+}
+
+function zibShowScore() {
+  const pct = Math.round((zibScore / zibSet.length) * 100);
+  const rating = pct >= 80 ? '◆ Excellent!' : pct >= 60 ? '◇ Good job.' : '○ Keep studying.';
+  let review = zibAnswers.map((a, i) => {
+    const ok = a.chosen === a.correct;
+    const skipped = a.chosen === null;
+    return `<div class="review-item">
+      <div class="review-q">Q${i+1}. ${a.question}</div>
+      ${skipped ? `<div style="color:var(--text-dim);font-size:0.75rem">— skipped</div><div class="review-correct">✓ ${a.correct}</div>` :
+       ok ? `<div class="review-correct">✓ ${a.correct}</div>` :
+       `<div class="review-wrong">✗ ${a.chosen}</div><div class="review-correct">✓ ${a.correct}</div>`}
+    </div>`;
+  }).join('');
+
+  document.getElementById('quiz-wrapper').innerHTML = `
+    <div class="tool-header">
+      <h1 class="tool-title">Results</h1>
+    </div>
+    <div class="divider"></div>
+    <div class="score-card" style="margin-bottom:24px">
+      <div class="score-big">${zibScore}<span style="font-size:1.5rem;color:var(--text-dim)">/${zibSet.length}</span></div>
+      <div class="score-label">${rating}</div>
+      <div style="font-size:0.7rem;color:var(--text-dim)">${pct}% correct</div>
+      <div class="btn-group" style="justify-content:center;margin-top:20px">
+        <button class="btn btn-primary" onclick="zibResetLinux()">New Quiz</button>
+        <button class="btn btn-ghost" onclick="zibIndex=0;zibScore=0;zibAnswers=[];zibRenderQ()">Retry Same</button>
+      </div>
+    </div>
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase">Review</div>
+    ${review}
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// REAL QUIZ (quizapi.io Live)
+// ═══════════════════════════════════════════════
+
+const API_KEY = "qa_sk_bf01c1e6268290bdfb33475432b0f2c8a8cc7148";
+let rrqIndex = 0, rrqScore = 0, rrqQuestions = [], rrqAnswers = [];
+
+function renderRealquiz() {
+  document.getElementById('tool-content').innerHTML = `
+    <div class="tool-header">
+      <h1 class="tool-title">Live Quiz</h1>
+      <p class="tool-desc">Real Linux questions fetched live from quizapi.io.</p>
+    </div>
+    <div class="divider"></div>
+    <div id="rq-wrapper" style="text-align:center;padding:40px 0;color:var(--text-dim)" class="loading-pulse">Fetching questions…</div>
+  `;
+  rrqFetch();
+}
+
+async function rrqFetch() {
+  try {
+    const offset = Math.floor(Math.random() * 160) * 1; // randomise page
+    const res = await fetch(`https://quizapi.io/api/v1/questions?api_key=${API_KEY}&topic=Linux&limit=10&offset=${offset}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    // Support both API shapes:
+    // Shape A (legacy): array of questions directly
+    // Shape B (new):    { data: [...questions] }
+    const raw = Array.isArray(json) ? json : (json.data || []);
+    // Normalise each question to { text, options:[{id,text,isCorrect}] }
+    rrqQuestions = raw.map(q => {
+      // Shape B already has answers as array with isCorrect
+      if (Array.isArray(q.answers)) {
+        return {
+          text: q.text || q.question,
+          explanation: q.explanation || null,
+          options: q.answers.map(a => ({ id: a.id, text: a.text, isCorrect: !!a.isCorrect }))
+        };
+      }
+      // Shape A: answers object + correct_answers object
+      const opts = Object.entries(q.answers)
+        .filter(([,v]) => v)
+        .map(([k,v]) => ({
+          id: k,
+          text: v,
+          isCorrect: q.correct_answers[k + '_correct'] === 'true'
+        }));
+      return {
+        text: q.question,
+        explanation: q.explanation || null,
+        options: opts
+      };
+    }).filter(q => q.options.length > 0);
+
+    if (!rrqQuestions.length) throw new Error('No questions returned');
+    rrqIndex = 0; rrqScore = 0; rrqAnswers = [];
+    rrqRenderQ();
+  } catch(e) {
+    document.getElementById('rq-wrapper').innerHTML = `<span style="color:var(--red)">Failed to load questions: ${e.message}</span><br><button class="btn btn-ghost" style="margin-top:16px" onclick="rrqFetch()">Retry</button>`;
+  }
+}
+
+function rrqRenderQ() {
+  const q = rrqQuestions[rrqIndex];
+  if (!q) { rrqShowScore(); return; }
+  document.getElementById('rq-wrapper').classList.remove('loading-pulse');
+  const shuffled = shuffleArr([...q.options]);
+  const pct = (rrqIndex / rrqQuestions.length) * 100;
+  document.getElementById('rq-wrapper').innerHTML = `
+    <div class="quiz-progress"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quiz-meta">Question ${rrqIndex+1} / ${rrqQuestions.length} &nbsp;·&nbsp; Score: ${rrqScore}</div>
+    <div class="quiz-question">${q.text}</div>
+    <div class="quiz-options" id="rq-opts">
+      ${shuffled.map(o=>`<button class="quiz-option" onclick="rrqAnswer(this)" data-correct="${o.isCorrect}">${o.text}</button>`).join('')}
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-ghost" onclick="rrqSkip()">Skip</button>
+      <button class="btn btn-ghost" onclick="rrqFetch()">New Quiz</button>
+    </div>
+  `;
+}
+
+function rrqAnswer(btn) {
+  const q = rrqQuestions[rrqIndex];
+  const correct = btn.dataset.correct === 'true';
+  if (correct) rrqScore++;
+  if (!rrqAnswers) rrqAnswers = [];
+  rrqAnswers.push({ question: q.text, chosen: btn.textContent, isCorrect: correct,
+    correctText: q.options.find(o=>o.isCorrect)?.text || '?',
+    explanation: q.explanation });
+
+  document.querySelectorAll('.quiz-option').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.correct === 'true') b.classList.add('correct');
+    else if (b === btn && !correct) b.classList.add('wrong');
+  });
+  setTimeout(() => { rrqIndex++; rrqRenderQ(); }, 700);
+}
+
+function rrqSkip() {
+  const q = rrqQuestions[rrqIndex];
+  if (!rrqAnswers) rrqAnswers = [];
+  rrqAnswers.push({ question: q.text, chosen: null, isCorrect: false,
+    correctText: q.options.find(o=>o.isCorrect)?.text || '?', explanation: q.explanation });
+  rrqIndex++; rrqRenderQ();
+}
+
+function rrqShowScore() {
+  const pct = Math.round((rrqScore / rrqQuestions.length) * 100);
+  const rating = pct >= 80 ? '◆ Excellent!' : pct >= 60 ? '◇ Good job.' : '○ Keep practicing.';
+  const review = (rrqAnswers || []).map((a, i) => {
+    const skipped = a.chosen === null;
+    return `<div class="review-item">
+      <div class="review-q">Q${i+1}. ${a.question}</div>
+      ${skipped
+        ? `<div style="color:var(--text-dim);font-size:0.75rem">— skipped</div><div class="review-correct">✓ ${a.correctText}</div>`
+        : a.isCorrect
+          ? `<div class="review-correct">✓ ${a.chosen}</div>`
+          : `<div class="review-wrong">✗ ${a.chosen}</div><div class="review-correct">✓ ${a.correctText}</div>`}
+      ${a.explanation ? `<div style="font-size:0.68rem;color:var(--text-dim);margin-top:6px;line-height:1.6">${a.explanation}</div>` : ''}
+    </div>`;
+  }).join('');
+  document.getElementById('rq-wrapper').innerHTML = `
+    <div class="score-card" style="margin-bottom:24px">
+      <div class="score-big">${rrqScore}<span style="font-size:1.5rem;color:var(--text-dim)">/${rrqQuestions.length}</span></div>
+      <div class="score-label">${rating}</div>
+      <div style="font-size:0.7rem;color:var(--text-dim)">${pct}% correct</div>
+      <div class="btn-group" style="justify-content:center;margin-top:20px">
+        <button class="btn btn-primary" onclick="rrqFetch()">New Quiz</button>
+        <button class="btn btn-ghost" onclick="rrqIndex=0;rrqScore=0;rrqAnswers=[];rrqRenderQ()">Retry Same</button>
+      </div>
+    </div>
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase">Review</div>
+    ${review}
+  `;
+}
+</script>
 </body>
 </html>

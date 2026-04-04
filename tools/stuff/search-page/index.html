@@ -3,483 +3,1189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Engine</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    
+    <title>Search — Mahdi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CORE DARK THEME STYLES */
         :root {
-            --color-background: #0d1117; 
-            --color-surface: #161b22;    
-            --color-text-primary: #c9d1d9;
-            --color-text-secondary: #8b949e;
-            --color-link: #58a6ff;      
-            --color-link-hover: #79c0ff;
-            --color-accent: #3fb950;     
-            --color-divider: #30363d;
-            --color-dot: rgba(55, 62, 73, 0.3); 
-            
-            --content-max-width: 1200px;
+            --bg: #080c10;
+            --surface: #0e1318;
+            --surface2: #141b22;
+            --border: #1e2730;
+            --border2: #263040;
+            --text: #d4dce8;
+            --text-muted: #5a6a7e;
+            --text-dim: #8a9ab0;
+            --accent: #3a8fff;
+            --accent-glow: rgba(58, 143, 255, 0.18);
+            --accent2: #00d4aa;
+            --gold: #f5a623;
+            --gold-glow: rgba(245, 166, 35, 0.15);
+            --red: #ff5a65;
+            --radius: 14px;
+            --shadow: 0 8px 32px rgba(0,0,0,0.5);
         }
 
-        /* *************************************************************** */
-        /* ***** 1. BASE STYLES & BACKGROUND (Horizontal Scroll Fix) ***** */
-        /* *************************************************************** */
-        
-        body { 
-            font-family: 'Roboto', sans-serif; 
-            padding: 0; 
-            margin: 0; 
-            line-height: 1.6;
-            color: var(--color-text-primary);
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── BACKGROUND ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 20% 10%, rgba(58,143,255,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,212,170,0.05) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── HOMEPAGE LAYOUT ── */
+        #homepage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+            transition: opacity 0.3s;
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 42px;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 64px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 0%, #3a8fff 50%, #00d4aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            user-select: none;
+        }
+
+        .logo-tagline {
+            color: var(--text-muted);
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── SEARCH BOX ── */
+        .search-wrap {
+            width: 100%;
+            max-width: 640px;
+            position: relative;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--surface2);
+            border: 1.5px solid var(--border2);
+            border-radius: 50px;
+            overflow: visible;
+            position: relative;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow), 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        .search-icon {
+            padding: 0 14px 0 22px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        #search-input {
+            flex: 1;
+            padding: 18px 4px;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        #search-input::placeholder { color: var(--text-muted); }
+
+        .clear-btn {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: var(--border);
+            border-radius: 50%;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-right: 8px;
+            font-size: 16px;
+            transition: background 0.2s, color 0.2s;
+            flex-shrink: 0;
+        }
+        .clear-btn:hover { background: var(--border2); color: var(--text); }
+        .clear-btn.visible { display: flex; }
+
+        #search-button {
+            margin: 6px;
+            padding: 12px 26px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 44px;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        #search-button:hover { background: #5aa5ff; box-shadow: 0 4px 16px rgba(58,143,255,0.4); }
+        #search-button:active { transform: scale(0.97); }
+        #search-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* ── SUGGESTIONS DROPDOWN ── */
+        #suggestions {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: var(--surface2);
+            border: 1.5px solid var(--border2);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            z-index: 100;
+            display: none;
+        }
+        #suggestions.visible { display: block; }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 20px;
+            cursor: pointer;
+            color: var(--text);
+            font-size: 15px;
+            transition: background 0.15s;
+            border-bottom: 1px solid var(--border);
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover, .suggestion-item.active {
+            background: var(--surface);
+        }
+        .suggestion-item svg { color: var(--text-muted); flex-shrink: 0; }
+        .suggestion-item .hist-label { color: var(--text-muted); font-size: 12px; margin-left: auto; }
+
+        /* ── QUICK LINKS (homepage) ── */
+        .quick-links {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .quick-chip {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 16px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 50px;
+            color: var(--text-dim);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .quick-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+        .quick-chip svg { width: 14px; height: 14px; }
+
+        /* ── RESULTS PAGE LAYOUT ── */
+        #results-page {
+            display: none;
             min-height: 100vh;
             position: relative;
-            
-            /* --- CRITICAL FIX: PREVENT HORIZONTAL SCROLLING --- */
-            overflow-x: hidden; 
-            width: 100%; /* Ensure body respects its own width */
-            
-            background-color: var(--color-background);
-            background-image: radial-gradient(var(--color-dot) 1px, transparent 1px),
-                              linear-gradient(135deg, #0d1117 0%, rgba(88, 166, 255, 0.1) 40%, rgba(255, 170, 0, 0.1) 60%, #0d1117 100%);
-            
-            /* The animation is a common culprit. Ensure it's contained or handled carefully. */
-            background-size: 30px 30px, 400% 400%;
-            background-repeat: repeat, repeat; /* Added repeat for pattern */
-            
-            animation: gradientShift 20s ease-in-out infinite alternate;
-            will-change: background-position;
+            z-index: 1;
+        }
+        #results-page.active { display: block; }
+
+        /* Header */
+        #results-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(8, 12, 16, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
         }
 
-        /* *************************************************************** */
-        /* ***** 2. LAYOUT CONTAINERS & SEARCH BAR ***** */
-        /* *************************************************************** */
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
 
-        #search-container { 
-            width: 100%;
-            padding: 50px 15px; 
-            box-sizing: border-box; /* IMPORTANT: Padding is included in the element's total width */
-            text-align: center; 
+        .header-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #3a8fff 60%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            cursor: pointer;
+            user-select: none;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .header-search-wrap {
+            flex: 1;
+            max-width: 580px;
             position: relative;
-            z-index: 10;
         }
 
-        .content-wrapper {
-            max-width: var(--content-max-width);
-            width: 100%;
-            margin: 0 auto;
-            padding: 0 15px; 
-            box-sizing: border-box; /* IMPORTANT: Padding is included in the element's total width */
+        .header-search-box {
+            display: flex;
+            align-items: center;
+            background: var(--surface2);
+            border: 1.5px solid var(--border2);
+            border-radius: 50px;
+            overflow: visible;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
-        #search-container h1 {
-            font-weight: 300;
-            font-size: 3em; 
-            margin-bottom: 5px;
-            color: var(--color-link);
-        }
-        #search-container p {
-            color: var(--color-text-secondary);
-            margin-bottom: 40px;
-        }
-        
-        #search-form { 
-            display: flex; 
-            justify-content: center; 
-            max-width: 650px;
-            margin: 0 auto;
-            border: 2px solid var(--color-divider);
-            border-radius: 50px; 
-            overflow: hidden;
-            background-color: var(--color-surface);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6); 
-            transition: box-shadow 0.3s, border-color 0.3s;
+        .header-search-box:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
 
-        #search-form:focus-within {
-            box-shadow: 0 0 15px var(--color-link), 0 10px 30px rgba(0, 0, 0, 0.8);
-            border-color: var(--color-link); 
-        }
-        #search-input { 
-            flex-grow: 1; 
-            padding: 18px 25px; 
+        #header-search-input {
+            flex: 1;
+            padding: 12px 16px;
+            background: transparent;
             border: none;
-            background-color: transparent;
-            color: var(--color-text-primary);
-            font-size: 19px; 
-            outline: none; 
+            outline: none;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
         }
-        #search-input::placeholder {
-            color: var(--color-text-secondary);
-            opacity: 0.8;
+        #header-search-input::placeholder { color: var(--text-muted); }
+
+        .header-search-btn {
+            margin: 5px;
+            padding: 8px 18px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 44px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'DM Sans', sans-serif;
+            transition: background 0.2s;
+            flex-shrink: 0;
         }
-        #search-button { 
-            padding: 18px 30px; 
-            background-color: var(--color-link); 
-            color: #ffffff; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 19px; 
-            font-weight: 500; 
-            transition: background-color 0.2s, transform 0.1s; 
+        .header-search-btn:hover { background: #5aa5ff; }
+        .header-search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Tabs */
+        .search-tabs {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            gap: 4px;
+            padding: 0 24px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(8,12,16,0.8);
+            backdrop-filter: blur(8px);
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 13px 18px;
+            background: none;
+            border: none;
+            border-bottom: 2.5px solid transparent;
+            color: var(--text-muted);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            white-space: nowrap;
+            margin-bottom: -1px;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* Content */
+        .results-body {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px 24px 60px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 32px;
+        }
+
+        .results-main { min-width: 0; }
+        .results-sidebar { min-width: 0; }
+
+        /* Stats bar */
+        #stats-bar {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #stats-bar .count { color: var(--text-dim); }
+
+        /* ── RESULT CARDS ── */
+        .result-card {
+            margin-bottom: 6px;
+            padding: 18px 20px;
+            background: transparent;
+            border-radius: var(--radius);
+            transition: background 0.2s;
+            position: relative;
+            cursor: pointer;
+        }
+        .result-card:hover { background: var(--surface); }
+
+        .result-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
+        .favicon-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--border2);
+        }
+        .favicon-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .result-domain {
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        .result-domain span { color: var(--text-dim); margin-left: 2px; }
+
+        .result-title {
+            font-size: 18px;
+            font-weight: 500;
+            color: #78b4ff;
+            margin-bottom: 5px;
+            line-height: 1.35;
+            text-decoration: none;
+            display: block;
+        }
+        .result-title:hover { text-decoration: underline; color: #a0caff; }
+
+        .result-snippet {
+            color: var(--text-dim);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .result-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 2px 0 8px;
+        }
+
+        /* Featured card */
+        .result-card.featured {
+            background: linear-gradient(135deg, rgba(245,166,35,0.06) 0%, transparent 70%);
+            border: 1px solid rgba(245,166,35,0.25);
+            border-radius: var(--radius);
+            margin-bottom: 16px;
+        }
+        .result-card.featured:hover { background: linear-gradient(135deg, rgba(245,166,35,0.1) 0%, transparent 70%); }
+        .featured-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            background: var(--gold-glow);
+            border: 1px solid rgba(245,166,35,0.3);
+            border-radius: 50px;
+            padding: 3px 10px;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            border-left: 1px solid rgba(255, 255, 255, 0.1); 
+            letter-spacing: 0.5px;
         }
-        #search-button:hover { 
-            background-color: var(--color-link-hover); 
-            transform: scale(1.02); 
-        }
-        
-        /* *************************************************************** */
-        /* ***** 3. RESULT CARD & LOAD MORE STYLES ***** */
-        /* *************************************************************** */
-        
-        #results-container {
-            padding-top: 40px; 
-        }
-        
-        .search-result { 
-            margin-bottom: 25px; padding: 15px; border-radius: 12px; 
-            background-color: var(--color-surface);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), 0 0 1px rgba(255, 255, 255, 0.05);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
-            display: flex; align-items: center; gap: 15px; position: relative; 
-        }
-        .search-result:hover { transform: translateY(-4px) scale(1.005); box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6), 0 0 5px var(--color-link); cursor: pointer; }
-        .search-result::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: transparent; border-top-left-radius: 12px; border-bottom-left-radius: 12px; transition: background-color 0.3s; }
-        .search-result:hover::before { background-color: var(--color-link); }
-        .featured-result { background-color: #21262d; box-shadow: 0 0 15px rgba(255, 170, 0, 0.4); padding-left: 15px; }
-        .featured-result::before { background-color: #ffaa00; }
-        .featured-result:hover { box-shadow: 0 12px 25px rgba(0, 0, 0, 0.6), 0 0 10px #ffaa00; }
-        .featured-result:hover::before { background-color: #ffd27a; }
-        .featured-result .url { color: #ffaa00; font-weight: bold; }
-        
-        .favicon-wrapper { width: 72px; height: 72px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; background-color: #2a2a2a; border-radius: 10px; padding: 5px; border: 1px solid rgba(255, 255, 255, 0.05); }
-        .favicon { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; }
-        .search-result .text-content { flex-grow: 1; min-width: 0; text-align: left; }
-        .search-result a { font-size: 19px; font-weight: 500; color: var(--color-link); text-decoration: none; line-height: 1.3; display: block; margin-bottom: 3px; }
-        .search-result a:hover { text-decoration: underline; color: var(--color-link-hover); }
-        .search-result .url { color: #347d39; font-size: 14px; word-wrap: break-word; margin-top: 5px; }
-        .search-result .snippet { color: var(--color-text-secondary); font-size: 15px; margin-top: 8px; }
-        
-        .message { color: var(--color-text-secondary); padding: 20px; text-align: center; }
-        .message.error { color: #f85149; font-weight: bold; background-color: #381f1f; border-radius: 4px; margin-bottom: 20px; }
-        .message.info-line, .gsc-branding { display: none !important; }
-        
-        #load-more-container { text-align: center; margin-top: 30px; margin-bottom: 50px; }
-        #load-more-button { padding: 12px 35px; background-color: var(--color-surface); color: var(--color-text-primary); border: 2px solid var(--color-link); border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4); }
-        #load-more-button:hover { background-color: var(--color-link); color: #ffffff; transform: translateY(-2px); box-shadow: 0 4px 15px var(--color-link); }
-        #load-more-button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; background-color: var(--color-surface); color: var(--color-text-secondary); }
+        .result-card.featured .result-title { color: #ffc06a; }
+        .result-card.featured .result-title:hover { color: #ffd498; }
 
-
-        /* *************************************************************** */
-        /* ***** 4. MEDIA QUERIES FOR RESPONSIVENESS (Retained/Verified) ***** */
-        /* *************************************************************** */
-
-        /* Tablets and larger phones (up to 768px) */
-        @media (max-width: 768px) {
-            #search-container { padding: 40px 10px; }
-            #search-container h1 { font-size: 2.5em; }
-            #search-container p { font-size: 0.9em; margin-bottom: 30px; }
-            #search-form { max-width: 95%; } 
-            #search-input, #search-button { padding: 15px 20px; font-size: 17px; }
-            .content-wrapper { padding: 0 10px; } 
-            .favicon-wrapper { width: 60px; height: 60px; }
-            .search-result a { font-size: 17px; }
-            .search-result .url, .search-result .snippet { font-size: 13px; }
+        /* ── IMAGE RESULTS ── */
+        #image-results-container {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
         }
+        #image-results-container.active { display: grid; }
 
-        /* Small phones (up to 480px) */
-        @media (max-width: 480px) {
-            #search-container { padding: 30px 10px; }
-            #search-container h1 { font-size: 2em; }
-            #search-container p { font-size: 0.8em; margin-bottom: 25px; }
-            #search-form {
-                flex-direction: column; 
-                border-radius: 10px; 
-                max-width: 100%;
-            }
-            #search-input {
-                border-bottom: 1px solid var(--color-divider); 
-                border-radius: 10px 10px 0 0; 
-                padding: 12px 15px;
-                font-size: 16px;
-                text-align: center;
-            }
-            #search-button {
-                border-left: none; 
-                border-radius: 0 0 10px 10px; 
-                padding: 12px 15px;
-                font-size: 16px;
-                width: 100%; 
-            }
-            .content-wrapper { padding: 0 10px; }
-            .search-result {
-                flex-direction: column; 
-                align-items: flex-start;
-                text-align: left;
-                padding: 10px;
-            }
-            .favicon-wrapper { width: 50px; height: 50px; margin-bottom: 10px; }
-            .search-result .text-content { width: 100%; }
-            .search-result a { font-size: 16px; }
-            .search-result .url, .search-result .snippet { font-size: 12px; }
-            #load-more-button { padding: 10px 25px; font-size: 14px; }
+        .image-card {
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
         }
-        
-        /* Animation keyframes verified not to cause overflow */
-        @keyframes gradientShift {
-            0% { background-position: 0% 0%, 0% 0%; }
-            50% { background-position: 0% 0%, 100% 100%; }
-            100% { background-position: 0% 0%, 0% 0%; }
+        .image-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+        .image-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
+        .image-card-info { padding: 8px 10px; }
+        .image-card-title { font-size: 12px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .image-card-domain { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        /* ── SIDEBAR ── */
+        .sidebar-card {
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .sidebar-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+        .sidebar-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 7px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .sidebar-stat:last-child { border-bottom: none; }
+        .sidebar-stat .label { color: var(--text-muted); }
+        .sidebar-stat .val { color: var(--text); font-weight: 500; }
+        .related-tag {
+            display: inline-block;
+            margin: 4px;
+            padding: 6px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border2);
+            border-radius: 50px;
+            font-size: 13px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .related-tag:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+
+        /* ── LOAD MORE / PAGINATION ── */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 32px;
+        }
+        #load-more-button {
+            padding: 12px 32px;
+            background: var(--surface2);
+            border: 1.5px solid var(--accent);
+            border-radius: 50px;
+            color: var(--accent);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #load-more-button:hover {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(58,143,255,0.35);
+        }
+        #load-more-button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* ── MESSAGES ── */
+        .message { color: var(--text-muted); padding: 32px; text-align: center; font-size: 15px; }
+        .message.error {
+            color: var(--red);
+            background: rgba(255,90,101,0.08);
+            border: 1px solid rgba(255,90,101,0.2);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            margin-bottom: 16px;
         }
 
+        /* ── SKELETON LOADER ── */
+        .skeleton {
+            padding: 18px 20px;
+            margin-bottom: 6px;
+        }
+        .skel-line {
+            height: 14px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            margin-bottom: 10px;
+        }
+        .skel-line.short { width: 40%; }
+        .skel-line.med { width: 70%; }
+        .skel-line.long { width: 90%; }
+        .skel-line.title { height: 20px; width: 75%; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* ── SCROLL TO TOP ── */
+        #scroll-top {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 44px;
+            height: 44px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-dim);
+            font-size: 20px;
+            box-shadow: var(--shadow);
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+        }
+        #scroll-top.visible { opacity: 1; pointer-events: auto; }
+        #scroll-top:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        /* ── KEYBOARD SHORTCUT HINT ── */
+        .kbd-hint {
+            margin-top: 20px;
+            color: var(--text-muted);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        kbd {
+            display: inline-block;
+            padding: 2px 7px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .results-body { grid-template-columns: 1fr; }
+            .results-sidebar { display: none; }
+        }
+        @media (max-width: 600px) {
+            .logo { font-size: 44px; }
+            .header-inner { gap: 10px; }
+            .header-logo { font-size: 20px; }
+            #results-header { padding: 10px 14px; }
+            .results-body { padding: 16px 14px 60px; }
+            .search-tabs { padding: 0 14px; }
+            .tab-btn { padding: 11px 12px; font-size: 13px; }
+        }
     </style>
 </head>
 <body>
 
-<!--cloudflare worker tracking only session IDs no user data-->
-<script>
-(function() {
-  // --- Generate or read a unique session ID (session cookie) ---
-  let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-  if (!sessionID) {
-    sessionID = crypto.randomUUID();
-    document.cookie = `sessionID=${sessionID}; path=/`; // session cookie
-  }
+<!-- ══════════════════════ HOMEPAGE ══════════════════════ -->
+<div id="homepage">
+    <div class="logo-area">
+        <div class="logo">Search</div>
+        <div class="logo-tagline">by Mahdi Yasser · Powered by Google</div>
+    </div>
 
-  // --- Set these per page/tool ---
-  const type = 'tool';   // 'page' or 'tool'
-  const name = 'search-page'; // unique page/tool name
-
-  // --- Send data to Worker ---
-  fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sessionID, type, name })
-  }).catch(err => {
-    console.error('Tracking failed:', err);
-  });
-})();
-</script>
-<!--worker end-->
-
-
-    <div class="focal-blur-element"></div>
-    
-    <div id="search-container">
-        <h1>SEARCH ENGINE</h1>
-        <p>A fast, relevant search powered by GOOGLE.</p>
-        
-        <form id="search-form">
-            <input type="text" id="search-input" placeholder="Type here to search" required>
-            <button id="search-button" type="submit">Search</button>
+    <div class="search-wrap">
+        <form id="home-form" autocomplete="off">
+            <div class="search-box">
+                <div class="search-icon">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <input type="text" id="search-input" placeholder="Search anything…" autocomplete="off" spellcheck="false">
+                <button type="button" class="clear-btn" id="clear-btn" title="Clear">×</button>
+                <button type="submit" id="search-button">Search</button>
+            </div>
+            <div id="suggestions"></div>
         </form>
-    </div>
 
-    <div class="content-wrapper">
-        <div id="results-container">
-        </div>
-    
-        <div id="load-more-container">
+        <div class="kbd-hint">
+            Press <kbd>/</kbd> to focus · <kbd>↑↓</kbd> navigate · <kbd>Enter</kbd> search
         </div>
     </div>
 
-    <script>
-        // ***************************************************************
-        // *** 1. YOUR API KEY ***
-        const API_KEY = "AIzaSyBj2KXGD3cQEcRTX6yGsdTgqFq9S7C1ON4";
-        
-        // *** 2. YOUR SEARCH ENGINE ID (CX ID) ***
-        const CX_ID = "b1505922f4cfb4c5d"; 
-        // ***************************************************************
+    <div class="quick-links">
+        <span class="quick-chip" data-q="Latest news today">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/></svg>
+            News
+        </span>
+        <span class="quick-chip" data-q="AI and machine learning 2025">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            AI & Tech
+        </span>
+        <span class="quick-chip" data-q="Mahdi Yasser website">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            About Mahdi
+        </span>
+        <span class="quick-chip" data-q="weather today">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            Weather
+        </span>
+    </div>
+</div>
 
-        // *** 3. CUSTOM PROMOTION SETTINGS ***
-        const PROMOTION_URL = "https://mahdiyasser.site";
-        const PROMOTION_KEYWORDS = [
-            "mahdi", "mahdi yasser", "yasser", "mahdiyasser", "blog", "personal website"
-        ];
-        const PROMOTION_TITLE = "Mahdi Yasser's Official Website 🚀";
-        const PROMOTION_SNIPPET = "This is the official personal website of Mahdi Yasser. Find articles, projects, and more here.";
+<!-- ══════════════════════ RESULTS PAGE ══════════════════════ -->
+<div id="results-page">
+    <div id="results-header">
+        <div class="header-inner">
+            <a class="header-logo" id="back-to-home" href="#">S</a>
+            <div class="header-search-wrap">
+                <form id="header-form" autocomplete="off">
+                    <div class="header-search-box">
+                        <input type="text" id="header-search-input" placeholder="Search…" autocomplete="off" spellcheck="false">
+                        <button type="submit" class="header-search-btn">Search</button>
+                    </div>
+                    <div id="header-suggestions"></div>
+                </form>
+            </div>
+        </div>
+    </div>
 
+    <div class="search-tabs" id="search-tabs">
+        <button class="tab-btn active" data-tab="web">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Web
+        </button>
+        <button class="tab-btn" data-tab="images">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            Images
+        </button>
+    </div>
 
-        // DOM Elements
-        const form = document.getElementById('search-form');
-        const input = document.getElementById('search-input');
-        const resultsContainer = document.getElementById('results-container');
-        const loadMoreContainer = document.getElementById('load-more-container');
-        
-        // State Variables for Pagination
-        let currentQuery = '';
-        let nextStartIndex = 1;
-        let isLoading = false;
+    <div class="results-body">
+        <div class="results-main">
+            <div id="stats-bar"></div>
+            <div id="results-container"></div>
+            <div id="image-results-container"></div>
+            <div id="load-more-container" class="pagination"></div>
+        </div>
+        <div class="results-sidebar">
+            <div class="sidebar-card" id="sidebar-info" style="display:none">
+                <h3 id="sidebar-title">Search Info</h3>
+                <div id="sidebar-content"></div>
+            </div>
+            <div class="sidebar-card" id="sidebar-related" style="display:none">
+                <h3>Related searches</h3>
+                <div id="related-tags"></div>
+            </div>
+        </div>
+    </div>
+</div>
 
+<button id="scroll-top" title="Back to top">↑</button>
 
-        // Event Listener for Initial Search
-        form.addEventListener('submit', function(e) {
+<script>
+// ═══════════════════════════════════════════════
+// CONFIG — replace with your own keys
+// ═══════════════════════════════════════════════
+const API_KEY = "AIzaSyBj2KXGD3cQEcRTX6yGsdTgqFq9S7C1ON4";
+const CX_ID   = "b1505922f4cfb4c5d";
+
+const PROMOTION_URL      = "https://mahdiyasser.site";
+const PROMOTION_KEYWORDS = ["mahdi","mahdi yasser","yasser","mahdiyasser","blog","personal website"];
+const PROMOTION_TITLE    = "Mahdi Yasser's Official Website 🚀";
+const PROMOTION_SNIPPET  = "The official personal website of Mahdi Yasser. Find articles, projects, and more here.";
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentQuery   = '';
+let nextStartIndex = 1;
+let isLoading      = false;
+let activeTab      = 'web';
+let searchHistory  = JSON.parse(localStorage.getItem('_sh') || '[]');
+let suggIdx        = -1;
+
+// ═══════════════════════════════════════════════
+// DOM
+// ═══════════════════════════════════════════════
+const homepage            = document.getElementById('homepage');
+const resultsPage         = document.getElementById('results-page');
+const homeForm            = document.getElementById('home-form');
+const headerForm          = document.getElementById('header-form');
+const searchInput         = document.getElementById('search-input');
+const headerInput         = document.getElementById('header-search-input');
+const clearBtn            = document.getElementById('clear-btn');
+const resultsContainer    = document.getElementById('results-container');
+const imageResultsContainer = document.getElementById('image-results-container');
+const loadMoreContainer   = document.getElementById('load-more-container');
+const statsBar            = document.getElementById('stats-bar');
+const backBtn             = document.getElementById('back-to-home');
+const scrollTopBtn        = document.getElementById('scroll-top');
+const suggestionsEl       = document.getElementById('suggestions');
+const headerSuggestionsEl = document.getElementById('header-suggestions');
+const sidebarInfo         = document.getElementById('sidebar-info');
+const sidebarRelated      = document.getElementById('sidebar-related');
+const relatedTags         = document.getElementById('related-tags');
+
+// ═══════════════════════════════════════════════
+// HOME → RESULTS navigation
+// ═══════════════════════════════════════════════
+function showResults() {
+    homepage.style.display = 'none';
+    resultsPage.classList.add('active');
+}
+function showHome() {
+    homepage.style.display = 'flex';
+    resultsPage.classList.remove('active');
+    searchInput.value = '';
+    headerInput.value = '';
+    clearBtn.classList.remove('visible');
+    resultsContainer.innerHTML = '';
+    imageResultsContainer.innerHTML = '';
+    imageResultsContainer.classList.remove('active');
+    loadMoreContainer.innerHTML = '';
+    statsBar.innerHTML = '';
+    sidebarInfo.style.display = 'none';
+    sidebarRelated.style.display = 'none';
+    window.scrollTo(0,0);
+    setTimeout(() => searchInput.focus(), 100);
+}
+
+backBtn.addEventListener('click', e => { e.preventDefault(); showHome(); });
+
+// ═══════════════════════════════════════════════
+// FORM SUBMISSIONS
+// ═══════════════════════════════════════════════
+homeForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = searchInput.value.trim();
+    if (q && !isLoading) startSearch(q);
+});
+headerForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const q = headerInput.value.trim();
+    if (q && !isLoading) startSearch(q);
+});
+
+function startSearch(query) {
+    currentQuery   = query;
+    nextStartIndex = 1;
+    searchInput.value  = query;
+    headerInput.value  = query;
+    suggestionsEl.classList.remove('visible');
+    headerSuggestionsEl.classList.remove('visible');
+    addToHistory(query);
+    showResults();
+    setTab('web');
+    resetResults();
+    fetchWeb(query, 1, false);
+    document.title = `${query} — Search`;
+}
+
+// ═══════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════
+document.getElementById('search-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('.tab-btn');
+    if (!btn || isLoading) return;
+    setTab(btn.dataset.tab);
+    if (btn.dataset.tab === 'images') {
+        imageResultsContainer.classList.add('active');
+        resultsContainer.style.display = 'none';
+        loadMoreContainer.innerHTML = '';
+        if (imageResultsContainer.childElementCount === 0) fetchImages(currentQuery);
+    } else {
+        imageResultsContainer.classList.remove('active');
+        resultsContainer.style.display = '';
+        if (resultsContainer.childElementCount === 0) {
+            resetResults();
+            fetchWeb(currentQuery, 1, false);
+        }
+    }
+});
+
+function setTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+}
+
+// ═══════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════
+function resetResults() {
+    resultsContainer.innerHTML = '';
+    imageResultsContainer.innerHTML = '';
+    imageResultsContainer.classList.remove('active');
+    loadMoreContainer.innerHTML = '';
+    statsBar.innerHTML = '';
+    sidebarInfo.style.display = 'none';
+    sidebarRelated.style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════
+// WEB SEARCH
+// ═══════════════════════════════════════════════
+async function fetchWeb(query, start, append) {
+    isLoading = true;
+    setSearchBtnsDisabled(true);
+
+    if (!append) {
+        resultsContainer.innerHTML = renderSkeletons(5);
+    }
+
+    const isPromo = PROMOTION_KEYWORDS.some(k => query.toLowerCase().includes(k));
+    const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX_ID}&q=${encodeURIComponent(query)}&start=${start}`;
+
+    try {
+        const res  = await fetch(url);
+        const data = await res.json();
+        if (!append) resultsContainer.innerHTML = '';
+        renderWeb(data, isPromo, append, query);
+    } catch (err) {
+        resultsContainer.innerHTML = `<div class="message error">Connection error. Check network or API settings.</div>`;
+    } finally {
+        isLoading = false;
+        setSearchBtnsDisabled(false);
+    }
+}
+
+function renderWeb(data, isPromo, append, query) {
+    loadMoreContainer.innerHTML = '';
+
+    if (data.error) {
+        resultsContainer.innerHTML = `<div class="message error">API Error: ${data.error.message}</div>`;
+        return;
+    }
+
+    let items = data.items || [];
+
+    // Stats
+    if (!append && data.searchInformation) {
+        const total  = Number(data.searchInformation.totalResults).toLocaleString();
+        const secs   = parseFloat(data.searchInformation.searchTime).toFixed(2);
+        statsBar.innerHTML = `About <span class="count">${total}</span> results &nbsp;·&nbsp; ${secs}s`;
+    }
+
+    // Promotion
+    if (!append && isPromo) {
+        const promo = {
+            title: PROMOTION_TITLE, htmlTitle: PROMOTION_TITLE,
+            link: PROMOTION_URL, displayLink: PROMOTION_URL.replace('https://',''),
+            snippet: PROMOTION_SNIPPET, htmlSnippet: PROMOTION_SNIPPET,
+            isFeatured: true
+        };
+        items = items.filter(i => i.link !== PROMOTION_URL);
+        items.unshift(promo);
+    }
+
+    if (items.length === 0 && !append) {
+        resultsContainer.innerHTML = `<div class="message">No results found for <strong>${escHtml(query)}</strong>.</div>`;
+        return;
+    }
+
+    items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'result-card' + (item.isFeatured ? ' featured' : '');
+        card.innerHTML = buildWebCard(item);
+        card.addEventListener('click', e => {
+            if (!e.target.closest('a')) window.open(item.link, '_blank');
+        });
+        resultsContainer.appendChild(card);
+
+        if (!item.isFeatured) {
+            const div = document.createElement('div');
+            div.className = 'result-divider';
+            resultsContainer.appendChild(div);
+        }
+    });
+
+    // Sidebar: related searches
+    if (!append && data.queries?.request?.[0]?.searchTerms) {
+        buildRelated(data.queries.request[0].searchTerms);
+    }
+
+    // Sidebar: search info
+    if (!append && data.searchInformation) {
+        buildSidebarInfo(data.searchInformation, query);
+    }
+
+    // Pagination
+    if (data.queries?.nextPage?.length) {
+        nextStartIndex = data.queries.nextPage[0].startIndex;
+        const btn = document.createElement('button');
+        btn.id = 'load-more-button';
+        btn.textContent = 'Load more results';
+        btn.addEventListener('click', () => {
+            if (!isLoading) fetchWeb(currentQuery, nextStartIndex, true);
+        });
+        loadMoreContainer.appendChild(btn);
+    } else if (append && items.length > 0) {
+        const p = document.createElement('p');
+        p.className = 'message';
+        p.textContent = 'End of results.';
+        loadMoreContainer.appendChild(p);
+    }
+}
+
+function buildWebCard(item) {
+    const domain = (() => { try { return new URL(item.link).hostname; } catch { return item.displayLink || ''; } })();
+    const favicon = `https://s2.googleusercontent.com/s2/favicons?domain=${encodeURIComponent(item.link)}&sz=64`;
+
+    return `
+        ${item.isFeatured ? `<div class="featured-badge">★ Featured</div>` : ''}
+        <div class="result-top">
+            <div class="favicon-box"><img src="${favicon}" alt="" onerror="this.style.display='none'"></div>
+            <div class="result-domain">${escHtml(domain)}</div>
+        </div>
+        <a class="result-title" href="${escAttr(item.link)}" target="_blank" rel="noopener">${item.htmlTitle || escHtml(item.title)}</a>
+        <div class="result-snippet">${item.htmlSnippet || escHtml(item.snippet || '')}</div>
+    `;
+}
+
+// ═══════════════════════════════════════════════
+// IMAGE SEARCH
+// ═══════════════════════════════════════════════
+async function fetchImages(query) {
+    imageResultsContainer.innerHTML = '<div class="message">Loading images…</div>';
+    const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX_ID}&q=${encodeURIComponent(query)}&searchType=image&num=10`;
+    try {
+        const res  = await fetch(url);
+        const data = await res.json();
+        imageResultsContainer.innerHTML = '';
+        if (data.error || !data.items?.length) {
+            imageResultsContainer.innerHTML = '<div class="message">No images found.</div>';
+            return;
+        }
+        data.items.forEach(item => {
+            const card = document.createElement('a');
+            card.className = 'image-card';
+            card.href = item.image?.contextLink || item.link;
+            card.target = '_blank';
+            card.rel = 'noopener';
+            const domain = (() => { try { return new URL(item.link).hostname; } catch { return ''; } })();
+            card.innerHTML = `
+                <img src="${escAttr(item.link)}" alt="${escAttr(item.title)}" loading="lazy" onerror="this.parentElement.remove()">
+                <div class="image-card-info">
+                    <div class="image-card-title">${escHtml(item.title)}</div>
+                    <div class="image-card-domain">${escHtml(domain)}</div>
+                </div>
+            `;
+            imageResultsContainer.appendChild(card);
+        });
+    } catch {
+        imageResultsContainer.innerHTML = '<div class="message error">Failed to load images.</div>';
+    }
+}
+
+// ═══════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════
+function buildSidebarInfo(info, query) {
+    const total = Number(info.totalResults).toLocaleString();
+    const secs  = parseFloat(info.searchTime).toFixed(3);
+    document.getElementById('sidebar-title').textContent = 'Search details';
+    document.getElementById('sidebar-content').innerHTML = `
+        <div class="sidebar-stat"><span class="label">Query</span><span class="val">${escHtml(query)}</span></div>
+        <div class="sidebar-stat"><span class="label">Results</span><span class="val">${total}</span></div>
+        <div class="sidebar-stat"><span class="label">Speed</span><span class="val">${secs}s</span></div>
+    `;
+    sidebarInfo.style.display = 'block';
+}
+
+function buildRelated(term) {
+    const words = term.split(' ');
+    const ideas = [
+        term + ' tutorial',
+        term + ' guide 2025',
+        'best ' + term,
+        term + ' examples',
+        term + ' vs alternatives',
+        words[0] + ' tips',
+    ].slice(0, 6);
+
+    relatedTags.innerHTML = ideas.map(t =>
+        `<span class="related-tag" data-q="${escAttr(t)}">${escHtml(t)}</span>`
+    ).join('');
+    sidebarRelated.style.display = 'block';
+
+    relatedTags.querySelectorAll('.related-tag').forEach(el => {
+        el.addEventListener('click', () => startSearch(el.dataset.q));
+    });
+}
+
+// ═══════════════════════════════════════════════
+// SEARCH HISTORY & SUGGESTIONS
+// ═══════════════════════════════════════════════
+function addToHistory(q) {
+    searchHistory = [q, ...searchHistory.filter(h => h !== q)].slice(0, 10);
+    try { localStorage.setItem('_sh', JSON.stringify(searchHistory)); } catch {}
+}
+
+function showSuggestions(inputEl, dropdownEl, val) {
+    suggIdx = -1;
+    if (!val.trim()) { dropdownEl.classList.remove('visible'); dropdownEl.innerHTML = ''; return; }
+    const matches = searchHistory.filter(h => h.toLowerCase().includes(val.toLowerCase())).slice(0, 5);
+    if (!matches.length) { dropdownEl.classList.remove('visible'); dropdownEl.innerHTML = ''; return; }
+
+    dropdownEl.innerHTML = matches.map((m, i) =>
+        `<div class="suggestion-item" data-idx="${i}" data-val="${escAttr(m)}">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            ${escHtml(m)}
+            <span class="hist-label">Recent</span>
+        </div>`
+    ).join('');
+    dropdownEl.classList.add('visible');
+
+    dropdownEl.querySelectorAll('.suggestion-item').forEach(el => {
+        el.addEventListener('mousedown', e => {
             e.preventDefault();
-            const query = input.value.trim();
-            if (query && !isLoading) {
-                currentQuery = query;
-                nextStartIndex = 1; // Reset to start
-                resultsContainer.innerHTML = ''; // Clear old results
-                loadMoreContainer.innerHTML = ''; // Clear button
-                
-                searchGoogle(currentQuery, nextStartIndex, false); 
-            }
+            inputEl.value = el.dataset.val;
+            dropdownEl.classList.remove('visible');
+            inputEl.closest('form').dispatchEvent(new Event('submit'));
         });
-        
-        // Event Listener for Load More Button
-        loadMoreContainer.addEventListener('click', function(e) {
-            if (e.target.id === 'load-more-button' && nextStartIndex > 1 && !isLoading) {
-                searchGoogle(currentQuery, nextStartIndex, true); // Load more text results
-            }
-        });
+    });
+}
 
+function navigateSuggestions(e, inputEl, dropdownEl) {
+    const items = dropdownEl.querySelectorAll('.suggestion-item');
+    if (!items.length) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); suggIdx = (suggIdx + 1) % items.length; }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); suggIdx = (suggIdx - 1 + items.length) % items.length; }
+    else if (e.key === 'Escape') { dropdownEl.classList.remove('visible'); return; }
+    else return;
+    items.forEach((el, i) => { el.classList.toggle('active', i === suggIdx); });
+    if (suggIdx >= 0) inputEl.value = items[suggIdx].dataset.val;
+}
 
-        /**
-         * Main function to fetch text search results.
-         */
-        async function searchGoogle(query, start, append) {
-            isLoading = true;
-            const loadButton = document.getElementById('load-more-button');
-            const searchButton = document.getElementById('search-button');
+searchInput.addEventListener('input', () => {
+    clearBtn.classList.toggle('visible', !!searchInput.value);
+    showSuggestions(searchInput, suggestionsEl, searchInput.value);
+});
+searchInput.addEventListener('keydown', e => navigateSuggestions(e, searchInput, suggestionsEl));
+searchInput.addEventListener('blur', () => setTimeout(() => suggestionsEl.classList.remove('visible'), 150));
 
-            if (loadButton) loadButton.disabled = true;
-            searchButton.disabled = true;
+headerInput.addEventListener('input', () => showSuggestions(headerInput, headerSuggestionsEl, headerInput.value));
+headerInput.addEventListener('keydown', e => navigateSuggestions(e, headerInput, headerSuggestionsEl));
+headerInput.addEventListener('blur', () => setTimeout(() => headerSuggestionsEl.classList.remove('visible'), 150));
 
-            if (!append) {
-                resultsContainer.innerHTML = '<p class="message">Searching web results...</p>';
-            }
+clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    clearBtn.classList.remove('visible');
+    searchInput.focus();
+    suggestionsEl.classList.remove('visible');
+});
 
-            const lowerQuery = query.toLowerCase();
-            const isPromotionQuery = PROMOTION_KEYWORDS.some(keyword => lowerQuery.includes(keyword));
+// Quick links
+document.querySelectorAll('.quick-chip[data-q]').forEach(el => {
+    el.addEventListener('click', () => startSearch(el.dataset.q));
+});
 
-            const url = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${CX_ID}&q=${encodeURIComponent(query)}&start=${start}`;
+// ═══════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+        e.preventDefault();
+        if (resultsPage.classList.contains('active')) headerInput.focus();
+        else searchInput.focus();
+    }
+});
 
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                
-                if (!append) {
-                    resultsContainer.innerHTML = ''; 
-                }
+// ═══════════════════════════════════════════════
+// SCROLL TO TOP
+// ═══════════════════════════════════════════════
+window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+});
+scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-                displayResults(data, isPromotionQuery, append);
+// ═══════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════
+function setSearchBtnsDisabled(v) {
+    document.getElementById('search-button').disabled = v;
+    document.querySelector('.header-search-btn').disabled = v;
+}
 
-            } catch (error) {
-                console.error('Web Search failed:', error);
-                if (!append) {
-                    resultsContainer.innerHTML = '<p class="message error">An error occurred while connecting to the web search API. Check your network or API settings.</p>';
-                } else {
-                    const messageP = document.createElement('p');
-                    messageP.className = 'message error';
-                    messageP.textContent = 'Error loading more results.';
-                    resultsContainer.appendChild(messageP);
-                }
-            } finally {
-                isLoading = false;
-                if (loadButton) loadButton.disabled = false;
-                searchButton.disabled = false;
-            }
-        }
+function renderSkeletons(n) {
+    return Array.from({length: n}, () => `
+        <div class="skeleton">
+            <div class="skel-line short"></div>
+            <div class="skel-line title"></div>
+            <div class="skel-line med"></div>
+            <div class="skel-line long"></div>
+        </div>
+        <div class="result-divider"></div>
+    `).join('');
+}
 
-        /**
-         * Renders the text search results and updates pagination state.
-         */
-        function displayResults(data, isPromotionQuery, append) {
-            loadMoreContainer.innerHTML = ''; // Clear existing button/message
+function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str) { return escHtml(str || ''); }
 
-            if (data.error) {
-                resultsContainer.innerHTML = `<p class="message error">API Error: ${data.error.message}</p>`;
-                return;
-            }
-
-            let items = data.items || [];
-            
-            // --- Custom Promotion Logic ---
-            if (!append && isPromotionQuery) {
-                const customPromotion = {
-                    title: PROMOTION_TITLE, htmlTitle: PROMOTION_TITLE, link: PROMOTION_URL,
-                    displayLink: PROMOTION_URL.replace('https://', ''), snippet: PROMOTION_SNIPPET,
-                    htmlSnippet: PROMOTION_SNIPPET, isFeatured: true 
-                };
-                items = items.filter(item => item.link !== PROMOTION_URL);
-                items.unshift(customPromotion);
-            }
-            // --- End Custom Promotion Logic ---
-
-            if (items.length === 0 && !append) {
-                resultsContainer.innerHTML = `<p class="message">No web results found for **${input.value}**.</p>`;
-                return;
-            }
-
-            items.forEach(item => {
-                const resultDiv = document.createElement('div');
-                resultDiv.className = item.isFeatured ? 'search-result featured-result' : 'search-result';
-
-                const faviconWrapperDiv = document.createElement('div');
-                faviconWrapperDiv.className = 'favicon-wrapper';
-                const faviconImg = document.createElement('img');
-                faviconImg.className = 'favicon';
-                faviconImg.src = getFaviconUrl(item.link);
-                faviconImg.alt = 'favicon';
-                faviconWrapperDiv.appendChild(faviconImg);
-                resultDiv.appendChild(faviconWrapperDiv); 
-
-                const textContentDiv = document.createElement('div');
-                textContentDiv.className = 'text-content';
-
-                const link = document.createElement('a');
-                link.href = item.link;
-                link.innerHTML = item.htmlTitle || item.title; 
-                link.target = '_blank';
-                textContentDiv.appendChild(link);
-                
-                const urlSpan = document.createElement('div');
-                urlSpan.className = 'url';
-                urlSpan.textContent = item.displayLink;
-                textContentDiv.appendChild(urlSpan);
-
-                const snippetP = document.createElement('p');
-                snippetP.className = 'snippet';
-                snippetP.innerHTML = item.htmlSnippet || item.snippet; 
-                textContentDiv.appendChild(snippetP);
-
-                resultDiv.appendChild(textContentDiv); 
-                resultsContainer.appendChild(resultDiv);
-            });
-            
-            // --- Pagination Logic ---
-            const queries = data.queries;
-            if (queries && queries.nextPage && queries.nextPage.length > 0) {
-                nextStartIndex = queries.nextPage[0].startIndex;
-                
-                const loadMoreButton = document.createElement('button');
-                loadMoreButton.id = 'load-more-button';
-                loadMoreButton.textContent = 'Load More Web Results';
-                loadMoreContainer.appendChild(loadMoreButton);
-            } else if (append && items.length > 0) {
-                 const noMoreP = document.createElement('p');
-                 noMoreP.className = 'message';
-                 noMoreP.textContent = 'You have reached the end of the web results.';
-                 loadMoreContainer.appendChild(noMoreP);
-            }
-        }
-
-        /**
-         * Generates the URL for a site's favicon.
-         */
-        function getFaviconUrl(link) {
-            try {
-                const url = new URL(link);
-                const domain = url.origin;
-                return `https://s2.googleusercontent.com/s2/favicons?domain=${domain}&sz=128`;
-            } catch (e) {
-                return ""; 
-            }
-        }
-    </script>
+// Focus on load
+setTimeout(() => searchInput.focus(), 50);
+</script>
 </body>
 </html>

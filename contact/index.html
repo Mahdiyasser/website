@@ -484,16 +484,6 @@
         document.body.style.cursor = 'auto';
     }
 })();
-
-/* ---- TRACKING ---- */
-(function() {
-    let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-    if (!sessionID) { sessionID = crypto.randomUUID(); document.cookie = `sessionID=${sessionID}; path=/`; }
-    fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionID, type: 'page', name: 'contact' })
-    }).catch(() => {});
-})();
 </script>
 </body>
 </html>

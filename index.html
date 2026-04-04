@@ -61,22 +61,6 @@
 
 <body class="dark-theme">
 
-<!-- Cloudflare worker tracking -->
-<script>
-(function() {
-    let sessionID = document.cookie.match(/sessionID=([^;]+)/)?.[1];
-    if (!sessionID) {
-        sessionID = crypto.randomUUID();
-        document.cookie = `sessionID=${sessionID}; path=/`;
-    }
-    fetch('https://main-website-track.mahdiyasser526.workers.dev/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionID, type: 'page', name: 'root' })
-    }).catch(() => {});
-})();
-</script>
-
 <!-- Canvas background -->
 <canvas id="bg-canvas"></canvas>
 

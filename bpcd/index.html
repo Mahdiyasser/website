@@ -385,13 +385,13 @@ video { width: 100%; height: 100%; object-fit: contain; display: block; }
 <div class="screen" id="screen-1">
   <div class="card">
     <div class="card-deco"><i class="fa-solid fa-star"></i></div>
-    <div class="question">انتي رودي؟</div>
+    <div class="question">انت مين؟</div>
     <div class="btn-group">
       <button class="btn btn-yes" onclick="answer1('yes')">
-        <i class="fa-solid fa-check"></i>اه
+        <i class="fa-solid fa-check"></i>انسانة
       </button>
       <button class="btn btn-no" onclick="answer1('no')">
-        <i class="fa-solid fa-xmark"></i>لا
+        <i class="fa-solid fa-xmark"></i>حيوانة
       </button>
     </div>
   </div>
@@ -405,7 +405,7 @@ video { width: 100%; height: 100%; object-fit: contain; display: block; }
 <div class="screen hidden" id="screen-2">
   <div class="card">
     <div class="card-deco"><i class="fa-solid fa-magnifying-glass"></i></div>
-    <div class="question">متأكدة إنك رودي؟</div>
+    <div class="question">متأكد؟</div>
     <div class="btn-group">
       <button class="btn btn-yes" onclick="answer2('yes')">
         <i class="fa-solid fa-check"></i>اه
@@ -417,7 +417,7 @@ video { width: 100%; height: 100%; object-fit: contain; display: block; }
   </div>
   <p class="subtitle">
     <i class="fa-regular fa-lightbulb"></i>
-    فكري كويس
+    فكر كويس
   </p>
 </div>
 
@@ -429,7 +429,7 @@ video { width: 100%; height: 100%; object-fit: contain; display: block; }
     <div class="sparkle-wrap" id="sparkle-wrap"></div>
     <!-- direction:ltr so play icon sits left of text, reading naturally -->
     <button class="enter-btn" id="enter-btn" onclick="showVideo()">
-      <i class="fa-solid fa-play"></i>ادخلي
+      <i class="fa-solid fa-play"></i>ادخل
     </button>
   </div>
 </div>
@@ -539,7 +539,7 @@ function answer2(a) {
 }
 
 /* ── Typewriter ── */
-const FULL_TEXT = 'خلاص صدقتك\nادخلي';
+const FULL_TEXT = 'خلاص صدقتك\nادخل';
 let typeIdx = 0, typeTimer;
 
 function startTypewriter() {

@@ -430,7 +430,7 @@ function openPostDetail(post) {
         <h1>${postTitle}</h1>
         
         <div class="meta-container">
-            <img src="${post['author-avatar'] || 'https://storage.mahdiyasser.site/images/blog/unknown.png'}" alt="${post['author-name']}'s profile picture">
+            <img src="${post['author-avatar'] || 'https://storage.mahdiyasser.com/images/blog/unknown.png'}" alt="${post['author-name']}'s profile picture">
             <div class="meta-info">
                 <h3>${post['author-name']}</h3>
                 <p>${post['author-bio'] || 'No bio provided.'}</p>

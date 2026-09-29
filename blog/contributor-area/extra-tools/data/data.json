@@ -7,7 +7,7 @@
         "tag": "Status Page",
         "style": "card",
         "description": "This is the status page of Mahdi Yasser's websites and services including but not limited to The Mahdi Yasser Blog",
-        "story": "go visit my website at https:\/\/mahdiyasser.site"
+        "story": "go visit my website at https:\/\/mahdiyasser.com"
     },
     {
         "id": 1,
@@ -17,7 +17,7 @@
         "tag": "Tool",
         "style": "card",
         "description": "A tool to encrypt and decrypt text",
-        "story": "go visit my website at https:\/\/mahdiyasser.site"
+        "story": "go visit my website at https:\/\/mahdiyasser.com"
     },
     {
         "id": 2,
@@ -27,6 +27,6 @@
         "tag": "Tool",
         "style": "card",
         "description": "Generate cryptographic hash values (SHA-256) for input data.",
-        "story": "go visit my website at https:\/\/mahdiyasser.site"
+        "story": "go visit my website at https:\/\/mahdiyasser.com"
     }
 ]

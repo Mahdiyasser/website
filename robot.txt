@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------
-# Robots Exclusion Protocol (robots.txt) for mahdiyasser.site
+# Robots Exclusion Protocol (robots.txt) for mahdiyasser.com
 # ----------------------------------------------------------------------
 
 # 1. GLOBAL ACCESS RULES (Applies to all compliant crawlers)
@@ -14,5 +14,5 @@ Allow: /
 
 # 2. SITEMAP LOCATION (Crucial for SEO)
 # This tells all major search engines where to find the sitemap.
-Sitemap: https://mahdiyasser.site/sitemap.xml
+Sitemap: https://mahdiyasser.com/sitemap.xml
 ```eof

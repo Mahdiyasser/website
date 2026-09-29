@@ -1,7 +1,7 @@
 # 👋 Welcome to Mahdi's Website
 
 🗓️ **Date:** 2026-02-25  
-🌐 **Live Site:** https://mahdiyasser.site  
+🌐 **Live Site:** https://mahdiyasser.com  
 🧱 **Version:** V11.0 — *"The Prime Build"*  
 📦 **Status:** FANTASTIC  
 
@@ -21,10 +21,10 @@
 
 ## 🌐 Quick Links
 
-🏠 Main Site — https://mahdiyasser.site  
-📝 Blog — https://mahdiyasser.site/blog  
-💼 Projects — https://mahdiyasser.site/projects  
-📊 Dashboard — https://mahdiyasser.site/dashboard  
+🏠 Main Site — https://mahdiyasser.com  
+📝 Blog — https://mahdiyasser.com/blog  
+💼 Projects — https://mahdiyasser.com/projects  
+📊 Dashboard — https://mahdiyasser.com/dashboard  
 
 ---
 
@@ -97,4 +97,4 @@ V10.0 was the foundation. V11.0 is the refinement.
 Same engine. Completely new exterior.
 
 **Made with 💻, ☕, and way too many late nights.**  
-© 2025–2026 [Mahdi Yasser](https://mahdiyasser.site)
+© 2025–2026 [Mahdi Yasser](https://mahdiyasser.com)

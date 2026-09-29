@@ -177,7 +177,7 @@ async function loadData() {
         // Merge strategy: Post-embedded data takes priority if present, 
         // otherwise use data from authorDataMap.
         const name = post['author-name'] || authorInfo['author-name'] || 'Unknown';
-        const avatar = post['author-avatar'] || authorInfo['author-avatar'] || 'https://storage.mahdiyasser.site/images/blog/unknown.png';
+        const avatar = post['author-avatar'] || authorInfo['author-avatar'] || 'https://storage.mahdiyasser.com/images/blog/unknown.png';
         const bio = post['author-bio'] || authorInfo['author-bio'] || 'No bio provided.';
 
         return {

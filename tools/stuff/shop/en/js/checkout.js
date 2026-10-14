@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    const WHATSAPP_PHONE_NUMBER = '201013297922';
+    const WHATSAPP_PHONE_NUMBER = '201011121314';
     
     const form = document.getElementById('shipping-form');
     const nameInput = document.getElementById('customerName');
